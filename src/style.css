@@ -1,0 +1,248 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: rgb(255, 255, 255);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 30px;
+}
+
+.game-header {
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    margin-bottom: 60px;
+    padding-left: 15px;
+}
+
+.game-screen {
+    width: 45%;
+    margin: auto;
+}
+
+.combined-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 10px;
+    min-height: 400px;
+}
+
+.grid-item {
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.word-card {
+    padding: 20px 10px;
+    text-align: center;
+    background: #d3fbe3;
+    border: 2px solid #d3fbe3;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    user-select: none;
+    width: 100%;
+    height: 100%;
+}
+
+.word-card:hover {
+    background: #a1eec0;
+    transform: translateY(-2px);
+}
+
+.word-card.selected {
+    background: #a1eec0;
+    border-color: #88c8a1;
+}
+
+.category-block {
+    padding: 20px;
+    border-radius: 8px;
+    color: #333;
+    font-weight: bold;
+    text-align: center;
+    grid-column: 1 / span 4;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.5s ease-in;
+    margin: 5px 0;
+}
+
+.category-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.category-words {
+    font-size: 0.9em;
+    opacity: 0.8;
+    font-weight: normal;
+}
+
+.category-block.yellow { background: #ffcc95; }
+.category-block.green { background: #aef8cb; }
+.category-block.blue { background: #b6ceff; }
+.category-block.purple { background: #E0ceff; }
+
+.game-info {
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+}
+
+.mistakes {
+    gap: 5px;
+}
+
+.mistake {
+    color: gray;
+    font-size: 1.5em;
+}
+
+.mistake.used {
+    opacity: 0.3;
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.btn-control, .btn-submit {
+    padding: 12px 24px;
+    border: 2px solid black;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.btn-control:hover, .btn-submit:not(:disabled):hover {
+    background: #d4edda;
+}
+
+.btn-submit:disabled {
+    cursor: not-allowed;
+    border-color: gray;
+    color: gray;
+}
+
+.message {
+    padding: 15px;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+.message.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.section {
+    margin-top: 50px;
+    padding: 30px 0;
+}
+
+.spellbee-container h3 {
+    margin-bottom: 30px;
+    font-weight: bold;
+}
+
+.spellbee-container ul li {
+    margin-bottom: 40px;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #f8f9fa;
+}
+
+.spellbee-container ul li h4 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.spellbee-container img {
+    margin-top: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.adaptive-image {
+    width: 100%;
+    max-width: min(300px, 90%);
+    height: auto;
+    display: block;
+    margin: 15px auto;
+}
+
+@keyframes scramble {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-3px); }
+    100% { transform: translateX(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.scramble-animation {
+    animation: scramble 0.3s ease-in-out;
+}
+
+@media (max-width: 768px) {
+    .combined-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .category-block {
+        grid-column: 1 / span 2;
+    }
+
+    .container {
+        padding: 15px;
+    }
+    
+    .game-screen {
+        width: 90%;
+    }
+    
+    .controls {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .controls button {
+        width: 80%;
+    }
+}
