@@ -26,8 +26,8 @@ export const testConnection = async () => {
 
 export const gameApi = {
   async getGame() {
-    console.log('🚀 Fetching game from:', ${API_BASE_URL}/game)
-    
+    console.log('🚀 Fetching game from:', `${API_BASE_URL}/game`)
+
     try {
       const response = await api.get('/game')
       console.log('✅ Game data received:', response.data)
