@@ -18,4 +18,4 @@ COPY nginx.conf /etc/nginx/nginx.conf
 RUN ls -la /usr/share/nginx/html/
 
 EXPOSE 3000
-CMD ["npm", "run", "dev", "--", "--host"]
+CMD ["nginx", "-g", "daemon off;"] 
