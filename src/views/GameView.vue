@@ -24,14 +24,14 @@
 
     <div class="background-ornament">
       <img 
-        src="/public/imgg/background-ornament.svg" 
+        src="/public/img/background-ornament.svg" 
         alt="Background ornament" 
       />
     </div>
     <!-- Unified Background -->
     <div class="background-ornament2">
       <img 
-        src="/public/imgg/background-ornament.svg" 
+        src="/public/img/background-ornament.svg" 
         alt="Background ornament" 
       />
     </div>
@@ -132,25 +132,25 @@
       <!-- Corner SVGs -->
       <div class="corner corner-top-left">
         <img 
-          src="/public/imgg/corner-top-left.svg" 
+          src="/public/img/corner-top-left.svg" 
           alt="Decorative corner" 
         />
       </div>
       <div class="corner corner-top-right">
         <img 
-          src="/public/imgg/corner-top-right.svg" 
+          src="/public/img/corner-top-right.svg" 
           alt="Decorative corner" 
         />
       </div>
       <div class="corner corner-bottom-left">
         <img 
-          src="/public/imgg/corner-bottom-left.svg" 
+          src="/public/img/corner-bottom-left.svg" 
           alt="Decorative corner" 
         />
       </div>
       <div class="corner corner-bottom-right ">
         <img 
-          src="/public/imgg/corner-bottom-right.svg" 
+          src="/public/img/corner-bottom-right.svg" 
           alt="Decorative corner" 
         />
       </div>
@@ -163,21 +163,21 @@
               <p class="instruction-text">Первый шаг — внимательно прочитать и понять слова, представленные в игре "ТылМус". 
                  Не спешите, постарайтесь понять каждое слово и подумать, что оно означает в контексте головоломки.</p>
               <div class="instruction-image">
-                <img class="adaptive-image" src="/img/step1.png" alt="Прочти слова">
+                <img class="adaptive-image" src="/public/img/step1.png" alt="Прочти слова">
               </div>
             </li>
             <li class="instruction-item">
               <h4 class="instruction-step">Найди общее</h4>
               <p class="instruction-text">После того как вы прочитаете и поймёте слова, следующий шаг — найти общую тему, которая их связывает.</p>
               <div class="instruction-image">
-                <img class="adaptive-image" src="/img/step2.png" alt="Найди общее">
+                <img class="adaptive-image" src="/public/img/step2.png" alt="Найди общее">
               </div>
             </li>
             <li class="instruction-item">
               <h4 class="instruction-step">Выбери и отправь свой ответ</h4>
               <p class="instruction-text">Когда вы определите общую тему и найдёте четыре слова, подходящие под неё, пора сделать свой выбор.</p>
               <div class="instruction-image">
-                <img class="adaptive-image" src="/img/step3.png" alt="Выбери и отправь свой ответ">
+                <img class="adaptive-image" src="/public/img/step3.png" alt="Выбери и отправь свой ответ">
               </div>
             </li>
           </ul>
@@ -204,9 +204,6 @@ import WordCard from '../components/WordCard.vue'
 import CategoryBlock from '../components/CategoryBlock.vue'
 import GameControls from '../components/GameControls.vue'
 import NotificationPopup from '../components/NotificationPopup.vue'
-import BackgroundOrnaments from '../components/BackgroundOrnaments.vue'
-import CornerOrnaments from '../components/CornerOrnaments.vue'
-// import OrnamentTest from '../components/OrnamentTest.vue'
 
 const gameStore = useGameStore()
 
