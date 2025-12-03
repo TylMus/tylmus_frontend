@@ -5,12 +5,15 @@ import { resolve } from 'path'
 export default defineConfig(({ mode }) => {
   // Загружаем env переменные
   const env = loadEnv(mode, process.cwd(), '')
-  
+
   // Определяем API URL в зависимости от среды
-  const apiUrl = env.VITE_API_BASE_URL || 
+  const apiUrl = env.VITE_API_BASE_URL ||
     (mode === 'development' ? 'http://localhost:8000/api' : '/api')
-  
+
   return {
+    // 🔥 ДОБАВЬТЕ ЭТУ СТРОКУ:
+    base: './',
+
     plugins: [vue()],
     resolve: {
       alias: {
@@ -26,7 +29,7 @@ export default defineConfig(({ mode }) => {
           target: 'http://localhost:8000',
           changeOrigin: true,
           secure: false,
-          rewrite: (path) => path.replace(/^\/api/, '') // убрать /api если нужно
+          rewrite: (path) => path.replace(/^\/api/, '')
         }
       } : undefined
     },
@@ -35,12 +38,22 @@ export default defineConfig(({ mode }) => {
       outDir: 'dist',
       sourcemap: false,
       chunkSizeWarningLimit: 1600,
+
+      // 🔥 ДОБАВЬТЕ ЭТИ НАСТРОЙКИ:
       rollupOptions: {
+        // Явно указываем index.html как входную точку
+        input: {
+          main: resolve(__dirname, 'index.html')
+        },
         output: {
           manualChunks: {
             vendor: ['vue', 'vue-router', 'pinia'],
             ui: ['element-plus', 'axios']
-          }
+          },
+          // Правильные имена файлов для кэширования
+          assetFileNames: 'assets/[name]-[hash][extname]',
+          chunkFileNames: 'assets/[name]-[hash].js',
+          entryFileNames: 'assets/[name]-[hash].js'
         }
       }
     },
