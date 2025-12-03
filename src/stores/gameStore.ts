@@ -27,11 +27,11 @@ export const useGameStore = defineStore('game', () => {
 
   const dailyDisplay = computed(() => {
     if (!gameDate.value) return 'Загрузка...'
-
+    
     const gameDateObj = new Date(gameDate.value)
     const todayObj = new Date()
     const isToday = gameDateObj.toDateString() === todayObj.toDateString()
-
+    
     if (isToday) {
       return `Сегодняшняя игра • ${foundCategories.value.length}/4 найдено`
     } else {
@@ -39,40 +39,64 @@ export const useGameStore = defineStore('game', () => {
     }
   })
 
-  // In the initializeGame function, add connection test:
-  const initializeGame = async () => {
-    console.log('🔄 Initializing game...')
-    loading.value = true
-    try {
-      const response = await gameApi.getGame()
-      console.log('✅ Game data in store:', response)
-
-      // Make sure we're setting the words correctly
-      if (response.words && Array.isArray(response.words)) {
-        words.value = response.words
-        console.log('📝 Words set in store:', words.value)
-      } else {
-        console.error('❌ No words in response:', response)
-        words.value = [] // Ensure it's always an array
-      }
-
-      gameDate.value = response.game_date
-      resetGameState()
-
-      await checkDayChange()
-    } catch (error) {
-      console.error('❌ Error loading game:', error)
-      showMessage.value = true
-      messageText.value = 'Ошибка загрузки игры'
-      messageClass.value = 'error'
-      // Set empty arrays to prevent rendering errors
-      words.value = []
+const initializeGame = async () => {
+  console.log('🔄 Initializing game...')
+  loading.value = true
+  try {
+    const response = await gameApi.getGame()
+    console.log('✅ Game data in store:', response)
+    
+    // ВАЖНО: Сначала восстанавливаем найденные категории
+    if (response.found_categories && Array.isArray(response.found_categories)) {
+      foundCategories.value = response.found_categories
+      console.log('🎯 Restored found categories:', foundCategories.value)
+    } else {
+      console.log('📝 No found categories to restore')
       foundCategories.value = []
-    } finally {
-      loading.value = false
     }
+    
+    // Теперь устанавливаем слова, УДАЛЯЯ уже найденные
+    if (response.words && Array.isArray(response.words)) {
+      // Получаем все найденные слова из восстановленных категорий
+      const foundWords = foundCategories.value.flatMap(category => category.words)
+      console.log('🗑️ Removing found words from available:', foundWords)
+      
+      // Фильтруем слова, оставляя только те, которые еще не найдены
+      words.value = response.words.filter(word => !foundWords.includes(word))
+      console.log('📝 Available words after filtering:', words.value)
+    } else {
+      console.error('❌ No words in response:', response)
+      words.value = [] // Ensure it's always an array
+    }
+    
+    gameDate.value = response.game_date
+    
+    // Сбрасываем только временное состояние, но не прогресс
+    selectedWords.value = []
+    mistakes.value = 0
+    showMessage.value = false
+    
+    // Проверяем, завершена ли игра
+    if (foundCategories.value.length === 4) {
+      gameOver.value = true
+      console.log('🏆 Game already completed')
+    } else {
+      gameOver.value = false
+    }
+    
+    await checkDayChange()
+  } catch (error) {
+    console.error('❌ Error loading game:', error)
+    showMessage.value = true
+    messageText.value = 'Ошибка загрузки игры'
+    messageClass.value = 'error'
+    // Set empty arrays to prevent rendering errors
+    words.value = []
+    foundCategories.value = []
+  } finally {
+    loading.value = false
   }
-
+}
   const checkDayChange = async () => {
     try {
       dailyInfo.value = await gameApi.getDailyInfo()
@@ -82,17 +106,16 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
-  const resetGameState = () => {
-    selectedWords.value = []
-    foundCategories.value = []
-    mistakes.value = 0
-    gameOver.value = false
-    showMessage.value = false
-  }
+const resetGameState = () => {
+  selectedWords.value = []
+  mistakes.value = 0
+  gameOver.value = false
+  showMessage.value = false
+}
 
   const toggleWord = (word: string) => {
     if (gameOver.value) return
-
+    
     const index = selectedWords.value.indexOf(word)
     if (index > -1) {
       selectedWords.value.splice(index, 1)
@@ -112,10 +135,10 @@ export const useGameStore = defineStore('game', () => {
     const shuffled = [...words.value]
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))
-        ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
     }
     words.value = shuffled
-
+    
     setTimeout(() => {
       scrambleAnimation.value = false
     }, 300)
@@ -123,7 +146,7 @@ export const useGameStore = defineStore('game', () => {
 
   const submitGuess = async () => {
     if (selectedWords.value.length !== 4) return
-
+    
     console.log('📤 Submitting guess:', selectedWords.value)
     loading.value = true
     try {
@@ -137,7 +160,7 @@ export const useGameStore = defineStore('game', () => {
       }
     } catch (error: any) {
       console.error('❌ Error submitting guess:', error)
-
+      
       // Show detailed error information
       if (error.response) {
         console.error('Response error:', error.response.data)
@@ -162,12 +185,12 @@ export const useGameStore = defineStore('game', () => {
     showMessage.value = true
     messageText.value = `Правильно! "${result.category_name}"`
     messageClass.value = 'success'
-
+    
     foundCategories.value.push({
       name: result.category_name!,
       words: [...selectedWords.value]
     })
-
+    
     // Remove found words from available words
     words.value = words.value.filter(word => !selectedWords.value.includes(word))
     selectedWords.value = []
@@ -226,11 +249,11 @@ export const useGameStore = defineStore('game', () => {
     loading,
     gameDate,
     dailyInfo,
-
+    
     // Getters
     gameStatus,
     dailyDisplay,
-
+    
     // Actions
     initializeGame,
     toggleWord,
