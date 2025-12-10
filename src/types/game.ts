@@ -12,6 +12,15 @@ export interface GameState {
   gameDate: string
 }
 
+export interface GameResponse {
+  words: string[]
+  categories: Category[]
+  game_date: string
+  found_categories: Category[]
+  remaining: number
+  mistakes?: number
+}
+
 export interface ApiResponse<T> {
   data?: T
   error?: string
@@ -23,6 +32,7 @@ export interface CheckSelectionResponse {
   message?: string
   remaining?: number
   game_complete?: boolean
+  mistakes?: number
 }
 
 export interface DailyInfo {
@@ -31,4 +41,5 @@ export interface DailyInfo {
   is_new_day: boolean
   game_complete: boolean
   found_count: number
+  mistakes?: number
 }
