@@ -6,7 +6,6 @@ const router = createRouter({
     {
       path: '/',
       name: 'game',
-      // Use lazy loading
       component: () => import('../views/GameView.vue')
     }
   ]

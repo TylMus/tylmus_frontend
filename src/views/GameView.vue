@@ -11,14 +11,14 @@
     <NotificationPopup 
       v-if="gameStore.gameOver && gameStore.foundCategories.length !== 4" 
       type="error"
-      text="Игра окончена! Слишком много ошибок. Попробуйте снова завтра!"
+      :text="gameOverErrorText"
       @close="closeGameOver"
     />
     
     <NotificationPopup 
       v-if="gameStore.gameOver && gameStore.foundCategories.length === 4" 
       type="success"
-      text="Поздравляем! Вы нашли все категории!"
+      :text="gameOverErrorTextWin"
       @close="closeGameOver"
     />
 
@@ -206,6 +206,7 @@ import GameControls from '../components/GameControls.vue'
 import NotificationPopup from '../components/NotificationPopup.vue'
 
 const gameStore = useGameStore()
+const countdownInterval = ref<NodeJS.Timeout | null>(null)
 
 const closePopup = () => {
   gameStore.showMessage = false
@@ -214,15 +215,100 @@ const closePopup = () => {
 const closeGameOver = () => {
   gameStore.showMessage = false
 }
+const getNextMidnightGMT9 = (): Date => {
+  const now = new Date()
+  
+  // Convert current time to GMT+9
+  const gmt9Offset = 9 * 60 // 9 hours in minutes
+  const localOffset = now.getTimezoneOffset()
+  const totalOffset = gmt9Offset + localOffset
+  
+  // Create date in GMT+9
+  const gmt9Time = new Date(now.getTime() + totalOffset * 60 * 1000)
+  
+  // Set to next midnight in GMT+9
+  const nextMidnightGMT9 = new Date(gmt9Time)
+  nextMidnightGMT9.setHours(24, 0, 0, 0)
+  
+  // Convert back to local time
+  const localNextMidnight = new Date(nextMidnightGMT9.getTime() - totalOffset * 60 * 1000)
+  
+  return localNextMidnight
+}
+
+// Format time remaining
+const formatTimeRemaining = (endTime: Date): string => {
+  const now = new Date()
+  const diff = endTime.getTime() - now.getTime()
+  
+  if (diff <= 0) {
+    return "00:00:00"
+  }
+  
+  const hours = Math.floor(diff / (1000 * 60 * 60))
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+  
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+}
+
+const gameOverErrorText = computed(() => {
+  if (!gameStore.gameOver) return ""
+  
+  const nextMidnight = getNextMidnightGMT9()
+  const timeRemaining = formatTimeRemaining(nextMidnight)
+  
+  return `Игра окончена! Слишком много ошибок. Следующая игра будет доступна через: ${timeRemaining}`
+})
+
+const gameOverErrorTextWin = computed(() => {
+  if (!gameStore.gameOver) return ""
+  
+  const nextMidnight = getNextMidnightGMT9()
+  const timeRemaining = formatTimeRemaining(nextMidnight)
+  
+  return `Поздравляем! Вы нашли все категории! Следующая игра будет доступна через: ${timeRemaining}`
+})
+const startCountdownTimer = () => {
+  if (countdownInterval.value) {
+    clearInterval(countdownInterval.value)
+  }
+  
+  if (gameStore.gameOver) {
+    const updateText = () => {
+      const temp = gameOverErrorText.value
+    }
+    
+    countdownInterval.value = setInterval(updateText, 1000)
+  }
+}
 
 onMounted(() => {
   console.log('🎮 GameView mounted, initializing game...')
   gameStore.initializeGame().then(() => {
     console.log('✅ Game initialization complete')
+    startCountdownTimer()
   }).catch(error => {
     console.error('❌ Game initialization failed:', error)
   })
 })
+
+onUnmounted(() => {
+  if (countdownInterval.value) {
+    clearInterval(countdownInterval.value)
+  }
+})
+
+import { watch } from 'vue'
+watch(() => gameStore.gameOver, (newVal) => {
+  if (newVal) {
+    startCountdownTimer()
+  } else if (countdownInterval.value) {
+    clearInterval(countdownInterval.value)
+    countdownInterval.value = null
+  }
+})
+</script>
 </script>
 
 <style scoped>

@@ -4,6 +4,11 @@
       <p>{{ text }}</p>
       <button class="notification-close" @click="$emit('close')">×</button>
     </div>
+    
+    <div v-if="text.includes('Следующая игра будет доступна через:')" class="countdown-timer">
+      <span class="countdown-label">Таймер:</span>
+      <span class="countdown-value">{{ extractCountdownTime(text) }}</span>
+    </div>
   </div>
 </template>
 
@@ -15,6 +20,11 @@ interface Props {
 
 defineProps<Props>()
 defineEmits(['close'])
+
+const extractCountdownTime = (text: string): string => {
+  const match = text.match(/(\d{2}:\d{2}:\d{2})/)
+  return match ? match[1] : '00:00:00'
+}
 </script>
 
 <style scoped>
@@ -80,6 +90,33 @@ defineEmits(['close'])
   background: #f5f5f5;
 }
 
+/* Countdown timer styles */
+.countdown-timer {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.countdown-label {
+  font-weight: 600;
+  color: #333;
+}
+
+.countdown-value {
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  color: #dc3545;
+  background: #fff0f0;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #ffcccc;
+}
+
 @keyframes slideDown {
   from { 
     opacity: 0;
@@ -100,12 +137,31 @@ defineEmits(['close'])
   .notification-content p {
     font-size: 13px;
   }
+  
+  .countdown-timer {
+    font-size: 13px;
+    gap: 6px;
+  }
+  
+  .countdown-value {
+    padding: 2px 6px;
+  }
 }
 
 @media (max-width: 480px) {
   .notification-popup {
     max-width: 300px;
     top: 10px;
+  }
+  
+  .notification-content p {
+    font-size: 12px;
+  }
+  
+  .countdown-timer {
+    font-size: 12px;
+    flex-direction: column;
+    gap: 4px;
   }
 }
 </style>
