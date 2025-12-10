@@ -49,7 +49,7 @@
         
         <!-- Game Complete State -->
         <div v-else-if="gameStore.words.length === 0 && gameStore.foundCategories.length === 4" class="game-complete">
-          <div class="categories-complete">
+          <div class="combined-grid complete-mode">
             <CategoryBlock
               v-for="(category, index) in gameStore.foundCategories"
               :key="'category-' + index"
@@ -866,5 +866,49 @@ watch(() => gameStore.gameOver, (newVal) => {
   .instruction-text {
     font-size: 13px;
   }
+  .game-complete {
+  text-align: center;
+}
+
+/* Use the same grid layout for complete mode */
+.complete-mode {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.complete-mode .category-block {
+  grid-column: 1; /* Single column layout */
+  min-height: 60px; /* Same height as before */
+  padding: 10px;
+}
+
+/* Responsive adjustments for complete mode */
+@media (max-width: 768px) {
+  .complete-mode {
+    max-width: 500px;
+    gap: 8px;
+  }
+  
+  .complete-mode .category-block {
+    min-height: 45px;
+    padding: 8px;
+  }
+}
+
+@media (max-width: 576px) {
+  .complete-mode {
+    max-width: 400px;
+    gap: 6px;
+  }
+  
+  .complete-mode .category-block {
+    min-height: 40px;
+    padding: 6px;
+  }
+}
+
 }
 </style>

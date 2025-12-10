@@ -19,7 +19,7 @@ defineProps<Props>()
 
 <style scoped>
 .category-block {
-  padding: 10px; /* Reduced padding to match word card height */
+  padding: 10px;
   border-radius: 8px;
   color: #333;
   font-weight: bold;
@@ -30,20 +30,21 @@ defineProps<Props>()
   align-items: center;
   justify-content: center;
   animation: fadeIn 0.5s ease-in;
-  min-height: 60px; /* Same as word cards */
+  min-height: 60px; /* Base height for desktop */
 }
 
 .category-content {
   display: flex;
   flex-direction: column;
-  gap: 4px; /* Reduced gap to fit in smaller height */
+  gap: 4px;
+  width: 100%;
 }
 
 .category-words {
-  font-size: 0.85em; /* Slightly smaller to fit */
+  font-size: 0.85em;
   opacity: 0.8;
   font-weight: normal;
-  line-height: 1.2; /* Better line height for compact display */
+  line-height: 1.2;
 }
 
 .category-block.yellow { background: #ffcc95; }
@@ -56,7 +57,7 @@ defineProps<Props>()
   to { opacity: 1; transform: scale(1); }
 }
 
-/* Responsive adjustments */
+/* Responsive height adjustments */
 @media (max-width: 768px) {
   .category-block {
     min-height: 45px;
