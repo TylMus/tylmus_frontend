@@ -1,25 +1,21 @@
 FROM node:18-alpine as build
 
 WORKDIR /app
-
 COPY package*.json ./
-RUN npm ci --only=production
-
+RUN npm install
 COPY . .
 
 RUN npm run build
 
-FROM nginx:alpine
+RUN ls -la dist/
 
-RUN rm -rf /usr/share/nginx/html/*
+FROM nginx:alpine
 
 COPY --from=build /app/dist /usr/share/nginx/html
 
 COPY nginx.conf /etc/nginx/nginx.conf
 
-RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
-    ln -sf /dev/stderr /var/log/nginx/error.log
+RUN ls -la /usr/share/nginx/html/
 
 EXPOSE 3000
-
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["nginx", "-g", "daemon off;"] 
