@@ -15,7 +15,7 @@ const api = axios.create({
 export const testConnection = async () => {
   try {
     console.log('🔗 Testing connection to:', API_BASE_URL)
-    const response = await axios.get(`${API_BASE_URL}/`)
+    const response = await axios.get(`${API_BASE_URL}`)
     console.log('✅ Backend is reachable:', response.data)
     return true
   } catch (error) {
