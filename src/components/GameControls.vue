@@ -6,8 +6,9 @@
       @click="$emit('submit-guess')" 
       :disabled="!canSubmit" 
       class="btn-submit"
+      :class="{ 'enabled': canSubmit }"
     >
-      Отправить
+      Подтвердить
     </button>
   </div>
 </template>
@@ -55,5 +56,15 @@ defineEmits<Emits>()
   cursor: not-allowed;
   border-color: gray;
   color: gray;
+}
+
+.btn-submit.enabled:not(:disabled) {
+  background: black;
+  color: white;
+}
+
+.btn-submit.enabled:not(:disabled):hover {
+  background: #333;
+  color: white;
 }
 </style>

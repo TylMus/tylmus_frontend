@@ -212,7 +212,7 @@ const closePopup = () => {
 }
 
 const closeGameOver = () => {
-  // Game over popup can't be closed for now
+  gameStore.showMessage = false
 }
 
 onMounted(() => {
