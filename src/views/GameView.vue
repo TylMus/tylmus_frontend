@@ -215,6 +215,8 @@ const closePopup = () => {
 const closeGameOver = () => {
   gameStore.showMessage = false
 }
+
+// Function to get next midnight in GMT+9
 const getNextMidnightGMT9 = (): Date => {
   const now = new Date()
   
@@ -236,6 +238,7 @@ const getNextMidnightGMT9 = (): Date => {
   return localNextMidnight
 }
 
+// Format time remaining
 const formatTimeRemaining = (endTime: Date): string => {
   const now = new Date()
   const diff = endTime.getTime() - now.getTime()
@@ -251,8 +254,9 @@ const formatTimeRemaining = (endTime: Date): string => {
   return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
 }
 
+// Computed property for game over text with countdown
 const gameOverErrorText = computed(() => {
-  if (!gameStore.gameOver) return ""
+  if (!gameStore.gameOver || gameStore.foundCategories.length === 4) return ""
   
   const nextMidnight = getNextMidnightGMT9()
   const timeRemaining = formatTimeRemaining(nextMidnight)
@@ -261,24 +265,27 @@ const gameOverErrorText = computed(() => {
 })
 
 const gameOverErrorTextWin = computed(() => {
-  if (!gameStore.gameOver) return ""
+  if (!gameStore.gameOver || gameStore.foundCategories.length !== 4) return ""
   
   const nextMidnight = getNextMidnightGMT9()
   const timeRemaining = formatTimeRemaining(nextMidnight)
   
   return `Поздравляем! Вы нашли все категории! Следующая игра будет доступна через: ${timeRemaining}`
 })
+
+// Start countdown timer
 const startCountdownTimer = () => {
   if (countdownInterval.value) {
     clearInterval(countdownInterval.value)
   }
   
   if (gameStore.gameOver) {
-    const updateText = () => {
-      const temp = gameOverErrorText.value
-    }
-    
-    countdownInterval.value = setInterval(updateText, 1000)
+    // Force computed properties to update
+    countdownInterval.value = setInterval(() => {
+      // This triggers the computed properties to recalculate
+      const temp1 = gameOverErrorText.value
+      const temp2 = gameOverErrorTextWin.value
+    }, 1000)
   }
 }
 
@@ -292,13 +299,14 @@ onMounted(() => {
   })
 })
 
+// Clean up interval on unmount
 onUnmounted(() => {
   if (countdownInterval.value) {
     clearInterval(countdownInterval.value)
   }
 })
 
-import { watch } from 'vue'
+// Watch for game over changes
 watch(() => gameStore.gameOver, (newVal) => {
   if (newVal) {
     startCountdownTimer()
