@@ -1,4 +1,3 @@
-/* Import Montserrat from Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
 * {
@@ -14,14 +13,13 @@ body {
     padding: 20px;
 }
 
-/* For bolder text where Montserrat's weight matters */
 h1, h2, h3, h4, h5, h6,
 .game-header,
 .category-block,
 .word-card,
 .btn-control, .btn-submit {
     font-family: 'Montserrat', 'Arial', sans-serif;
-    font-weight: 600; /* Montserrat has nice weight variations */
+    font-weight: 600; 
 }
 
 .container {

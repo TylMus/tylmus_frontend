@@ -42,7 +42,7 @@
     <!-- Main Game Area -->
     <div class="game-screen">
       <div class="container">
-        <!-- Loading State -->
+        <!-- Loading State - Fixed height container -->
         <div v-if="gameStore.loading" class="loading">
           Загрузка игры...
         </div>
@@ -65,7 +65,7 @@
           Не удалось загрузить слова. Проверьте консоль для ошибок.
         </div>
         
-        <!-- Game Grid -->
+        <!-- Game Grid - Fixed height container -->
         <div v-else class="combined-grid">
           <!-- Found Categories -->
           <CategoryBlock
@@ -120,7 +120,7 @@
             Игра ТылМус — это ежедневная игра, в которой нужно находить общие связи между словами. 
             В игре ТылМус игроки стремятся сформировать четыре группы по четыре слова, при этом 
             ограничивая количество ошибок максимум четырьмя. Механика игры ТылМус добавляет дополнительный 
-            уровень волнения и стратегического мышления, так как игрокам нужно тщательно обдумывать свои выборы и связи.
+            уровень волнения и стратегического мышления, так как игроки нуждаются в тщательном обдумывании своих выборов и связей.
           </p>
         </div>
       </div>
@@ -332,13 +332,16 @@ watch(() => gameStore.gameOver, (newVal) => {
   overflow-x: hidden;
 }
 
+/* Fixed height for game screen to prevent layout shift */
 .game-screen {
   width: 100%;
   max-width: 1000px; 
   margin: 0 auto;
   padding: 20px 10px;
   position: relative;
-  min-height: 400px;
+  min-height: 550px; /* Fixed minimum height */
+  display: flex;
+  flex-direction: column;
 }
 
 .container {
@@ -351,14 +354,34 @@ watch(() => gameStore.gameOver, (newVal) => {
 .combined-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  gap: 10px; /* Consistent gap for all items */
   margin-bottom: 15px;
-  max-width: 800px; /* Added max-width for smaller containers */
+  max-width: 700px; /* Reduced from 800px to make cards less wide */
   margin-left: auto;
   margin-right: auto;
+  min-height: 400px; /* Fixed height to prevent layout shift */
 }
+
 .grid-item {
   min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Category blocks - removed margin to use grid gap instead */
+.category-block {
+  margin: 0; /* Remove margin, use grid gap instead */
+  grid-column: 1 / span 4;
+}
+
+/* Loading state with fixed height */
+.loading {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: #666;
+  min-height: 400px; /* Match grid height */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -369,6 +392,7 @@ watch(() => gameStore.gameOver, (newVal) => {
   margin-bottom: 15px;
   display: flex;
   justify-content: center;
+  flex-shrink: 0; /* Prevent shrinking */
 }
 
 .mistakes {
@@ -487,14 +511,6 @@ watch(() => gameStore.gameOver, (newVal) => {
   font-size: 14px;
 }
 
-/* Utility Classes */
-.loading {
-  text-align: center;
-  padding: 40px;
-  font-size: 18px;
-  color: #666;
-}
-
 .background-ornament {
   position: absolute;
   top: 3%;
@@ -565,6 +581,10 @@ watch(() => gameStore.gameOver, (newVal) => {
   color: #ff0000;
   background: #ffe6e6;
   border-radius: 8px;
+  min-height: 400px; /* Match grid height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .game-complete {
@@ -625,7 +645,7 @@ watch(() => gameStore.gameOver, (newVal) => {
 @media (max-width: 768px) {
   .game-screen {
     padding: 15px 8px;
-    min-height: 350px;
+    min-height: 450px; /* Adjusted for mobile */
   }
   
   .container {
@@ -634,13 +654,20 @@ watch(() => gameStore.gameOver, (newVal) => {
   
   .combined-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 6px;
+    gap: 8px; /* Consistent gap */
+    max-width: 500px; /* Adjusted for mobile */
+    min-height: 350px; /* Adjusted for mobile */
   }
   
   .grid-item {
     min-height: 45px;
     font-size: 14px;
     padding: 8px 4px;
+  }
+  
+  .loading,
+  .no-words {
+    min-height: 350px; /* Match mobile grid height */
   }
   
   .about-section,
@@ -682,7 +709,7 @@ watch(() => gameStore.gameOver, (newVal) => {
 @media (max-width: 576px) {
   .game-screen {
     padding: 12px 5px;
-    min-height: 300px;
+    min-height: 400px; /* Adjusted for small mobile */
   }
   
   .container {
@@ -691,13 +718,20 @@ watch(() => gameStore.gameOver, (newVal) => {
   
   .combined-grid {
     grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
+    gap: 4px; /* Consistent gap */
+    max-width: 400px; /* Adjusted for small mobile */
+    min-height: 300px; /* Adjusted for small mobile */
   }
   
   .grid-item {
     min-height: 40px;
     font-size: 12px;
     padding: 6px 2px;
+  }
+  
+  .loading,
+  .no-words {
+    min-height: 300px; /* Match small mobile grid height */
   }
   
   .about-section,
@@ -744,6 +778,15 @@ watch(() => gameStore.gameOver, (newVal) => {
   .grid-item {
     min-height: 35px;
     font-size: 11px;
+  }
+  
+  .combined-grid {
+    min-height: 280px; /* Adjusted for very small screens */
+  }
+  
+  .loading,
+  .no-words {
+    min-height: 280px; /* Match very small mobile grid height */
   }
   
   .about-title {

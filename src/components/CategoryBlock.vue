@@ -30,7 +30,6 @@ defineProps<Props>()
   align-items: center;
   justify-content: center;
   animation: fadeIn 0.5s ease-in;
-  margin: 5px 0;
 }
 
 .category-content {
