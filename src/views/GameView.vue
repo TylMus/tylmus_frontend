@@ -908,8 +908,6 @@ watch(() => gameStore.gameOver, (newVal) => {
     min-height: 40px;
     padding: 6px;
   }
-  @media (max-width: 576px) {
-  /* ... existing styles ... */
   
   /* Additional button spacing for mobile */
   .controls {
@@ -951,7 +949,7 @@ watch(() => gameStore.gameOver, (newVal) => {
     font-size: 14px;
   }
 }
-}
+
 
 }
 </style>
