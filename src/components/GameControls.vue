@@ -1,38 +1,33 @@
 <template>
   <div class="controls">
-    <button 
-      v-if="!gameOver" 
-      @click="$emit('deselect-all')" 
-      class="btn-control"
-    >
-      <span class="btn-text">Снять отметку</span>
-      <span class="btn-text-mobile">Снять отметку</span>
-    </button>
-    <button 
-      v-if="!gameOver" 
-      @click="$emit('shuffle-words')" 
-      class="btn-control"
-    >
-      <span class="btn-text">Перемешать</span>
-      <span class="btn-text-mobile">Перемешать</span>
-    </button>
-    <button 
-      v-if="gameOver" 
-      @click="$emit('share-game')" 
-      class="btn-control share"
-    >
-      <span class="btn-text">Поделиться</span>
-      <span class="btn-text-mobile">Поделиться</span>
-    </button>
-    <button 
-      @click="$emit('submit-guess')" 
-      :disabled="gameOver ? false : !canSubmit" 
-      class="btn-submit"
-      :class="{ 'enabled': gameOver ? true : canSubmit, 'game-over-btn': gameOver }"
-    >
-      <span class="btn-text">{{ gameOver ? 'Новая игра' : 'Подтвердить' }}</span>
-      <span class="btn-text-mobile">{{ gameOver ? 'Новая' : 'Подтвердить' }}</span>
-    </button>
+    <!-- Кнопки во время игры -->
+    <template v-if="!gameOver">
+      <button @click="$emit('deselect-all')" class="btn-control">
+        <span class="btn-text">Снять отметку</span>
+        <span class="btn-text-mobile">Снять</span>
+      </button>
+      <button @click="$emit('shuffle-words')" class="btn-control">
+        <span class="btn-text">Перемешать</span>
+        <span class="btn-text-mobile">Перемешать</span>
+      </button>
+      <button 
+        @click="$emit('submit-guess')" 
+        :disabled="!canSubmit" 
+        class="btn-submit"
+        :class="{ 'enabled': canSubmit }"
+      >
+        <span class="btn-text">Подтвердить</span>
+        <span class="btn-text-mobile">Подтвердить</span>
+      </button>
+    </template>
+    
+    <!-- Кнопка после завершения игры -->
+    <template v-else>
+      <button @click="$emit('share-game')" class="btn-control share">
+        <span class="btn-text">Поделиться</span>
+        <span class="btn-text-mobile">Поделиться</span>
+      </button>
+    </template>
   </div>
 </template>
 
@@ -102,33 +97,15 @@ defineEmits<Emits>()
   color: white;
 }
 
-/* Стили для кнопки "Поделиться" когда игра завершена */
+/* Кнопка "Поделиться" получает те же стили, что и btn-control */
 .btn-control.share {
-  background: #4CAF50;
-  color: white;
-  border-color: #4CAF50;
+  background: white;
+  color: black;
+  border-color: black;
 }
 
 .btn-control.share:hover {
-  background: #45a049;
-  color: white;
-}
-
-/* Стиль для кнопки "Новая игра" когда игра завершена */
-.btn-submit.game-over-btn {
-  background: #007BFF;
-  color: white;
-  border-color: #007BFF;
-}
-
-.btn-submit.game-over-btn:hover {
-  background: #0056b3;
-  color: white;
-}
-
-.btn-submit.game-over-btn.enabled {
-  background: #007BFF;
-  color: white;
+  background: #d4edda;
 }
 
 .btn-text-mobile {
