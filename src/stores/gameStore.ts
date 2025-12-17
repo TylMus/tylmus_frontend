@@ -296,12 +296,12 @@ export const useGameStore = defineStore('game', () => {
       }, 3000)
     }
     
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'share', {
-        method: 'game_result',
-        puzzle_date: gameDate.value
-      })
-    }
+    // if (typeof gtag !== 'undefined') {
+    //   gtag('event', 'share', {
+    //     method: 'game_result',
+    //     puzzle_date: gameDate.value
+    //   })
+    // }
     
   } catch (error: unknown) {
     const err = error instanceof Error ? error : new Error(String(error))
