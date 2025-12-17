@@ -17,6 +17,16 @@
       <span class="btn-text">Подтвердить</span>
       <span class="btn-text-mobile">Подтвердить</span>
     </button>
+    <button 
+      @click="$emit('share-result')" 
+      :disabled="!canShare"
+      class="btn-share"
+      :class="{ 'enabled': canShare }"
+    >
+      <span class="btn-text">📢 Поделиться</span>
+      <span class="btn-text-mobile">📢 Поделиться</span>
+    </button>
+    
   </div>
 </template>
 
@@ -24,12 +34,14 @@
 interface Props {
   canSubmit: boolean
   gameOver: boolean
+  canShare: boolean
 }
 
 interface Emits {
   (e: 'deselect-all'): void
   (e: 'shuffle-words'): void
   (e: 'submit-guess'): void
+  (e: 'share-result'): void
 }
 
 defineProps<Props>()
@@ -83,6 +95,30 @@ defineEmits<Emits>()
 .btn-submit.enabled:not(:disabled):hover {
   background: #333;
   color: white;
+}
+
+.btn-share:hover:not(:disabled) {
+  background: #667eea;
+  color: white;
+}
+
+.btn-share:disabled {
+  cursor: not-allowed;
+  border-color: #ccc;
+  color: #ccc;
+  background: #f8f9fa;
+}
+
+.btn-share.enabled:not(:disabled) {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: transparent;
+}
+
+.btn-share.enabled:not(:disabled):hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 /* Hide mobile text by default */
