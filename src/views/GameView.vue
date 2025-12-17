@@ -104,6 +104,7 @@
         <GameControls
           :can-submit="gameStore.selectedWords.length === 4 && !gameStore.gameOver"
           :game-over="gameStore.gameOver"
+          :can-share="canShare"
           @deselect-all="gameStore.deselectAll"
           @shuffle-words="gameStore.shuffleWords"
           @submit-guess="gameStore.submitGuess"
@@ -215,6 +216,12 @@ const closePopup = () => {
 const closeGameOver = () => {
   gameStore.showMessage = false
 }
+const canShare = computed(() => {
+  // Разрешить делиться когда есть хотя бы одна найденная группа
+  return gameStore.foundCategories.length > 0
+  // Или только после завершения игры:
+  // return gameStore.gameStatus === 'won' || gameStore.gameStatus === 'game-over'
+})
 
 // Function to get next midnight in GMT+9
 const getNextMidnightGMT9 = (): Date => {
