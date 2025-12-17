@@ -16,14 +16,6 @@ export const useGameStore = defineStore('game', () => {
   const loading = ref(false)
   const gameDate = ref('')
   const dailyInfo = ref<DailyInfo | null>(null)
-  const shareDialogOpen = ref(false)
-  const shareStats = computed(() => ({
-    puzzleDate: gameDate.value,
-    groupsFound: foundCategories.value.length,
-    mistakes: mistakes.value,
-    maxMistakes: 4,
-    status: gameStatus.value
-}))
 
   const gameStatus = computed(() => {
     if (gameOver.value) return 'game-over'
@@ -210,13 +202,12 @@ export const useGameStore = defineStore('game', () => {
         showMessage.value = true
         messageText.value = 'Поздравляем! Вы нашли все категории!'
         messageClass.value = 'success'
-        setTimeout(() => {
-          if (confirm('Поделиться результатом с друзьями?')) {
-            shareGameResult()
-          }
-        }, 2000)
       }, 1000)
     }
+
+    setTimeout(() => {
+      showMessage.value = false
+    }, 3000)
   }
 
   const handleMistake = (message: string) => {
@@ -244,75 +235,6 @@ export const useGameStore = defineStore('game', () => {
     return colors[index % colors.length]
   }
 
-  const generateShareText = () => {
-    const { puzzleDate, groupsFound, mistakes, status } = shareStats.value
-    let resultText = ''
-    if (status === 'won') {
-      resultText = `🎉 Поздравляю! Я решил сегодняшнюю головоломку ТылМус!`
-    } else if (status === 'game-over') {
-      resultText = `🧩 Я сыграл в сегодняшнюю ТылМус`
-    } else {
-      resultText = `🎮 Я играю в ТылМус прямо сейчас`
-    }
-  
-    return `${resultText}
-
-  📊 Статистика:
-  • Найдено групп: ${groupsFound}/4
-  • Ошибок: ${mistakes}/4
-  • Дата: ${puzzleDate}
-
-  🎯 Попробуй и ты: ${window.location.origin}
-
-  #ТылМус #Головоломка #Игра`
-  }
-
-  const generateShareUrl = () => {
-    const { puzzleDate, groupsFound, mistakes } = shareStats.value
-    return `${window.location.origin}?ref=share&date=${puzzleDate}&found=${groupsFound}&mistakes=${mistakes}`
-  }
-
-  const shareGameResult = async () => {
-    console.log('🎯 Кнопка "Поделиться" нажата!')  // ДЛЯ ПРОВЕРКИ
-    console.log('Статистика:', shareStats.value)   // ДЛЯ ПРОВЕРКИ
-    try {
-      const shareData = {
-        title: 'Мой результат в ТылМус',
-        text: generateShareText(),
-        url: generateShareUrl()
-    }
-    if (navigator.share) {
-      await navigator.share(shareData)
-    } 
-    else {
-      await navigator.clipboard.writeText(shareData.text + '\n\n' + shareData.url)
-      
-      showMessage.value = true
-      messageText.value = 'Результат скопирован в буфер обмена!'
-      messageClass.value = 'success'
-      
-      setTimeout(() => {
-        showMessage.value = false
-      }, 3000)
-    }
-    
-  } catch (error: unknown) {
-    const err = error instanceof Error ? error : new Error(String(error))
-    console.error('Ошибка при шеринге:', err.message)
-    
-    // Если пользователь отменил шеринг, не показываем ошибку
-    if (err.name !== 'AbortError') {
-      showMessage.value = true
-      messageText.value = 'Не удалось поделиться результатом'
-      messageClass.value = 'error'
-      
-      setTimeout(() => {
-        showMessage.value = false
-      }, 3000)
-    }
-  }
-}
-
   return {
     words,
     foundCategories,
@@ -336,10 +258,6 @@ export const useGameStore = defineStore('game', () => {
     shuffleWords,
     submitGuess,
     getCategoryColor,
-    resetGameState,
-    shareDialogOpen,
-    shareStats,
-    shareGameResult,
-    generateShareText
+    resetGameState
   }
 })
