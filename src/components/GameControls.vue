@@ -16,9 +16,9 @@
     </button>
     <button 
       @click="handleShare" 
-      :disabled="!canShare"
+      :disabled="!canShare && !gameOver"  <!-- ИЗМЕНИЛ: разрешить если игра окончена -->
       class="btn-share"
-      :class="{ 'enabled': canShare }"
+      :class="{ 'enabled': canShare || gameOver }"  <!-- ИЗМЕНИЛ -->
     >
       <span class="btn-text">📢 Поделиться</span>
     </button>
