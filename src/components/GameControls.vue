@@ -66,6 +66,51 @@ const handleShare = () => {
   width: 100%;
 }
 
+.btn-control, .btn-submit, .btn-share {
+  padding: 12px 16px;
+  border: 2px solid black;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: bold;
+  background: white;
+  transition: all 0.3s ease;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 150px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.btn-control:hover, .btn-submit:not(:disabled):hover, .btn-share:not(:disabled):hover {
+  background: #d4edda;
+}
+
+.btn-submit:disabled, .btn-share:disabled {
+  cursor: not-allowed;
+  border-color: gray;
+  color: gray;
+}
+
+.btn-submit.enabled:not(:disabled) {
+  background: black;
+  color: white;
+}
+
+.btn-submit.enabled:not(:disabled):hover {
+  background: #333;
+  color: white;
+}
+
+.btn-share.enabled:not(:disabled) {
+  background: white;
+  color: black;
+  border-color: black;
+}
+
+.btn-share.enabled:not(:disabled):hover {
+  ba
+
 /* ДОБАВЬТЕ .btn-share В ЭТОТ СЕЛЕКТОР */
 .btn-control, .btn-submit, .btn-share {
   padding: 12px 16px;
@@ -152,10 +197,6 @@ const handleShare = () => {
   .btn-text {
     display: none;
   }
-  
-  .btn-text-mobile {
-    display: inline;
-  }
 }
 
 @media (max-width: 480px) {
@@ -194,6 +235,31 @@ const handleShare = () => {
     font-size: 0.45em;
     max-width: 70px;
     flex: 1 1 0;
+  }
+  @media (max-width: 576px) {
+  .controls {
+    gap: 4px;
+    margin-bottom: 12px;
+    padding: 0 3px;
+    flex-direction: row !important;
+  }
+  
+  .btn-control, .btn-submit, .btn-share {
+    padding: 8px 6px;
+    font-size: 0.7em;
+    max-width: 100px;
+    border-radius: 6px;
+    border-width: 1px;
+    flex: 1 1 0;
+  }
+  
+  /* ИСПРАВЬТЕ ЭТОТ БЛОК: */
+  .btn-text {
+    display: none; /* Скрыть обычный текст */
+  }
+  
+  .btn-text-mobile {
+    display: inline; /* Показать мобильный текст */
   }
 }
 </style>
