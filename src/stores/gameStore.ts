@@ -273,13 +273,14 @@ export const useGameStore = defineStore('game', () => {
   }
 
   const shareGameResult = async () => {
-  try {
-    const shareData = {
-      title: 'Мой результат в ТылМус',
-      text: generateShareText(),
-      url: generateShareUrl()
-    }
-    
+    console.log('🎯 Кнопка "Поделиться" нажата!')  // ДЛЯ ПРОВЕРКИ
+    console.log('Статистика:', shareStats.value)   // ДЛЯ ПРОВЕРКИ
+    try {
+      const shareData = {
+        title: 'Мой результат в ТылМус',
+        text: generateShareText(),
+        url: generateShareUrl()
+      }
     if (navigator.share) {
       await navigator.share(shareData)
     } 
@@ -294,13 +295,6 @@ export const useGameStore = defineStore('game', () => {
         showMessage.value = false
       }, 3000)
     }
-    
-    // if (typeof gtag !== 'undefined') {
-    //   gtag('event', 'share', {
-    //     method: 'game_result',
-    //     puzzle_date: gameDate.value
-    //   })
-    // }
     
   } catch (error: unknown) {
     const err = error instanceof Error ? error : new Error(String(error))
