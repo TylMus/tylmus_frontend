@@ -106,8 +106,8 @@
           :game-over="gameStore.gameOver"
           @deselect-all="gameStore.deselectAll"
           @shuffle-words="gameStore.shuffleWords"
-          @share-game="handleShareGame"
-          @submit-guess="handleSubmitOrRestart"
+          @share-game="shareGameResults"
+          @submit-guess="gameStore.submitGuess"
         />
       </div>
     </div>
@@ -297,35 +297,40 @@ const startCountdownTimer = () => {
   }
 }
 
-const handleShareGame = () => {
-  const gameResult = gameStore.foundCategories.length === 4 ? 'победа' : 'проигрыш'
-  const score = gameStore.foundCategories.length
+const shareGameResults = () => {
+  const categoriesFound = gameStore.foundCategories.length
   const mistakes = gameStore.mistakes
+  const isWin = categoriesFound === 4
   
-  const shareText = `Я сыграл в ТылМус! Результат: ${gameResult} (${score}/4 категорий, ошибок: ${mistakes}/4)`
+  let resultText = ''
   
-  // Проверяем поддержку Web Share API
+  if (isWin) {
+    resultText = `🎉 Я прошел ТылМус! Нашел все 4 категории с ${mistakes} ошибками.`
+  } else {
+    resultText = `🤔 Я сыграл в ТылМус! Нашел ${categoriesFound} из 4 категорий, ошибок: ${mistakes}.`
+  }
+  
+  const shareMessage = `${resultText}\n\nПопробуй и ты: ${window.location.href}`
+  
+  // Используем Web Share API если доступен
   if (navigator.share) {
     navigator.share({
-      title: 'ТылМус: Связать слова',
-      text: shareText,
-      url: window.location.href
+      title: 'Мой результат в ТылМус',
+      text: shareMessage
     }).catch(error => {
-      console.log('Ошибка при использовании Web Share API:', error)
-      fallbackShare(shareText)
+      console.log('Ошибка шаринга:', error)
+      copyToClipboard(shareMessage)
     })
   } else {
-    fallbackShare(shareText)
+    copyToClipboard(shareMessage)
   }
 }
 
-// Фолбэк для браузеров без поддержки Web Share API
-const fallbackShare = (text: string) => {
-  // Копируем в буфер обмена
-  navigator.clipboard.writeText(text + ' ' + window.location.href)
+const copyToClipboard = (text: string) => {
+  navigator.clipboard.writeText(text)
     .then(() => {
       gameStore.showMessage = true
-      gameStore.messageText = 'Ссылка скопирована в буфер обмена!'
+      gameStore.messageText = 'Результат скопирован! Теперь можете поделиться.'
       gameStore.messageClass = 'success'
       
       setTimeout(() => {
@@ -333,7 +338,7 @@ const fallbackShare = (text: string) => {
       }, 3000)
     })
     .catch(err => {
-      console.error('Ошибка при копировании в буфер обмена:', err)
+      console.error('Ошибка копирования:', err)
       // Показываем текст для ручного копирования
       gameStore.showMessage = true
       gameStore.messageText = `Скопируйте вручную: ${text}`
@@ -343,22 +348,6 @@ const fallbackShare = (text: string) => {
         gameStore.showMessage = false
       }, 5000)
     })
-}
-
-// Обработчик для кнопки "Подтвердить"/"Новая игра"
-const handleSubmitOrRestart = () => {
-  if (gameStore.gameOver) {
-    // Если игра завершена, запускаем новую игру
-    console.log('🔄 Запуск новой игры...')
-    gameStore.initializeGame().then(() => {
-      console.log('✅ Новая игра инициализирована')
-    }).catch(error => {
-      console.error('❌ Ошибка при запуске новой игры:', error)
-    })
-  } else {
-    // Во время игры - обычная отправка
-    gameStore.submitGuess()
-  }
 }
 
 onMounted(() => {
