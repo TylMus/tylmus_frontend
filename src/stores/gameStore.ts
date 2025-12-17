@@ -280,7 +280,7 @@ export const useGameStore = defineStore('game', () => {
         title: 'Мой результат в ТылМус',
         text: generateShareText(),
         url: generateShareUrl()
-      }
+    }
     if (navigator.share) {
       await navigator.share(shareData)
     } 
