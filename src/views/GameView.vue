@@ -106,7 +106,8 @@
           :game-over="gameStore.gameOver"
           @deselect-all="gameStore.deselectAll"
           @shuffle-words="gameStore.shuffleWords"
-          @submit-guess="gameStore.submitGuess"
+          @share-game="handleShareGame"
+          @submit-guess="handleSubmitOrRestart"
         />
       </div>
     </div>
@@ -293,6 +294,70 @@ const startCountdownTimer = () => {
     countdownInterval.value = setInterval(() => {
       forceUpdate.value++
     }, 1000)
+  }
+}
+
+const handleShareGame = () => {
+  const gameResult = gameStore.foundCategories.length === 4 ? 'победа' : 'проигрыш'
+  const score = gameStore.foundCategories.length
+  const mistakes = gameStore.mistakes
+  
+  const shareText = `Я сыграл в ТылМус! Результат: ${gameResult} (${score}/4 категорий, ошибок: ${mistakes}/4)`
+  
+  // Проверяем поддержку Web Share API
+  if (navigator.share) {
+    navigator.share({
+      title: 'ТылМус: Связать слова',
+      text: shareText,
+      url: window.location.href
+    }).catch(error => {
+      console.log('Ошибка при использовании Web Share API:', error)
+      fallbackShare(shareText)
+    })
+  } else {
+    fallbackShare(shareText)
+  }
+}
+
+// Фолбэк для браузеров без поддержки Web Share API
+const fallbackShare = (text: string) => {
+  // Копируем в буфер обмена
+  navigator.clipboard.writeText(text + ' ' + window.location.href)
+    .then(() => {
+      gameStore.showMessage = true
+      gameStore.messageText = 'Ссылка скопирована в буфер обмена!'
+      gameStore.messageClass = 'success'
+      
+      setTimeout(() => {
+        gameStore.showMessage = false
+      }, 3000)
+    })
+    .catch(err => {
+      console.error('Ошибка при копировании в буфер обмена:', err)
+      // Показываем текст для ручного копирования
+      gameStore.showMessage = true
+      gameStore.messageText = `Скопируйте вручную: ${text}`
+      gameStore.messageClass = 'info'
+      
+      setTimeout(() => {
+        gameStore.showMessage = false
+      }, 5000)
+    })
+}
+
+// Обработчик для кнопки "Подтвердить"/"Новая игра"
+const handleSubmitOrRestart = () => {
+  if (gameStore.gameOver) {
+    // Если игра завершена, запускаем новую игру
+    console.log('🔄 Запуск новой игры...')
+    gameStore.initializeGame().then(() => {
+      console.log('✅ Новая игра инициализирована')
+    }).catch(error => {
+      console.error('❌ Ошибка при запуске новой игры:', error)
+    })
+  } else {
+    // Во время игры - обычная отправка
+    gameStore.submitGuess()
   }
 }
 
