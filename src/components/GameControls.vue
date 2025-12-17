@@ -18,7 +18,7 @@
       <span class="btn-text-mobile">Подтвердить</span>
     </button>
     <button 
-      @click="$emit('share-result')" 
+      @click="handleShare" 
       :disabled="!canShare"
       class="btn-share"
       :class="{ 'enabled': canShare }"
@@ -26,7 +26,6 @@
       <span class="btn-text">📢 Поделиться</span>
       <span class="btn-text-mobile">📢 Поделиться</span>
     </button>
-    
   </div>
 </template>
 
@@ -44,24 +43,31 @@ interface Emits {
   (e: 'share-result'): void
 }
 
-defineProps<Props>()
-defineEmits<Emits>()
+const props = defineProps<Props>()
+const emit = defineEmits<Emits>()
+
+const handleShare = () => {
+  console.log('🔘 Кнопка "Поделиться" нажата в GameControls')
+  console.log('canShare:', props.canShare)
+  emit('share-result')
+}
 </script>
 
 <style scoped>
 .controls {
   display: flex;
-  flex-direction: row; /* EXPLICITLY SET TO ROW */
-  flex-wrap: nowrap; /* PREVENT WRAPPING */
+  flex-direction: row;
+  flex-wrap: nowrap;
   gap: 8px;
   justify-content: center;
-  align-items: center; /* Center vertically */
+  align-items: center;
   margin-bottom: 20px;
   padding: 0 5px;
   width: 100%;
 }
 
-.btn-control, .btn-submit {
+/* ДОБАВЬТЕ .btn-share В ЭТОТ СЕЛЕКТОР */
+.btn-control, .btn-submit, .btn-share {
   padding: 12px 16px;
   border: 2px solid black;
   border-radius: 8px;
@@ -70,18 +76,18 @@ defineEmits<Emits>()
   font-weight: bold;
   background: white;
   transition: all 0.3s ease;
-  flex: 1 1 auto; /* Allow growth and shrinkage */
-  min-width: 0; /* Allow buttons to shrink below min-content */
-  max-width: 150px; /* Maximum width for desktop */
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 150px;
   text-align: center;
-  white-space: nowrap; /* Prevent text from wrapping inside button */
+  white-space: nowrap;
 }
 
-.btn-control:hover, .btn-submit:not(:disabled):hover {
+.btn-control:hover, .btn-submit:not(:disabled):hover, .btn-share:not(:disabled):hover {
   background: #d4edda;
 }
 
-.btn-submit:disabled {
+.btn-submit:disabled, .btn-share:disabled {
   cursor: not-allowed;
   border-color: gray;
   color: gray;
@@ -97,71 +103,52 @@ defineEmits<Emits>()
   color: white;
 }
 
-.btn-share:hover:not(:disabled) {
-  background: #667eea;
-  color: white;
-}
-
-.btn-share:disabled {
-  cursor: not-allowed;
-  border-color: #ccc;
-  color: #ccc;
-  background: #f8f9fa;
-}
-
+/* СДЕЛАЙТЕ ТАК ЖЕ КАК ДРУГИЕ КНОПКИ */
 .btn-share.enabled:not(:disabled) {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-color: transparent;
+  background: white;
+  color: black;
+  border-color: black;
 }
 
 .btn-share.enabled:not(:disabled):hover {
-  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  background: #d4edda;
 }
 
-/* Hide mobile text by default */
-.btn-text-mobile {
-  display: none;
-}
+/* ДОБАВЬТЕ .btn-share ВО ВСЕ МЕДИА-ЗАПРОСЫ */
 
-/* Tablet */
 @media (max-width: 768px) {
   .controls {
     gap: 6px;
     margin-bottom: 15px;
     padding: 0 4px;
-    flex-direction: row !important; /* FORCE ROW */
+    flex-direction: row !important;
   }
   
-  .btn-control, .btn-submit {
+  .btn-control, .btn-submit, .btn-share {
     padding: 10px 8px;
     font-size: 0.8em;
     max-width: 120px;
-    flex: 1 1 0; /* Equal distribution */
+    flex: 1 1 0;
   }
 }
 
-/* Mobile */
 @media (max-width: 576px) {
   .controls {
     gap: 4px;
     margin-bottom: 12px;
     padding: 0 3px;
-    flex-direction: row !important; /* FORCE ROW */
+    flex-direction: row !important;
   }
   
-  .btn-control, .btn-submit {
+  .btn-control, .btn-submit, .btn-share {
     padding: 8px 6px;
     font-size: 0.7em;
     max-width: 100px;
     border-radius: 6px;
     border-width: 1px;
-    flex: 1 1 0; /* Equal distribution */
+    flex: 1 1 0;
   }
   
-  /* Show mobile text, hide desktop text */
   .btn-text {
     display: none;
   }
@@ -171,45 +158,42 @@ defineEmits<Emits>()
   }
 }
 
-/* Small Mobile */
 @media (max-width: 480px) {
   .controls {
     gap: 3px;
     padding: 0 2px;
-    flex-direction: row !important; /* FORCE ROW */
+    flex-direction: row !important;
   }
   
-  .btn-control, .btn-submit {
+  .btn-control, .btn-submit, .btn-share {
     padding: 6px 4px;
     font-size: 0.6em;
     max-width: 85px;
-    flex: 1 1 0; /* Equal distribution */
+    flex: 1 1 0;
   }
 }
 
-/* Very Small Mobile */
 @media (max-width: 360px) {
   .controls {
     gap: 2px;
-    flex-direction: row !important; /* FORCE ROW */
+    flex-direction: row !important;
   }
   
-  .btn-control, .btn-submit {
+  .btn-control, .btn-submit, .btn-share {
     padding: 5px 3px;
     font-size: 0.5em;
     max-width: 75px;
     min-height: 36px;
-    flex: 1 1 0; /* Equal distribution */
+    flex: 1 1 0;
   }
 }
 
-/* Fix for iPhone SE and similar very small screens */
 @media (max-width: 320px) {
-  .btn-control, .btn-submit {
+  .btn-control, .btn-submit, .btn-share {
     padding: 4px 2px;
     font-size: 0.45em;
     max-width: 70px;
-    flex: 1 1 0; /* Equal distribution */
+    flex: 1 1 0;
   }
 }
 </style>
