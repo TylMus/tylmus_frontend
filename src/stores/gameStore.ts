@@ -17,7 +17,6 @@ export const useGameStore = defineStore('game', () => {
   const gameDate = ref('')
   const dailyInfo = ref<DailyInfo | null>(null)
   const shareDialogOpen = ref(false)
-  const shareText = ref('')
   const shareStats = computed(() => ({
     puzzleDate: gameDate.value,
     groupsFound: foundCategories.value.length,
