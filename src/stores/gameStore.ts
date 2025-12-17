@@ -18,7 +18,6 @@ export const useGameStore = defineStore('game', () => {
   const dailyInfo = ref<DailyInfo | null>(null)
   const shareDialogOpen = ref(false)
   const shareText = ref('')
-  const shareImage = ref('')
   const shareStats = computed(() => ({
     puzzleDate: gameDate.value,
     groupsFound: foundCategories.value.length,
@@ -304,9 +303,12 @@ export const useGameStore = defineStore('game', () => {
       })
     }
     
-  } catch (error) {
-    console.error('Ошибка при шеринге:', error)
-    if (error.name !== 'AbortError') {
+  } catch (error: unknown) {
+    const err = error instanceof Error ? error : new Error(String(error))
+    console.error('Ошибка при шеринге:', err.message)
+    
+    // Если пользователь отменил шеринг, не показываем ошибку
+    if (err.name !== 'AbortError') {
       showMessage.value = true
       messageText.value = 'Не удалось поделиться результатом'
       messageClass.value = 'error'
