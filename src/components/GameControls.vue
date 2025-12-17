@@ -1,21 +1,37 @@
 <template>
   <div class="controls">
-    <button @click="$emit('deselect-all')" class="btn-control">
+    <button 
+      v-if="!gameOver" 
+      @click="$emit('deselect-all')" 
+      class="btn-control"
+    >
       <span class="btn-text">Снять отметку</span>
       <span class="btn-text-mobile">Снять отметку</span>
     </button>
-    <button @click="$emit('shuffle-words')" class="btn-control">
+    <button 
+      v-if="!gameOver" 
+      @click="$emit('shuffle-words')" 
+      class="btn-control"
+    >
       <span class="btn-text">Перемешать</span>
       <span class="btn-text-mobile">Перемешать</span>
     </button>
     <button 
-      @click="$emit('submit-guess')" 
-      :disabled="!canSubmit" 
-      class="btn-submit"
-      :class="{ 'enabled': canSubmit }"
+      v-if="gameOver" 
+      @click="$emit('share-game')" 
+      class="btn-control share"
     >
-      <span class="btn-text">Подтвердить</span>
-      <span class="btn-text-mobile">Подтвердить</span>
+      <span class="btn-text">Поделиться</span>
+      <span class="btn-text-mobile">Поделиться</span>
+    </button>
+    <button 
+      @click="$emit('submit-guess')" 
+      :disabled="gameOver ? false : !canSubmit" 
+      class="btn-submit"
+      :class="{ 'enabled': gameOver ? true : canSubmit, 'game-over-btn': gameOver }"
+    >
+      <span class="btn-text">{{ gameOver ? 'Новая игра' : 'Подтвердить' }}</span>
+      <span class="btn-text-mobile">{{ gameOver ? 'Новая' : 'Подтвердить' }}</span>
     </button>
   </div>
 </template>
@@ -29,6 +45,7 @@ interface Props {
 interface Emits {
   (e: 'deselect-all'): void
   (e: 'shuffle-words'): void
+  (e: 'share-game'): void
   (e: 'submit-guess'): void
 }
 
@@ -39,11 +56,11 @@ defineEmits<Emits>()
 <style scoped>
 .controls {
   display: flex;
-  flex-direction: row; /* EXPLICITLY SET TO ROW */
-  flex-wrap: nowrap; /* PREVENT WRAPPING */
+  flex-direction: row;
+  flex-wrap: nowrap;
   gap: 8px;
   justify-content: center;
-  align-items: center; /* Center vertically */
+  align-items: center;
   margin-bottom: 20px;
   padding: 0 5px;
   width: 100%;
@@ -58,11 +75,11 @@ defineEmits<Emits>()
   font-weight: bold;
   background: white;
   transition: all 0.3s ease;
-  flex: 1 1 auto; /* Allow growth and shrinkage */
-  min-width: 0; /* Allow buttons to shrink below min-content */
-  max-width: 150px; /* Maximum width for desktop */
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 150px;
   text-align: center;
-  white-space: nowrap; /* Prevent text from wrapping inside button */
+  white-space: nowrap;
 }
 
 .btn-control:hover, .btn-submit:not(:disabled):hover {
@@ -85,7 +102,35 @@ defineEmits<Emits>()
   color: white;
 }
 
-/* Hide mobile text by default */
+/* Стили для кнопки "Поделиться" когда игра завершена */
+.btn-control.share {
+  background: #4CAF50;
+  color: white;
+  border-color: #4CAF50;
+}
+
+.btn-control.share:hover {
+  background: #45a049;
+  color: white;
+}
+
+/* Стиль для кнопки "Новая игра" когда игра завершена */
+.btn-submit.game-over-btn {
+  background: #007BFF;
+  color: white;
+  border-color: #007BFF;
+}
+
+.btn-submit.game-over-btn:hover {
+  background: #0056b3;
+  color: white;
+}
+
+.btn-submit.game-over-btn.enabled {
+  background: #007BFF;
+  color: white;
+}
+
 .btn-text-mobile {
   display: none;
 }
@@ -96,14 +141,12 @@ defineEmits<Emits>()
     gap: 6px;
     margin-bottom: 15px;
     padding: 0 4px;
-    flex-direction: row !important; /* FORCE ROW */
   }
   
   .btn-control, .btn-submit {
     padding: 10px 8px;
     font-size: 0.8em;
     max-width: 120px;
-    flex: 1 1 0; /* Equal distribution */
   }
 }
 
@@ -113,7 +156,6 @@ defineEmits<Emits>()
     gap: 4px;
     margin-bottom: 12px;
     padding: 0 3px;
-    flex-direction: row !important; /* FORCE ROW */
   }
   
   .btn-control, .btn-submit {
@@ -122,10 +164,8 @@ defineEmits<Emits>()
     max-width: 100px;
     border-radius: 6px;
     border-width: 1px;
-    flex: 1 1 0; /* Equal distribution */
   }
   
-  /* Show mobile text, hide desktop text */
   .btn-text {
     display: none;
   }
@@ -140,14 +180,12 @@ defineEmits<Emits>()
   .controls {
     gap: 3px;
     padding: 0 2px;
-    flex-direction: row !important; /* FORCE ROW */
   }
   
   .btn-control, .btn-submit {
     padding: 6px 4px;
     font-size: 0.6em;
     max-width: 85px;
-    flex: 1 1 0; /* Equal distribution */
   }
 }
 
@@ -155,7 +193,6 @@ defineEmits<Emits>()
 @media (max-width: 360px) {
   .controls {
     gap: 2px;
-    flex-direction: row !important; /* FORCE ROW */
   }
   
   .btn-control, .btn-submit {
@@ -163,7 +200,6 @@ defineEmits<Emits>()
     font-size: 0.5em;
     max-width: 75px;
     min-height: 36px;
-    flex: 1 1 0; /* Equal distribution */
   }
 }
 
@@ -173,7 +209,6 @@ defineEmits<Emits>()
     padding: 4px 2px;
     font-size: 0.45em;
     max-width: 70px;
-    flex: 1 1 0; /* Equal distribution */
   }
 }
 </style>
