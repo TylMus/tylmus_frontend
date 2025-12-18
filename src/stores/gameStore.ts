@@ -39,6 +39,37 @@ export const useGameStore = defineStore('game', () => {
 
   const initializeGame = async () => {
     console.log('🔄 Initializing game...')
+     try {
+    const stored = localStorage.getItem('tylmus_game_backup')
+    if (stored) {
+      const backup = JSON.parse(stored)
+      // Проверяем, что бэкап не старше 24 часов
+      const now = Date.now()
+      const oneDay = 24 * 60 * 60 * 1000
+      
+      if (now - backup.timestamp < oneDay) {
+        console.log('📦 Found valid localStorage backup:', backup)
+        
+        // Используем бэкап как временное состояние пока грузится с сервера
+        words.value = backup.words || []
+        foundCategories.value = backup.foundCategories || []
+        mistakes.value = backup.mistakes || 0
+        gameDate.value = backup.gameDate || ''
+        
+        // Восстанавливаем статус игры
+        if (foundCategories.value.length === 4 || mistakes.value >= 4) {
+          gameOver.value = true
+        }
+        
+        console.log('⚡ Fast restore from localStorage complete')
+      } else {
+        // Удаляем старый бэкап
+        localStorage.removeItem('tylmus_game_backup')
+      }
+    }
+  } catch (e) {
+    console.warn('⚠️ Error reading localStorage:', e)
+  }
     loading.value = true
     try {
       const response = await gameApi.getGame()
