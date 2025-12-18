@@ -75,6 +75,10 @@ defineEmits<Emits>()
   max-width: 150px;
   text-align: center;
   white-space: nowrap;
+  
+  /* iOS fixes */
+  -webkit-appearance: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .btn-control:hover, .btn-submit:not(:disabled):hover {
@@ -97,7 +101,7 @@ defineEmits<Emits>()
   color: white;
 }
 
-/* Кнопка "Поделиться" получает те же стили, что и btn-control */
+/* Кнопка "Поделиться" */
 .btn-control.share {
   background: white;
   color: black;
@@ -110,6 +114,42 @@ defineEmits<Emits>()
 
 .btn-text-mobile {
   display: none;
+}
+
+/* iOS/Safari специфичные исправления */
+@supports (-webkit-touch-callout: none) {
+  .btn-control, .btn-submit {
+    background-color: white !important;
+    color: black !important;
+    border: 2px solid black !important;
+  }
+  
+  .btn-submit:disabled {
+    background-color: white !important;
+    color: gray !important;
+    border-color: gray !important;
+  }
+  
+  .btn-submit.enabled:not(:disabled) {
+    background-color: black !important;
+    color: white !important;
+  }
+  
+  .btn-control.share {
+    background-color: white !important;
+    color: black !important;
+    border-color: black !important;
+  }
+}
+
+/* Убираем синее выделение на всех устройствах */
+button {
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+button:focus {
+  outline: none;
 }
 
 /* Tablet */
@@ -180,7 +220,7 @@ defineEmits<Emits>()
   }
 }
 
-/* Fix for iPhone SE and similar very small screens */
+/* Fix for iPhone SE */
 @media (max-width: 320px) {
   .btn-control, .btn-submit {
     padding: 4px 2px;
