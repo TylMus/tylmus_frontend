@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { Category, DailyInfo } from '../types/game'
 import { gameApi } from '../api/gameApi'
 
@@ -39,37 +39,46 @@ export const useGameStore = defineStore('game', () => {
 
   const initializeGame = async () => {
     console.log('🔄 Initializing game...')
-     try {
-    const stored = localStorage.getItem('tylmus_game_backup')
-    if (stored) {
-      const backup = JSON.parse(stored)
-      // Проверяем, что бэкап не старше 24 часов
-      const now = Date.now()
-      const oneDay = 24 * 60 * 60 * 1000
-      
-      if (now - backup.timestamp < oneDay) {
-        console.log('📦 Found valid localStorage backup:', backup)
+    
+    // ===== iOS/LocalStorage Backup Check =====
+    try {
+      const stored = localStorage.getItem('tylmus_game_backup')
+      if (stored) {
+        const backup = JSON.parse(stored)
+        const now = Date.now()
+        const oneDay = 24 * 60 * 60 * 1000
         
-        // Используем бэкап как временное состояние пока грузится с сервера
-        words.value = backup.words || []
-        foundCategories.value = backup.foundCategories || []
-        mistakes.value = backup.mistakes || 0
-        gameDate.value = backup.gameDate || ''
-        
-        // Восстанавливаем статус игры
-        if (foundCategories.value.length === 4 || mistakes.value >= 4) {
-          gameOver.value = true
+        if (now - backup.timestamp < oneDay) {
+          console.log('📦 Found valid localStorage backup:', backup)
+          
+          // Быстрое восстановление из localStorage
+          words.value = backup.words || []
+          foundCategories.value = backup.foundCategories || []
+          mistakes.value = backup.mistakes || 0
+          gameDate.value = backup.gameDate || ''
+          
+          // Фильтруем слова
+          const foundWords = foundCategories.value.flatMap((category: Category) => category.words)
+          words.value = words.value.filter((word: string) => !foundWords.includes(word))
+          
+          // Восстанавливаем статус игры
+          if (foundCategories.value.length === 4 || mistakes.value >= 4) {
+            gameOver.value = true
+            console.log('📱 iOS: Game over restored from backup')
+          } else {
+            gameOver.value = false
+          }
+          
+          console.log('⚡ Fast restore from localStorage complete')
+        } else {
+          localStorage.removeItem('tylmus_game_backup')
         }
-        
-        console.log('⚡ Fast restore from localStorage complete')
-      } else {
-        // Удаляем старый бэкап
-        localStorage.removeItem('tylmus_game_backup')
       }
+    } catch (e) {
+      console.warn('⚠️ Error reading localStorage:', e)
     }
-  } catch (e) {
-    console.warn('⚠️ Error reading localStorage:', e)
-  }
+    // ===== End iOS Backup =====
+    
     loading.value = true
     try {
       const response = await gameApi.getGame()
@@ -117,9 +126,72 @@ export const useGameStore = defineStore('game', () => {
         gameOver.value = false
       }
 
+      // ===== Сохраняем бэкап для iOS =====
+      try {
+        const backup = {
+          words: response.words || [],
+          foundCategories: response.found_categories || [],
+          mistakes: response.mistakes || 0,
+          gameDate: response.game_date || '',
+          timestamp: Date.now()
+        }
+        localStorage.setItem('tylmus_game_backup', JSON.stringify(backup))
+        console.log('💾 Game backup saved to localStorage')
+      } catch (e) {
+        console.warn('⚠️ Could not save backup to localStorage:', e)
+      }
+      // ===== End Backup =====
+
       await checkDayChange()
+      
+      // ===== iOS Force Update =====
+      if (gameOver.value) {
+        console.log('📱 iOS: Game over detected, forcing UI update')
+        setTimeout(() => {
+          // Принудительное обновление для iOS
+          gameOver.value = true
+        }, 100)
+      }
+      
     } catch (error) {
       console.error('❌ Error loading game:', error)
+      
+      // ===== Используем бэкап при ошибке =====
+      const stored = localStorage.getItem('tylmus_game_backup')
+      if (stored) {
+        try {
+          const backup = JSON.parse(stored)
+          const now = Date.now()
+          const oneDay = 24 * 60 * 60 * 1000
+          
+          if (now - backup.timestamp < oneDay) {
+            console.log('🔄 Using localStorage backup due to server error')
+            
+            const foundWords = (backup.foundCategories || []).flatMap((category: Category) => category.words)
+            words.value = (backup.words || []).filter((word: string) => !foundWords.includes(word))
+            foundCategories.value = backup.foundCategories || []
+            mistakes.value = backup.mistakes || 0
+            gameDate.value = backup.gameDate || ''
+            
+            if (foundCategories.value.length === 4 || mistakes.value >= 4) {
+              gameOver.value = true
+              console.log('📱 iOS: Game over set from backup')
+            } else {
+              gameOver.value = false
+            }
+            
+            showMessage.value = true
+            messageText.value = 'Игра восстановлена из локального сохранения'
+            messageClass.value = 'info'
+            setTimeout(() => { showMessage.value = false }, 3000)
+            
+            return
+          }
+        } catch (e) {
+          console.warn('⚠️ Error using backup:', e)
+        }
+      }
+      
       showMessage.value = true
       messageText.value = 'Ошибка загрузки игры'
       messageClass.value = 'error'
@@ -218,7 +290,8 @@ export const useGameStore = defineStore('game', () => {
     showMessage.value = true
     messageText.value = `Правильно! "${result.category_name}"`
     messageClass.value = 'success'
-
+    
+    
     foundCategories.value.push({
       name: result.category_name!,
       words: [...selectedWords.value]
@@ -229,6 +302,7 @@ export const useGameStore = defineStore('game', () => {
 
     if (result.game_complete) {
       gameOver.value = true
+      console.log('📱 iOS: Game complete, setting gameOver to true')
       setTimeout(() => {
         showMessage.value = true
         messageText.value = 'Поздравляем! Вы нашли все категории!'
@@ -245,10 +319,13 @@ export const useGameStore = defineStore('game', () => {
     showMessage.value = true
     messageText.value = message
     messageClass.value = 'error'
+    
+    
     selectedWords.value = []
 
     if (mistakes.value >= 4) {
       gameOver.value = true
+      console.log('📱 iOS: Game over from mistakes, setting gameOver to true')
       setTimeout(() => {
         showMessage.value = true
         messageText.value = 'Игра окончена! Слишком много ошибок.'
@@ -265,6 +342,29 @@ export const useGameStore = defineStore('game', () => {
     const colors = ['yellow', 'green', 'blue', 'purple']
     return colors[index % colors.length]
   }
+
+  // ===== Авто-сохранение при изменениях для iOS =====
+  watch([words, foundCategories, mistakes, gameOver], () => {
+    try {
+      const allWords = [
+        ...words.value,
+        ...foundCategories.value.flatMap((category: Category) => category.words)
+      ]
+      
+      const backup = {
+        words: allWords,
+        foundCategories: foundCategories.value,
+        mistakes: mistakes.value,
+        gameDate: gameDate.value,
+        gameOver: gameOver.value, // Сохраняем статус игры
+        timestamp: Date.now()
+      }
+      
+      localStorage.setItem('tylmus_game_backup', JSON.stringify(backup))
+    } catch (e) {
+      console.warn('⚠️ Auto-save failed:', e)
+    }
+  }, { deep: true })
 
   return {
     words,
