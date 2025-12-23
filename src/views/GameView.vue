@@ -314,9 +314,11 @@ const startCountdownTimer = () => {
 
 const generateShareText = (): string => {
   const today = new Date().toISOString().split('T')[0]
-  const result = gameStore.foundCategories.length === 4 ? '🏆 ПОБЕДА!' : '📊 РЕЗУЛЬТАТ:'
+  const foundCount = gameStore.foundCategories.length
   
-  const colorEmojiMap: Record<string, string> = {
+  // Фиксированный порядок цветов
+  const categoryColors = ['yellow', 'green', 'blue', 'purple']
+  const colorEmojiMap = {
     'yellow': '🟨',
     'green': '🟩',
     'blue': '🟦',
@@ -324,33 +326,81 @@ const generateShareText = (): string => {
   }
   
   let text = `🎮 ТылМус - Результаты игры\n\n`
-  text += `📊 Прогресс:\n\n`
   
-  const foundCount = gameStore.foundCategories.length
+  // Если есть история попыток - показываем её
+  if (gameStore.attemptHistory && gameStore.attemptHistory.length > 0) {
+    text += `📊 История попыток:\n\n`
+    
+    // Показываем все попытки из истории
+    gameStore.attemptHistory.forEach(attempt => {
+      if (attempt.type === 'success') {
+        // Успешная попытка - показываем найденную категорию
+        if (attempt.colors.length > 0) {
+          const color = attempt.colors[0]
+          const emoji = colorEmojiMap[color as keyof typeof colorEmojiMap] || '🟨'
+          text += `${emoji}${emoji}${emoji}${emoji}\n`
+        }
+      } else if (attempt.type === 'mistake') {
+        // Ошибочная попытка - показываем 4 случайных цвета (как в примере)
+        const randomColors = [...categoryColors]
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 4)
+        
+        randomColors.forEach(color => {
+          text += colorEmojiMap[color as keyof typeof colorEmojiMap] || '⬜'
+        })
+        text += '\n'
+      }
+    })
+    
+    // Добавляем недостающие категории как найденные (если игра завершена)
+    if (foundCount === 4) {
+      // Получаем уже показанные цвета из успешных попыток
+      const shownColors = gameStore.attemptHistory
+        .filter(a => a.type === 'success')
+        .map(a => a.colors[0])
+      
+      // Добавляем цвета, которые не были показаны в успешных попытках
+      for (let i = 0; i < 4; i++) {
+        const color = categoryColors[i]
+        if (!shownColors.includes(color)) {
+          const emoji = colorEmojiMap[color as keyof typeof colorEmojiMap]
+          text += `${emoji}${emoji}${emoji}${emoji}\n`
+        }
+      }
+    }
+    
+    text += `\n`
+  }
   
-  text += foundCount >= 1 ? '🟨🟨🟨🟨\n' : '⬜⬜⬜⬜\n'
+  // Статистика
+  if (foundCount === 4) {
+    text += `🏆 ПОБЕДА!\n`
+  } else {
+    text += `📊 РЕЗУЛЬТАТ:\n`
+  }
   
-  text += foundCount >= 2 ? '🟩🟩🟩🟩\n' : '⬜⬜⬜⬜\n'
+  text += `✅ Найдено категорий: ${foundCount}/4\n`
+  text += `❌ Ошибок: ${gameStore.mistakes}\n`
+  text += `📅 Дата: ${today}\n\n`
   
-  text += foundCount >= 3 ? '🟦🟦🟦🟦\n' : '⬜⬜⬜⬜\n'
-  
-  text += foundCount >= 4 ? '🟪🟪🟪🟪\n' : '⬜⬜⬜⬜\n'
-  
-  text += `\n${result}\n`
-  text += `Найдено категорий: ${foundCount}/4\n`
-  text += `Ошибок: ${gameStore.mistakes}\n`
-  text += `Дата: ${today}\n\n`
-  
+  // Детали по найденным категориям
   if (foundCount > 0) {
+    text += `📋 Найденные категории:\n`
     gameStore.foundCategories.forEach((category, index) => {
-      const color = gameStore.getCategoryColor(index)
-      const emoji = colorEmojiMap[color] || '🔲'
-      text += `${emoji} ${category.name}\n`
+      const color = categoryColors[index]
+      const emoji = colorEmojiMap[color as keyof typeof colorEmojiMap]
+      text += `${emoji} ${category.name}: ${category.words.join(', ')}\n`
     })
     text += '\n'
   }
   
-  text += `Играйте в ТылМус: tylmus.ru\n`
+  if (foundCount < 4) {
+    const remaining = 4 - foundCount
+    text += `⚠️ Осталось найти: ${remaining} категори${remaining === 1 ? 'я' : 'и'}\n\n`
+  }
+  
+  text += `🔗 Играйте в ТылМус: tylmus.ru\n`
   text += `#ТылМус #СвязатьСлова`
   
   return text
