@@ -1000,3 +1000,5 @@ watch(() => gameStore.gameOver, (newVal) => {
 }
 
 .complete
+
+}
