@@ -108,6 +108,12 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
+  const attemptHistory = ref<Array<{
+    type: 'success' | 'mistake'
+    colors: string[] // цвета в попытке
+    timestamp: Date
+  }>>([])
+
   const resetGameState = () => {
     selectedWords.value = []
     showMessage.value = false
@@ -183,52 +189,72 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
-  const handleSuccess = (result: any) => {
-    showMessage.value = true
-    messageText.value = `Правильно! "${result.category_name}"`
-    messageClass.value = 'success'
+const handleSuccess = (result: any) => {
+  showMessage.value = true
+  messageText.value = `Правильно! "${result.category_name}"`
+  messageClass.value = 'success'
 
-    foundCategories.value.push({
-      name: result.category_name!,
-      words: [...selectedWords.value]
-    })
+  foundCategories.value.push({
+    name: result.category_name!,
+    words: [...selectedWords.value]
+  })
 
-    words.value = words.value.filter((word: string) => !selectedWords.value.includes(word))
-    selectedWords.value = []
+  words.value = words.value.filter((word: string) => !selectedWords.value.includes(word))
+  
+  const foundIndex = foundCategories.value.length - 1
+  const categoryColor = getCategoryColor(foundIndex)
+  
+  attemptHistory.value.push({
+    type: 'success',
+    colors: [categoryColor],
+    timestamp: new Date()
+  })
+  
+  selectedWords.value = []
 
-    if (result.game_complete) {
-      gameOver.value = true
-      setTimeout(() => {
-        showMessage.value = true
-        messageText.value = 'Поздравляем! Вы нашли все категории!'
-        messageClass.value = 'success'
-      }, 1000)
-    }
-
+  if (result.game_complete) {
+    gameOver.value = true
     setTimeout(() => {
-      showMessage.value = false
-    }, 3000)
+      showMessage.value = true
+      messageText.value = 'Поздравляем! Вы нашли все категории!'
+      messageClass.value = 'success'
+    }, 1000)
   }
 
-  const handleMistake = (message: string) => {
-    showMessage.value = true
-    messageText.value = message
-    messageClass.value = 'error'
-    selectedWords.value = []
+  setTimeout(() => {
+    showMessage.value = false
+  }, 3000)
+}
 
-    if (mistakes.value >= 4) {
-      gameOver.value = true
-      setTimeout(() => {
-        showMessage.value = true
-        messageText.value = 'Игра окончена! Слишком много ошибок.'
-        messageClass.value = 'error'
-      }, 1000)
-    }
 
+const handleMistake = (message: string) => {
+  showMessage.value = true
+  messageText.value = message
+  messageClass.value = 'error'
+  
+  // Для ошибки можем определить примерные цвета (если нужно)
+  // Но обычно для ошибки цвета не определены
+  attemptHistory.value.push({
+    type: 'mistake',
+    colors: [], // Пустой массив для ошибок
+    timestamp: new Date()
+  })
+  
+  selectedWords.value = []
+
+  if (mistakes.value >= 4) {
+    gameOver.value = true
     setTimeout(() => {
-      showMessage.value = false
-    }, 3000)
+      showMessage.value = true
+      messageText.value = 'Игра окончена! Слишком много ошибок.'
+      messageClass.value = 'error'
+    }, 1000)
   }
+
+  setTimeout(() => {
+    showMessage.value = false
+  }, 3000)
+}
 
   const getCategoryColor = (index: number) => {
     const colors = ['yellow', 'green', 'blue', 'purple']
@@ -248,6 +274,7 @@ export const useGameStore = defineStore('game', () => {
     loading,
     gameDate,
     dailyInfo,
+    attemptHistory,
 
     gameStatus,
     dailyDisplay,

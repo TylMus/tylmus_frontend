@@ -312,39 +312,50 @@ const startCountdownTimer = () => {
   }
 }
 
-// Функция для формирования текста для шаринга
 const generateShareText = (): string => {
   const today = new Date().toISOString().split('T')[0]
   const result = gameStore.foundCategories.length === 4 ? '🏆 ПОБЕДА!' : '📊 РЕЗУЛЬТАТ:'
-  const status = gameStore.foundCategories.length === 4 ? '✅' : '❌'
-  const mistakesText = gameStore.mistakes === 0 ? 'БЕЗ ОШИБОК!' : `${gameStore.mistakes} ошибок`
+  
+  const colorEmojiMap: Record<string, string> = {
+    'yellow': '🟨',
+    'green': '🟩',
+    'blue': '🟦',
+    'purple': '🟪'
+  }
   
   let text = `🎮 ТылМус - Результаты игры\n\n`
-  text += `${result}\n`
-  text += `${status} Найдено категорий: ${gameStore.foundCategories.length}/4\n`
-  text += `❌ Ошибок: ${gameStore.mistakes} (${mistakesText})\n`
-  text += `📅 Дата: ${today}\n\n`
+  text += `📊 Прогресс:\n\n`
   
-  if (gameStore.foundCategories.length > 0) {
-    text += `📋 Найденные категории:\n`
+  const foundCount = gameStore.foundCategories.length
+  
+  text += foundCount >= 1 ? '🟨🟨🟨🟨\n' : '⬜⬜⬜⬜\n'
+  
+  text += foundCount >= 2 ? '🟩🟩🟩🟩\n' : '⬜⬜⬜⬜\n'
+  
+  text += foundCount >= 3 ? '🟦🟦🟦🟦\n' : '⬜⬜⬜⬜\n'
+  
+  text += foundCount >= 4 ? '🟪🟪🟪🟪\n' : '⬜⬜⬜⬜\n'
+  
+  text += `\n${result}\n`
+  text += `Найдено категорий: ${foundCount}/4\n`
+  text += `Ошибок: ${gameStore.mistakes}\n`
+  text += `Дата: ${today}\n\n`
+  
+  if (foundCount > 0) {
     gameStore.foundCategories.forEach((category, index) => {
-      text += `${index + 1}. ${category.name}: ${category.words.join(', ')}\n`
+      const color = gameStore.getCategoryColor(index)
+      const emoji = colorEmojiMap[color] || '🔲'
+      text += `${emoji} ${category.name}\n`
     })
     text += '\n'
   }
   
-  if (gameStore.foundCategories.length < 4) {
-    const remaining = 4 - gameStore.foundCategories.length
-    text += `⚠️ Не найдено категорий: ${remaining}\n\n`
-  }
-  
-  text += `🔗 Играйте в ТылМус: tylmus.ru\n`
+  text += `Играйте в ТылМус: tylmus.ru\n`
   text += `#ТылМус #СвязатьСлова`
   
   return text
 }
 
-// Функция для шаринга результатов
 const shareResults = async () => {
   try {
     const shareText = generateShareText()
