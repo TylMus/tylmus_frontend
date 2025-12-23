@@ -21,6 +21,14 @@
       :text="gameOverErrorTextWin"
       @close="closeGameOver"
     />
+    
+    <!-- Уведомление о копировании -->
+    <NotificationPopup 
+      v-if="showShareNotification"
+      type="success"
+      :text="shareNotificationText"
+      @close="closeShareNotification"
+    />
 
     <div class="background-ornament">
       <img 
@@ -104,9 +112,11 @@
         <GameControls
           :can-submit="gameStore.selectedWords.length === 4 && !gameStore.gameOver"
           :game-over="gameStore.gameOver"
+          :show-share-button="gameStore.gameOver" // Показывать кнопку после завершения игры
           @deselect-all="gameStore.deselectAll"
           @shuffle-words="gameStore.shuffleWords"
           @submit-guess="gameStore.submitGuess"
+          @share-results="shareResults" // Обработчик шаринга
         />
       </div>
     </div>
@@ -207,6 +217,8 @@ import NotificationPopup from '../components/NotificationPopup.vue'
 
 const gameStore = useGameStore()
 const countdownInterval = ref<NodeJS.Timeout | null>(null)
+const showShareNotification = ref(false)
+const shareNotificationText = ref('')
 
 const closePopup = () => {
   gameStore.showMessage = false
@@ -214,6 +226,10 @@ const closePopup = () => {
 
 const closeGameOver = () => {
   gameStore.showMessage = false
+}
+
+const closeShareNotification = () => {
+  showShareNotification.value = false
 }
 
 // Function to get next midnight in GMT+9
@@ -296,6 +312,88 @@ const startCountdownTimer = () => {
   }
 }
 
+// Функция для формирования текста для шаринга
+const generateShareText = (): string => {
+  const today = new Date().toISOString().split('T')[0]
+  const result = gameStore.foundCategories.length === 4 ? '🏆 ПОБЕДА!' : '📊 РЕЗУЛЬТАТ:'
+  const status = gameStore.foundCategories.length === 4 ? '✅' : '❌'
+  const mistakesText = gameStore.mistakes === 0 ? 'БЕЗ ОШИБОК!' : `${gameStore.mistakes} ошибок`
+  
+  let text = `🎮 ТылМус - Результаты игры\n\n`
+  text += `${result}\n`
+  text += `${status} Найдено категорий: ${gameStore.foundCategories.length}/4\n`
+  text += `❌ Ошибок: ${gameStore.mistakes} (${mistakesText})\n`
+  text += `📅 Дата: ${today}\n\n`
+  
+  if (gameStore.foundCategories.length > 0) {
+    text += `📋 Найденные категории:\n`
+    gameStore.foundCategories.forEach((category, index) => {
+      text += `${index + 1}. ${category.name}: ${category.words.join(', ')}\n`
+    })
+    text += '\n'
+  }
+  
+  if (gameStore.foundCategories.length < 4) {
+    const remaining = 4 - gameStore.foundCategories.length
+    text += `⚠️ Не найдено категорий: ${remaining}\n\n`
+  }
+  
+  text += `🔗 Играйте в ТылМус: tylmus.ru\n`
+  text += `#ТылМус #СвязатьСлова`
+  
+  return text
+}
+
+// Функция для шаринга результатов
+const shareResults = async () => {
+  try {
+    const shareText = generateShareText()
+    
+    // Пробуем использовать Web Share API если доступно
+    if (navigator.share) {
+      await navigator.share({
+        title: 'ТылМус - Мои результаты',
+        text: shareText,
+        url: window.location.origin
+      })
+    } else {
+      // Используем старый метод копирования в буфер обмена
+      await navigator.clipboard.writeText(shareText)
+      showShareNotification.value = true
+      shareNotificationText.value = 'Результат скопирован в буфер обмена!'
+      
+      // Автоматически скрыть уведомление через 3 секунды
+      setTimeout(() => {
+        showShareNotification.value = false
+      }, 3000)
+    }
+    
+    console.log('📋 Результаты игры скопированы для шаринга')
+  } catch (error) {
+    console.error('❌ Ошибка при шаринге результатов:', error)
+    
+    // Fallback для старых браузеров
+    try {
+      const textArea = document.createElement('textarea')
+      textArea.value = generateShareText()
+      document.body.appendChild(textArea)
+      textArea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textArea)
+      
+      showShareNotification.value = true
+      shareNotificationText.value = 'Результат скопирован в буфер обмена!'
+      
+      setTimeout(() => {
+        showShareNotification.value = false
+      }, 3000)
+    } catch (fallbackError) {
+      console.error('❌ Ошибка fallback копирования:', fallbackError)
+      alert('Не удалось скопировать результат. Пожалуйста, скопируйте текст вручную.')
+    }
+  }
+}
+
 onMounted(() => {
   console.log('🎮 GameView mounted, initializing game...')
   gameStore.initializeGame().then(() => {
@@ -325,6 +423,28 @@ watch(() => gameStore.gameOver, (newVal) => {
 </script>
 
 <style scoped>
+/* Добавленные стили для лучшего отображения кнопки шаринга */
+.controls {
+  position: relative;
+}
+
+.btn-share {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Остальные стили остаются без изменений */
 /* Base Styles */
 .app-container {
   position: relative;
@@ -879,77 +999,4 @@ watch(() => gameStore.gameOver, (newVal) => {
   margin: 0 auto;
 }
 
-.complete-mode .category-block {
-  grid-column: 1; /* Single column layout */
-  min-height: 60px; /* Same height as before */
-  padding: 10px;
-}
-
-/* Responsive adjustments for complete mode */
-@media (max-width: 768px) {
-  .complete-mode {
-    max-width: 500px;
-    gap: 8px;
-  }
-  
-  .complete-mode .category-block {
-    min-height: 45px;
-    padding: 8px;
-  }
-}
-
-@media (max-width: 576px) {
-  .complete-mode {
-    max-width: 400px;
-    gap: 6px;
-  }
-  
-  .complete-mode .category-block {
-    min-height: 40px;
-    padding: 6px;
-  }
-  
-  /* Additional button spacing for mobile */
-  .controls {
-    margin-top: 10px;
-  }
-}
-
-@media (max-width: 400px) {
-  /* Make everything more compact on very small screens */
-  .game-screen {
-    padding: 10px 5px;
-    min-height: 380px;
-  }
-  
-  .combined-grid {
-    gap: 3px;
-  }
-  
-  .grid-item {
-    min-height: 35px;
-    font-size: 11px;
-    padding: 4px 2px;
-  }
-  
-  .category-block {
-    min-height: 35px;
-    padding: 4px;
-  }
-  
-  .game-info {
-    margin: 8px 0;
-  }
-  
-  .mistakes {
-    font-size: 12px;
-  }
-  
-  .mistake {
-    font-size: 14px;
-  }
-}
-
-
-}
-</style>
+.complete

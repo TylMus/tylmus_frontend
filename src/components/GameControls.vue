@@ -1,5 +1,6 @@
 <template>
   <div class="controls">
+    <!-- Основные кнопки управления -->
     <button @click="$emit('deselect-all')" class="btn-control">
       <span class="btn-text">Снять отметку</span>
       <span class="btn-text-mobile">Снять отметку</span>
@@ -17,6 +18,16 @@
       <span class="btn-text">Подтвердить</span>
       <span class="btn-text-mobile">Подтвердить</span>
     </button>
+    
+    <!-- Кнопка "Поделиться результатом!" -->
+    <button 
+      v-if="showShareButton"
+      @click="$emit('share-results')"
+      class="btn-share"
+    >
+      <span class="btn-text">Поделиться результатом!</span>
+      <span class="btn-text-mobile">Поделиться</span>
+    </button>
   </div>
 </template>
 
@@ -24,12 +35,14 @@
 interface Props {
   canSubmit: boolean
   gameOver: boolean
+  showShareButton: boolean
 }
 
 interface Emits {
   (e: 'deselect-all'): void
   (e: 'shuffle-words'): void
   (e: 'submit-guess'): void
+  (e: 'share-results'): void
 }
 
 defineProps<Props>()
@@ -49,7 +62,7 @@ defineEmits<Emits>()
   width: 100%;
 }
 
-.btn-control, .btn-submit {
+.btn-control, .btn-submit, .btn-share {
   padding: 12px 16px;
   border: 2px solid black;
   border-radius: 8px;
@@ -65,7 +78,7 @@ defineEmits<Emits>()
   white-space: nowrap; /* Prevent text from wrapping inside button */
 }
 
-.btn-control:hover, .btn-submit:not(:disabled):hover {
+.btn-control:hover, .btn-submit:not(:disabled):hover, .btn-share:hover {
   background: #d4edda;
 }
 
@@ -85,6 +98,18 @@ defineEmits<Emits>()
   color: white;
 }
 
+/* Стиль для кнопки шаринга */
+.btn-share {
+  background: #4CAF50;
+  color: white;
+  border-color: #4CAF50;
+}
+
+.btn-share:hover {
+  background: #45a049;
+  border-color: #45a049;
+}
+
 /* Hide mobile text by default */
 .btn-text-mobile {
   display: none;
@@ -99,7 +124,7 @@ defineEmits<Emits>()
     flex-direction: row !important; /* FORCE ROW */
   }
   
-  .btn-control, .btn-submit {
+  .btn-control, .btn-submit, .btn-share {
     padding: 10px 8px;
     font-size: 0.8em;
     max-width: 120px;
@@ -116,7 +141,7 @@ defineEmits<Emits>()
     flex-direction: row !important; /* FORCE ROW */
   }
   
-  .btn-control, .btn-submit {
+  .btn-control, .btn-submit, .btn-share {
     padding: 8px 6px;
     font-size: 0.7em;
     max-width: 100px;
@@ -143,7 +168,7 @@ defineEmits<Emits>()
     flex-direction: row !important; /* FORCE ROW */
   }
   
-  .btn-control, .btn-submit {
+  .btn-control, .btn-submit, .btn-share {
     padding: 6px 4px;
     font-size: 0.6em;
     max-width: 85px;
@@ -158,7 +183,7 @@ defineEmits<Emits>()
     flex-direction: row !important; /* FORCE ROW */
   }
   
-  .btn-control, .btn-submit {
+  .btn-control, .btn-submit, .btn-share {
     padding: 5px 3px;
     font-size: 0.5em;
     max-width: 75px;
@@ -169,7 +194,7 @@ defineEmits<Emits>()
 
 /* Fix for iPhone SE and similar very small screens */
 @media (max-width: 320px) {
-  .btn-control, .btn-submit {
+  .btn-control, .btn-submit, .btn-share {
     padding: 4px 2px;
     font-size: 0.45em;
     max-width: 70px;
