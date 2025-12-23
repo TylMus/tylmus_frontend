@@ -986,19 +986,25 @@ watch(() => gameStore.gameOver, (newVal) => {
   .instruction-text {
     font-size: 13px;
   }
+  
   .game-complete {
-  text-align: center;
+    text-align: center;
+  }
+
+  /* Use the same grid layout for complete mode */
+  .complete-mode {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .complete-mode .category-block {
+    grid-column: 1;
+    min-height: 60px;
+    padding: 10px;
+  }
 }
 
-/* Use the same grid layout for complete mode */
-.complete-mode {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-  max-width: 700px;
-  margin: 0 auto;
-}
-
-.complete
-
-}
+</style>
