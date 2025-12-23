@@ -110,8 +110,9 @@ export const useGameStore = defineStore('game', () => {
 
   const attemptHistory = ref<Array<{
     type: 'success' | 'mistake'
-    colors: string[] // цвета в попытке
+    colors: string[]
     timestamp: Date
+    words?: string[]
   }>>([])
 
   const resetGameState = () => {
