@@ -165,7 +165,7 @@ export const useGameStore = defineStore('game', () => {
         if (result.mistakes !== undefined) {
           mistakes.value = result.mistakes
         }
-        handleMistake(result.message || 'Неправильно! Попробуйте еще раз.')
+        handleMistake(result.message || 'Неправильно! Попробуйте еще раз.', result)
       }
     } catch (error: any) {
       console.error('❌ Error submitting guess:', error)
@@ -201,13 +201,12 @@ const handleSuccess = (result: any) => {
 
   words.value = words.value.filter((word: string) => !selectedWords.value.includes(word))
   
-  const foundIndex = foundCategories.value.length - 1
-  const categoryColor = getCategoryColor(foundIndex)
-  
+  // Сохраняем в историю с цветом из ответа сервера
   attemptHistory.value.push({
     type: 'success',
-    colors: [categoryColor],
-    timestamp: new Date()
+    colors: [result.category_color || 'yellow'], // Цвет из сервера
+    timestamp: new Date(),
+    words: [...selectedWords.value]
   })
   
   selectedWords.value = []
@@ -226,18 +225,19 @@ const handleSuccess = (result: any) => {
   }, 3000)
 }
 
-
-const handleMistake = (message: string) => {
+const handleMistake = (message: string, result?: any) => {
   showMessage.value = true
   messageText.value = message
   messageClass.value = 'error'
   
-  // Для ошибки можем определить примерные цвета (если нужно)
-  // Но обычно для ошибки цвета не определены
+  // Используем цвета из ответа сервера
+  const selectedColors = result?.selected_colors || []
+  
   attemptHistory.value.push({
     type: 'mistake',
-    colors: [], // Пустой массив для ошибок
-    timestamp: new Date()
+    colors: selectedColors, // Реальные цвета из сервера
+    timestamp: new Date(),
+    words: [...selectedWords.value]
   })
   
   selectedWords.value = []

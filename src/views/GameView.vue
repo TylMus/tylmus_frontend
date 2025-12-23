@@ -327,21 +327,17 @@ const generateShareText = (): string => {
   
   let text = `🎮 ТылМус - Результаты игры\n\n`
   
-  // Если есть история попыток - показываем её
   if (gameStore.attemptHistory && gameStore.attemptHistory.length > 0) {
     text += `📊 История попыток:\n\n`
     
-    // Показываем все попытки из истории
     gameStore.attemptHistory.forEach(attempt => {
       if (attempt.type === 'success') {
-        // Успешная попытка - показываем найденную категорию
         if (attempt.colors.length > 0) {
           const color = attempt.colors[0]
           const emoji = colorEmojiMap[color as keyof typeof colorEmojiMap] || '🟨'
           text += `${emoji}${emoji}${emoji}${emoji}\n`
         }
       } else if (attempt.type === 'mistake') {
-        // Ошибочная попытка - показываем 4 случайных цвета (как в примере)
         const randomColors = [...categoryColors]
           .sort(() => Math.random() - 0.5)
           .slice(0, 4)
@@ -353,14 +349,11 @@ const generateShareText = (): string => {
       }
     })
     
-    // Добавляем недостающие категории как найденные (если игра завершена)
     if (foundCount === 4) {
-      // Получаем уже показанные цвета из успешных попыток
       const shownColors = gameStore.attemptHistory
         .filter(a => a.type === 'success')
         .map(a => a.colors[0])
       
-      // Добавляем цвета, которые не были показаны в успешных попытках
       for (let i = 0; i < 4; i++) {
         const color = categoryColors[i]
         if (!shownColors.includes(color)) {
@@ -373,7 +366,6 @@ const generateShareText = (): string => {
     text += `\n`
   }
   
-  // Статистика
   if (foundCount === 4) {
     text += `🏆 ПОБЕДА!\n`
   } else {
@@ -383,17 +375,6 @@ const generateShareText = (): string => {
   text += `✅ Найдено категорий: ${foundCount}/4\n`
   text += `❌ Ошибок: ${gameStore.mistakes}\n`
   text += `📅 Дата: ${today}\n\n`
-  
-  // Детали по найденным категориям
-  if (foundCount > 0) {
-    text += `📋 Найденные категории:\n`
-    gameStore.foundCategories.forEach((category, index) => {
-      const color = categoryColors[index]
-      const emoji = colorEmojiMap[color as keyof typeof colorEmojiMap]
-      text += `${emoji} ${category.name}: ${category.words.join(', ')}\n`
-    })
-    text += '\n'
-  }
   
   if (foundCount < 4) {
     const remaining = 4 - foundCount
