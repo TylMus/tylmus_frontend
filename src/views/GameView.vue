@@ -112,11 +112,11 @@
         <GameControls
           :can-submit="gameStore.selectedWords.length === 4 && !gameStore.gameOver"
           :game-over="gameStore.gameOver"
-          :show-share-button="gameStore.gameOver" // Показывать кнопку после завершения игры
+          :show-share-button="gameStore.gameOver"
           @deselect-all="gameStore.deselectAll"
           @shuffle-words="gameStore.shuffleWords"
           @submit-guess="gameStore.submitGuess"
-          @share-results="shareResults" // Обработчик шаринга
+          @share-results="shareResults"
         />
       </div>
     </div>
