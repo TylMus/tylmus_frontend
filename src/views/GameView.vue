@@ -316,8 +316,6 @@ const generateShareText = (): string => {
   const today = new Date().toISOString().split('T')[0]
   const foundCount = gameStore.foundCategories.length
   
-  // Фиксированный порядок цветов
-  const categoryColors = ['yellow', 'green', 'blue', 'purple']
   const colorEmojiMap = {
     'yellow': '🟨',
     'green': '🟩',
@@ -330,42 +328,58 @@ const generateShareText = (): string => {
   if (gameStore.attemptHistory && gameStore.attemptHistory.length > 0) {
     text += `📊 История попыток:\n\n`
     
+    // Показываем все попытки из истории
     gameStore.attemptHistory.forEach(attempt => {
       if (attempt.type === 'success') {
+        // Успешная попытка - показываем найденную категорию
         if (attempt.colors.length > 0) {
           const color = attempt.colors[0]
           const emoji = colorEmojiMap[color as keyof typeof colorEmojiMap] || '🟨'
           text += `${emoji}${emoji}${emoji}${emoji}\n`
         }
-      } else if (attempt.type === 'mistake') {
-        const randomColors = [...categoryColors]
-          .sort(() => Math.random() - 0.5)
-          .slice(0, 4)
-        
-        randomColors.forEach(color => {
-          text += colorEmojiMap[color as keyof typeof colorEmojiMap] || '⬜'
-        })
+      } else if (attempt.type === 'mistake' && attempt.colors.length > 0) {
+        // Ошибочная попытка - показываем реальные цвета выбранных слов
+        // Если выбрано 4 слова - показываем 4 цвета
+        if (attempt.colors.length === 4) {
+          attempt.colors.forEach(color => {
+            text += colorEmojiMap[color as keyof typeof colorEmojiMap] || '⬜'
+          })
+        } else {
+          // Если цветов меньше 4, дополняем серыми квадратами
+          attempt.colors.forEach(color => {
+            text += colorEmojiMap[color as keyof typeof colorEmojiMap] || '⬜'
+          })
+          for (let i = attempt.colors.length; i < 4; i++) {
+            text += '⬜'
+          }
+        }
         text += '\n'
+      } else if (attempt.type === 'mistake') {
+        // Ошибочная попытка без цветов (старая версия)
+        text += '⬜⬜⬜⬜\n'
       }
     })
     
+    // Добавляем недостающие категории как найденные
     if (foundCount === 4) {
       const shownColors = gameStore.attemptHistory
         .filter(a => a.type === 'success')
         .map(a => a.colors[0])
       
-      for (let i = 0; i < 4; i++) {
-        const color = categoryColors[i]
+      // Проверяем, все ли категории показаны
+      const allColors = ['yellow', 'green', 'blue', 'purple']
+      allColors.forEach(color => {
         if (!shownColors.includes(color)) {
           const emoji = colorEmojiMap[color as keyof typeof colorEmojiMap]
           text += `${emoji}${emoji}${emoji}${emoji}\n`
         }
-      }
+      })
     }
     
     text += `\n`
   }
   
+  // Статистика
   if (foundCount === 4) {
     text += `🏆 ПОБЕДА!\n`
   } else {
