@@ -106,7 +106,6 @@
           :game-over="gameStore.gameOver"
           @deselect-all="gameStore.deselectAll"
           @shuffle-words="gameStore.shuffleWords"
-          @share-game="shareGameResults"
           @submit-guess="gameStore.submitGuess"
         />
       </div>
@@ -208,9 +207,7 @@ import NotificationPopup from '../components/NotificationPopup.vue'
 
 const gameStore = useGameStore()
 const countdownInterval = ref<NodeJS.Timeout | null>(null)
-const forceUpdate = ref(0)
 
-// ===== Popup Handlers =====
 const closePopup = () => {
   gameStore.showMessage = false
 }
@@ -219,7 +216,7 @@ const closeGameOver = () => {
   gameStore.showMessage = false
 }
 
-// ===== Timer Functions =====
+// Function to get next midnight in GMT+9
 const getNextMidnightGMT9 = (): Date => {
   const now = new Date()
   
@@ -241,6 +238,7 @@ const getNextMidnightGMT9 = (): Date => {
   return localNextMidnight
 }
 
+// Format time remaining
 const formatTimeRemaining = (endTime: Date): string => {
   const now = new Date()
   const diff = endTime.getTime() - now.getTime()
@@ -256,93 +254,20 @@ const formatTimeRemaining = (endTime: Date): string => {
   return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
 }
 
-// ===== iOS Timer Fix =====
-const startCountdownTimer = () => {
-  if (countdownInterval.value) {
-    clearInterval(countdownInterval.value)
-    countdownInterval.value = null
-  }
-  
-  if (gameStore.gameOver) {
-    // Используем setTimeout вместо setInterval для лучшей работы на iOS
-    const updateTimer = () => {
-      forceUpdate.value++
-      if (gameStore.gameOver) {
-        countdownInterval.value = setTimeout(updateTimer, 1000)
-      }
-    }
-    
-    countdownInterval.value = setTimeout(updateTimer, 1000)
-  }
-}
+// Reactive value to force updates
+const forceUpdate = ref(0)
 
-// ===== Share Function =====
-const shareGameResults = () => {
-  const categoriesFound = gameStore.foundCategories.length
-  const mistakes = gameStore.mistakes
-  const isWin = categoriesFound === 4
-  
-  let resultText = ''
-  let emoji = ''
-  
-  if (isWin) {
-    emoji = '🎉'
-    resultText = `Я прошел ТылМус! Нашел все 4 категории с ${mistakes} ошибк${mistakes === 1 ? 'ой' : mistakes > 1 && mistakes < 5 ? 'ами' : 'ами'}.`
-  } else {
-    emoji = '🤔'
-    resultText = `Я сыграл в ТылМус! Нашел ${categoriesFound} из 4 категорий, ошибок: ${mistakes}.`
-  }
-  
-  const shareMessage = `${emoji} ${resultText}\n\nПопробуй и ты: ${window.location.href}`
-  
-  // iOS требует URL в share()
-  if (navigator.share) {
-    navigator.share({
-      title: 'Мой результат в ТылМус',
-      text: `${emoji} ${resultText}`,
-      url: window.location.href
-    }).catch(error => {
-      console.log('Ошибка шаринга:', error)
-      copyToClipboard(shareMessage)
-    })
-  } else {
-    copyToClipboard(shareMessage)
-  }
-}
-
-const copyToClipboard = (text: string) => {
-  navigator.clipboard.writeText(text)
-    .then(() => {
-      gameStore.showMessage = true
-      gameStore.messageText = 'Результат скопирован в буфер обмена!'
-      gameStore.messageClass = 'success'
-      
-      setTimeout(() => {
-        gameStore.showMessage = false
-      }, 3000)
-    })
-    .catch(err => {
-      console.error('Ошибка копирования:', err)
-      gameStore.showMessage = true
-      gameStore.messageText = `Скопируйте текст вручную:\n\n${text}`
-      gameStore.messageClass = 'info'
-      
-      setTimeout(() => {
-        gameStore.showMessage = false
-      }, 5000)
-    })
-}
-
-// ===== Game Over Texts =====
+// Computed property for game over text with countdown
 const gameOverErrorText = computed(() => {
   if (!gameStore.gameOver || gameStore.foundCategories.length === 4) return ""
   
   const nextMidnight = getNextMidnightGMT9()
   const timeRemaining = formatTimeRemaining(nextMidnight)
   
+  // Use forceUpdate to make TypeScript happy
   void forceUpdate.value
   
-  return `Игра окончена! Слишком много ошибок.\nСледующая игра будет доступна через:\n${timeRemaining}`
+  return `Игра окончена! Слишком много ошибок. Следующая игра будет доступна через: ${timeRemaining}`
 })
 
 const gameOverErrorTextWin = computed(() => {
@@ -351,14 +276,28 @@ const gameOverErrorTextWin = computed(() => {
   const nextMidnight = getNextMidnightGMT9()
   const timeRemaining = formatTimeRemaining(nextMidnight)
   
+  // Use forceUpdate to make TypeScript happy
   void forceUpdate.value
   
-  return `Поздравляем! Вы нашли все категории!\nСледующая игра будет доступна через:\n${timeRemaining}`
+  return `Поздравляем! Вы нашли все категории! Следующая игра будет доступна через: ${timeRemaining}`
 })
 
-// ===== Lifecycle =====
+// Start countdown timer
+const startCountdownTimer = () => {
+  if (countdownInterval.value) {
+    clearInterval(countdownInterval.value)
+  }
+  
+  if (gameStore.gameOver) {
+    // Force computed properties to update by incrementing forceUpdate
+    countdownInterval.value = setInterval(() => {
+      forceUpdate.value++
+    }, 1000)
+  }
+}
+
 onMounted(() => {
-  console.log('📱 GameView mounted on device')
+  console.log('🎮 GameView mounted, initializing game...')
   gameStore.initializeGame().then(() => {
     console.log('✅ Game initialization complete')
     startCountdownTimer()
@@ -367,35 +306,22 @@ onMounted(() => {
   })
 })
 
+// Clean up interval on unmount
 onUnmounted(() => {
   if (countdownInterval.value) {
     clearInterval(countdownInterval.value)
-    countdownInterval.value = null
   }
 })
 
-// ===== Watchers =====
+// Watch for game over changes
 watch(() => gameStore.gameOver, (newVal) => {
-  console.log('📱 Game over status changed:', newVal)
   if (newVal) {
     startCountdownTimer()
-    
-    // iOS: принудительное обновление для кнопки "Поделиться"
-    setTimeout(() => {
-      console.log('🔄 Forcing UI update for share button')
-    }, 100)
   } else if (countdownInterval.value) {
     clearInterval(countdownInterval.value)
     countdownInterval.value = null
   }
 })
-
-// Следим за изменениями игры для обновления таймера
-watch(() => gameStore.foundCategories, () => {
-  if (gameStore.gameOver) {
-    forceUpdate.value++
-  }
-}, { deep: true })
 </script>
 
 <style scoped>
