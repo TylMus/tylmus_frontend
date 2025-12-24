@@ -3,6 +3,19 @@ import { ref, computed } from 'vue'
 import type { Category, DailyInfo } from '../types/game'
 import { gameApi } from '../api/gameApi'
 
+// Types for attempt history
+export interface AttemptHistoryItem {
+  type: 'success' | 'mistake'
+  colors: string[]
+  timestamp: Date
+  words?: string[]
+}
+
+export interface StoredAttemptHistory {
+  gameDate: string
+  attempts: AttemptHistoryItem[]
+}
+
 export const useGameStore = defineStore('game', () => {
   const words = ref<string[]>([])
   const foundCategories = ref<Category[]>([])
@@ -16,7 +29,11 @@ export const useGameStore = defineStore('game', () => {
   const loading = ref(false)
   const gameDate = ref('')
   const dailyInfo = ref<DailyInfo | null>(null)
-  const wordColors = ref<Record<string, string>>({}) // ADDED: Store word colors from backend
+  const wordColors = ref<Record<string, string>>({})
+
+  // Local storage keys
+  const ATTEMPT_HISTORY_KEY = 'tylmus_attempt_history'
+  const CURRENT_GAME_DATE_KEY = 'tylmus_current_game_date'
 
   const gameStatus = computed(() => {
     if (gameOver.value) return 'game-over'
@@ -38,6 +55,59 @@ export const useGameStore = defineStore('game', () => {
     }
   })
 
+  // Load attempt history from localStorage
+  const loadAttemptHistory = (): AttemptHistoryItem[] => {
+    try {
+      const storedGameDate = localStorage.getItem(CURRENT_GAME_DATE_KEY)
+      const today = new Date().toISOString().split('T')[0]
+      
+      // If it's a new day, clear old history
+      if (storedGameDate !== today) {
+        console.log('🆕 New day detected, clearing attempt history from localStorage')
+        localStorage.removeItem(ATTEMPT_HISTORY_KEY)
+        localStorage.setItem(CURRENT_GAME_DATE_KEY, today)
+        return []
+      }
+      
+      const stored = localStorage.getItem(ATTEMPT_HISTORY_KEY)
+      if (stored) {
+        const parsed = JSON.parse(stored) as StoredAttemptHistory
+        
+        // Convert timestamp strings back to Date objects
+        const attempts = parsed.attempts.map(attempt => ({
+          ...attempt,
+          timestamp: new Date(attempt.timestamp)
+        }))
+        
+        console.log('📂 Loaded attempt history from localStorage:', attempts.length, 'attempts')
+        return attempts
+      }
+    } catch (error) {
+      console.error('❌ Error loading attempt history from localStorage:', error)
+    }
+    return []
+  }
+
+  // Save attempt history to localStorage
+  const saveAttemptHistory = (attempts: AttemptHistoryItem[]) => {
+    try {
+      const today = new Date().toISOString().split('T')[0]
+      const historyToSave: StoredAttemptHistory = {
+        gameDate: today,
+        attempts: attempts.map(attempt => ({
+          ...attempt,
+          timestamp: attempt.timestamp // Will be serialized to ISO string
+        }))
+      }
+      
+      localStorage.setItem(ATTEMPT_HISTORY_KEY, JSON.stringify(historyToSave))
+      localStorage.setItem(CURRENT_GAME_DATE_KEY, today)
+      console.log('💾 Saved attempt history to localStorage:', attempts.length, 'attempts')
+    } catch (error) {
+      console.error('❌ Error saving attempt history to localStorage:', error)
+    }
+  }
+
   // Check day change using backend daily info
   const checkDayChange = async (): Promise<boolean> => {
     try {
@@ -48,6 +118,7 @@ export const useGameStore = defineStore('game', () => {
         console.log('🆕 Backend detected new day')
         // Clear attempt history for new day
         attemptHistory.value = []
+        saveAttemptHistory([]) // Clear from localStorage too
         return true
       }
       return false
@@ -57,6 +128,8 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
+  const attemptHistory = ref<AttemptHistoryItem[]>(loadAttemptHistory())
+
   const initializeGame = async () => {
     console.log('🔄 Initializing game...')
     loading.value = true
@@ -65,6 +138,13 @@ export const useGameStore = defineStore('game', () => {
       // First check if it's a new day via backend
       const isNewDay = await checkDayChange()
       console.log('📅 New day check result:', isNewDay)
+      
+      // Load attempt history for today
+      if (!isNewDay) {
+        const loadedHistory = loadAttemptHistory()
+        attemptHistory.value = loadedHistory
+        console.log('📂 Restored attempt history:', loadedHistory.length, 'attempts')
+      }
       
       const response = await gameApi.getGame()
       console.log('✅ Game data in store:', response)
@@ -163,17 +243,11 @@ export const useGameStore = defineStore('game', () => {
       mistakes.value = 0
       gameOver.value = false
       wordColors.value = {}
+      attemptHistory.value = []
     } finally {
       loading.value = false
     }
   }
-
-  const attemptHistory = ref<Array<{
-    type: 'success' | 'mistake'
-    colors: string[]
-    timestamp: Date
-    words?: string[]
-  }>>([])
 
   const resetGameState = () => {
     selectedWords.value = []
@@ -273,13 +347,17 @@ const handleSuccess = (result: any) => {
     wordColors.value[word] || 'gray'
   )
   
-  // Save to history
-  attemptHistory.value.push({
+  // Create new attempt
+  const newAttempt: AttemptHistoryItem = {
     type: 'success',
     colors: attemptColors,
     timestamp: new Date(),
     words: [...selectedWords.value]
-  })
+  }
+  
+  // Add to history and save
+  attemptHistory.value.push(newAttempt)
+  saveAttemptHistory(attemptHistory.value)
   
   selectedWords.value = []
 
@@ -322,12 +400,17 @@ const handleMistake = (message: string, result?: any) => {
     )
   }
   
-  attemptHistory.value.push({
+  // Create new attempt
+  const newAttempt: AttemptHistoryItem = {
     type: 'mistake',
     colors: attemptColors,
     timestamp: new Date(),
     words: [...selectedWords.value]
-  })
+  }
+  
+  // Add to history and save
+  attemptHistory.value.push(newAttempt)
+  saveAttemptHistory(attemptHistory.value)
   
   selectedWords.value = []
 
@@ -367,6 +450,14 @@ const handleMistake = (message: string, result?: any) => {
     return wordColors.value[word] || 'gray'
   }
 
+  // Clear attempt history (for testing or if needed)
+  const clearAttemptHistory = () => {
+    attemptHistory.value = []
+    localStorage.removeItem(ATTEMPT_HISTORY_KEY)
+    localStorage.removeItem(CURRENT_GAME_DATE_KEY)
+    console.log('🧹 Attempt history cleared')
+  }
+
   return {
     words,
     foundCategories,
@@ -381,7 +472,7 @@ const handleMistake = (message: string, result?: any) => {
     gameDate,
     dailyInfo,
     attemptHistory,
-    wordColors, // EXPORT wordColors
+    wordColors,
 
     gameStatus,
     gameDisplay,
@@ -392,7 +483,8 @@ const handleMistake = (message: string, result?: any) => {
     shuffleWords,
     submitGuess,
     getCategoryColor,
-    getWordColor, // EXPORT getWordColor
-    resetGameState
+    getWordColor,
+    resetGameState,
+    clearAttemptHistory // Export if needed
   }
 })
