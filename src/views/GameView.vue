@@ -8,19 +8,18 @@
       @close="closePopup"
     />
     
-    <!-- Game Over Modal - Simplified -->
+    <!-- Game Over Modal - Super Simplified -->
     <div v-if="gameStore.gameOver" class="game-over-modal-overlay">
       <div class="game-over-modal">
-        <button class="modal-close" @click="closeGameOverModal">×</button>
-        
         <div class="modal-content">
           <!-- Game Result Header -->
           <div class="game-result-header">
-            <h2 v-if="gameStore.foundCategories.length === 4"> Победа!</h2>
-            <h2 v-else> Поражение</h2>
+            <h2 v-if="gameStore.foundCategories.length === 4">🎉 Победа!</h2>
+            <h2 v-else>❌ Поражение</h2>
             <div class="result-stats">
-              <span class="stat">Найдено категорий: {{ gameStore.foundCategories.length }}/4</span>
-              <span class="stat">Ошибок: {{ gameStore.mistakes }}/4</span>
+              Найдено категорий: {{ gameStore.foundCategories.length }}/4
+              <br>
+              Ошибок: {{ gameStore.mistakes }}/4
             </div>
           </div>
           
@@ -34,25 +33,19 @@
               >
                 <div class="attempt-squares">
                   <div 
-                    v-for="(color, colorIndex) in attempt.colors" 
+                    v-for="(color, colorIndex) in getFourColors(attempt)" 
                     :key="colorIndex"
                     class="color-square"
                     :class="color"
                   ></div>
                 </div>
-                <div class="attempt-badge" :class="attempt.type">
-                  {{ attempt.type === 'success' ? '✓' : '✗' }}
-                </div>
               </div>
             </div>
           </div>
           
-          <!-- Countdown Timer - Simplified -->
+          <!-- Next Game Timer - Plain Text -->
           <div class="next-game-timer">
-            <p>Следующая игра через:</p>
-            <div class="timer-text">
-              {{ countdownTime }}
-            </div>
+            Следующая игра через: {{ countdownTime }}
           </div>
           
           <!-- Share Button -->
@@ -74,13 +67,13 @@
       @close="closeShareNotification"
     />
 
+    <!-- Rest of your existing template remains the same -->
     <div class="background-ornament">
       <img 
         src="/public/img/background-ornament.svg" 
         alt="Background ornament" 
       />
     </div>
-    <!-- Unified Background -->
     <div class="background-ornament2">
       <img 
         src="/public/img/background-ornament.svg" 
@@ -88,18 +81,14 @@
       />
     </div>
 
-    <!-- Game Header -->
     <GameHeader :game-display="gameStore.gameDisplay" />
     
-    <!-- Main Game Area -->
     <div class="game-screen">
       <div class="container">
-        <!-- Loading State - Fixed height container -->
         <div v-if="gameStore.loading" class="loading">
           Загрузка игры...
         </div>
         
-        <!-- Game Complete State -->
         <div v-else-if="gameStore.words.length === 0 && gameStore.foundCategories.length === 4" class="game-complete">
           <div class="combined-grid complete-mode">
             <CategoryBlock
@@ -112,14 +101,11 @@
           </div>
         </div>
         
-        <!-- Error State -->
         <div v-else-if="gameStore.words.length === 0" class="no-words">
           Не удалось загрузить слова. Проверьте консоль для ошибок.
         </div>
         
-        <!-- Game Grid - Fixed height container -->
         <div v-else class="combined-grid">
-          <!-- Found Categories -->
           <CategoryBlock
             v-for="(category, index) in gameStore.foundCategories"
             :key="'category-' + index"
@@ -128,7 +114,6 @@
             :color="gameStore.getCategoryColor(index)"
           />
           
-          <!-- Word Cards -->
           <WordCard
             v-for="(word, index) in gameStore.words"
             :key="'word-' + index"
@@ -139,7 +124,6 @@
           />
         </div>
         
-        <!-- Game Info -->
         <div class="game-info">
           <div class="mistakes">
             Осталось ошибок: 
@@ -152,7 +136,6 @@
           </div>
         </div>
         
-        <!-- Game Controls -->
         <GameControls
           :can-submit="gameStore.selectedWords.length === 4 && !gameStore.gameOver"
           :game-over="gameStore.gameOver"
@@ -164,7 +147,6 @@
       </div>
     </div>
 
-    <!-- About Section -->
     <section class="about-section">
       <div class="container">
         <div class="about-content">
@@ -179,33 +161,18 @@
       </div>
     </section>
 
-    <!-- Instructions Section -->
     <section class="instructions-section">
-    
-      <!-- Corner SVGs -->
       <div class="corner corner-top-left">
-        <img 
-          src="/public/img/corner-top-left.svg" 
-          alt="Decorative corner" 
-        />
+        <img src="/public/img/corner-top-left.svg" alt="Decorative corner" />
       </div>
       <div class="corner corner-top-right">
-        <img 
-          src="/public/img/corner-top-right.svg" 
-          alt="Decorative corner" 
-        />
+        <img src="/public/img/corner-top-right.svg" alt="Decorative corner" />
       </div>
       <div class="corner corner-bottom-left">
-        <img 
-          src="/public/img/corner-bottom-left.svg" 
-          alt="Decorativ	e corner" 
-        />
+        <img src="/public/img/corner-bottom-left.svg" alt="Decorative corner" />
       </div>
-      <div class="corner corner-bottom-right ">
-        <img 
-          src="/public/img/corner-bottom-right.svg" 
-          alt="Decorative corner" 
-        />
+      <div class="corner corner-bottom-right">
+        <img src="/public/img/corner-bottom-right.svg" alt="Decorative corner" />
       </div>
       <div class="spellbee-container">
         <div class="text-center">
@@ -236,16 +203,13 @@
           </ul>
         </div>
       </div>
-
     </section>
 
-    <!-- Footer -->
     <footer class="footer">
       <div class="container text-center">
         <p>@LemonLemon Ltd | ТылМус | Связать слова</p>
       </div>
     </footer>
-    
   </div>
 </template>
 
@@ -309,6 +273,29 @@ const formatTimeRemaining = (endTime: Date): string => {
   return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
 }
 
+// Helper to ensure 4 colors per attempt
+const getFourColors = (attempt: any): string[] => {
+  const colors = attempt.colors || []
+  
+  // If we have exactly 4 colors, use them
+  if (colors.length === 4) {
+    return colors
+  }
+  
+  // If we have fewer than 4 colors (old data or mistake without colors)
+  // For success, repeat the first color 4 times
+  if (attempt.type === 'success' && colors.length > 0) {
+    return Array(4).fill(colors[0])
+  }
+  
+  // For mistakes with fewer than 4 colors, fill missing ones with 'gray'
+  const result = [...colors]
+  while (result.length < 4) {
+    result.push('gray')
+  }
+  return result
+}
+
 // Reactive value to force updates
 const forceUpdate = ref(0)
 
@@ -325,7 +312,6 @@ const startCountdownTimer = () => {
   }
   
   if (gameStore.gameOver) {
-    // Force computed properties to update by incrementing forceUpdate
     countdownInterval.value = setInterval(() => {
       forceUpdate.value++
     }, 1000)
@@ -348,45 +334,27 @@ const generateShareText = (): string => {
   if (gameStore.attemptHistory && gameStore.attemptHistory.length > 0) {
     text += `📊 История попыток:\n\n`
     
-    // Показываем все попытки из истории
+    // Show all attempts with exactly 4 squares
     gameStore.attemptHistory.forEach(attempt => {
       if (attempt.type === 'success') {
-        // Успешная попытка - показываем найденную категорию
-        if (attempt.colors.length > 0) {
-          const color = attempt.colors[0]
-          const emoji = colorEmojiMap[color as keyof typeof colorEmojiMap] || '🟨'
-          text += `${emoji}${emoji}${emoji}${emoji}\n`
-        }
-      } else if (attempt.type === 'mistake' && attempt.colors.length > 0) {
-        // Ошибочная попытка - показываем реальные цвета выбранных слов
-        // Если выбрано 4 слова - показываем 4 цвета
-        if (attempt.colors.length === 4) {
-          attempt.colors.forEach(color => {
-            text += colorEmojiMap[color as keyof typeof colorEmojiMap] || '⬜'
-          })
-        } else {
-          // Если цветов меньше 4, дополняем серыми квадратами
-          attempt.colors.forEach(color => {
-            text += colorEmojiMap[color as keyof typeof colorEmojiMap] || '⬜'
-          })
-          for (let i = attempt.colors.length; i < 4; i++) {
-            text += '⬜'
-          }
-        }
-        text += '\n'
+        const color = attempt.colors[0] || 'yellow'
+        const emoji = colorEmojiMap[color as keyof typeof colorEmojiMap] || '🟨'
+        text += `${emoji}${emoji}${emoji}${emoji}\n`
       } else if (attempt.type === 'mistake') {
-        // Ошибочная попытка без цветов (старая версия)
-        text += '⬜⬜⬜⬜\n'
+        const fourColors = getFourColors(attempt)
+        fourColors.forEach(color => {
+          text += colorEmojiMap[color as keyof typeof colorEmojiMap] || '⬜'
+        })
+        text += '\n'
       }
     })
     
-    // Добавляем недостающие категории как найденные
+    // Add missing categories as found for complete games
     if (foundCount === 4) {
       const shownColors = gameStore.attemptHistory
         .filter(a => a.type === 'success')
         .map(a => a.colors[0])
       
-      // Проверяем, все ли категории показаны
       const allColors = ['yellow', 'green', 'blue', 'purple']
       allColors.forEach(color => {
         if (!shownColors.includes(color)) {
@@ -399,7 +367,6 @@ const generateShareText = (): string => {
     text += `\n`
   }
   
-  // Статистика
   if (foundCount === 4) {
     text += `🏆 ПОБЕДА!\n`
   } else {
@@ -425,7 +392,6 @@ const shareResults = async () => {
   try {
     const shareText = generateShareText()
     
-    // Пробуем использовать Web Share API если доступно
     if (navigator.share) {
       await navigator.share({
         title: 'ТылМус - Мои результаты',
@@ -433,12 +399,10 @@ const shareResults = async () => {
         url: window.location.origin
       })
     } else {
-      // Используем старый метод копирования в буфер обмена
       await navigator.clipboard.writeText(shareText)
       showShareNotification.value = true
       shareNotificationText.value = 'Результат скопирован в буфер обмена!'
       
-      // Автоматически скрыть уведомление через 3 секунды
       setTimeout(() => {
         showShareNotification.value = false
       }, 3000)
@@ -448,7 +412,6 @@ const shareResults = async () => {
   } catch (error) {
     console.error('❌ Ошибка при шаринге результатов:', error)
     
-    // Fallback для старых браузеров
     try {
       const textArea = document.createElement('textarea')
       textArea.value = generateShareText()
@@ -471,8 +434,6 @@ const shareResults = async () => {
 }
 
 const closeGameOverModal = () => {
-  // We'll just hide the game over modal without resetting game state
-  // So the user can still see the results but can continue browsing
   gameStore.gameOver = false
 }
 
@@ -486,14 +447,12 @@ onMounted(() => {
   })
 })
 
-// Clean up interval on unmount
 onUnmounted(() => {
   if (countdownInterval.value) {
     clearInterval(countdownInterval.value)
   }
 })
 
-// Watch for game over changes
 watch(() => gameStore.gameOver, (newVal) => {
   if (newVal) {
     startCountdownTimer()
@@ -505,7 +464,7 @@ watch(() => gameStore.gameOver, (newVal) => {
 </script>
 
 <style scoped>
-/* Simplified Game Over Modal Styles */
+/* Super Simplified Game Over Modal */
 .game-over-modal-overlay {
   position: fixed;
   top: 0;
@@ -517,39 +476,15 @@ watch(() => gameStore.gameOver, (newVal) => {
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  animation: fadeIn 0.2s ease;
 }
 
 .game-over-modal {
   background: white;
   border-radius: 12px;
-  padding: 20px;
-  max-width: 400px;
+  padding: 25px;
+  max-width: 380px;
   width: 90%;
-  position: relative;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
-
-.modal-close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #666;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
-}
-
-.modal-close:hover {
-  background: #f5f5f5;
 }
 
 .modal-content {
@@ -561,130 +496,76 @@ watch(() => gameStore.gameOver, (newVal) => {
 /* Game Result Header */
 .game-result-header {
   text-align: center;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #eee;
 }
 
 .game-result-header h2 {
-  font-size: 28px;
+  font-size: 26px;
   margin-bottom: 10px;
   color: #333;
 }
 
 .game-result-header h2:first-child {
-  color: #28a745; /* Green for win */
+  color: #28a745;
 }
 
 .game-result-header h2:last-child {
-  color: #dc3545; /* Red for loss */
+  color: #dc3545;
 }
 
 .result-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  font-size: 14px;
+  font-size: 15px;
   color: #666;
-}
-
-.stat {
-  background: #f8f9fa;
-  padding: 4px 8px;
-  border-radius: 4px;
-  display: inline-block;
+  line-height: 1.4;
 }
 
 /* Game History */
 .game-history {
-  margin: 10px 0;
+  display: flex;
+  justify-content: center;
 }
 
 .history-grid {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  max-height: 200px;
+  gap: 10px;
+  max-height: 220px;
   overflow-y: auto;
-  padding: 10px;
-  background: #f8f9fa;
+  padding: 15px;
+  background: white;
   border-radius: 8px;
+  border: 1px solid #eee;
 }
 
 .attempt-row {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 10px;
-  background: white;
-  border-radius: 6px;
-  border: 1px solid #e9ecef;
+  justify-content: center;
 }
 
 .attempt-squares {
   display: flex;
-  gap: 4px;
+  gap: 6px;
 }
 
 .color-square {
-  width: 20px;
-  height: 20px;
-  border-radius: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
 }
 
 .color-square.yellow { background: #ffcc95; }
 .color-square.green { background: #aef8cb; }
 .color-square.blue { background: #b6ceff; }
 .color-square.purple { background: #E0ceff; }
+.color-square.gray { background: #ddd; }
 
-.attempt-badge {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-}
-
-.attempt-badge.success {
-  background: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
-}
-
-.attempt-badge.mistake {
-  background: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
-}
-
-/* Next Game Timer - Simplified */
+/* Next Game Timer - Plain Text */
 .next-game-timer {
   text-align: center;
-  padding: 10px;
-  background: #f8f9fa;
-  border-radius: 8px;
-}
-
-.next-game-timer p {
-  margin-bottom: 8px;
-  font-size: 14px;
-  color: #666;
-}
-
-.timer-text {
-  font-family: 'Courier New', monospace;
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 16px;
   color: #333;
-  background: white;
-  padding: 8px 16px;
-  border-radius: 6px;
-  display: inline-block;
-  border: 1px solid #ddd;
-  min-width: 120px;
-  text-align: center;
-  letter-spacing: 1px;
+  padding: 10px 0;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
 }
 
 /* Share Button */
@@ -705,27 +586,28 @@ watch(() => gameStore.gameOver, (newVal) => {
   background: #45a049;
 }
 
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
 /* Responsive styles */
 @media (max-width: 768px) {
   .game-over-modal {
-    padding: 15px;
+    padding: 20px;
     width: 95%;
   }
   
   .game-result-header h2 {
-    font-size: 24px;
+    font-size: 22px;
   }
   
-  .timer-text {
-    font-size: 20px;
-    padding: 6px 12px;
-    min-width: 110px;
+  .result-stats {
+    font-size: 14px;
+  }
+  
+  .color-square {
+    width: 22px;
+    height: 22px;
+  }
+  
+  .next-game-timer {
+    font-size: 15px;
   }
   
   .share-button {
@@ -736,26 +618,20 @@ watch(() => gameStore.gameOver, (newVal) => {
 
 @media (max-width: 480px) {
   .game-over-modal {
-    padding: 12px;
+    padding: 15px;
   }
   
   .game-result-header h2 {
     font-size: 20px;
   }
   
-  .result-stats {
-    font-size: 13px;
-  }
-  
   .color-square {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
   }
   
-  .timer-text {
-    font-size: 18px;
-    padding: 5px 10px;
-    min-width: 100px;
+  .attempt-squares {
+    gap: 4px;
   }
   
   .share-button {
@@ -764,7 +640,7 @@ watch(() => gameStore.gameOver, (newVal) => {
   }
 }
 
-/* Rest of the existing styles remain unchanged */
+/* Rest of existing styles remain exactly as they were */
 .app-container {
   position: relative;
   min-height: 100vh;
@@ -1028,7 +904,6 @@ watch(() => gameStore.gameOver, (newVal) => {
   text-align: center;
 }
 
-/* Responsive styles */
 @media (max-width: 768px) {
   .game-screen {
     padding: 15px 8px;
