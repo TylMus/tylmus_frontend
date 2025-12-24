@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { CheckSelectionResponse, DailyInfo, GameResponse } from '../types/game'
+import type { CheckSelectionResponse, GameResponse } from '../types/game'
 
 // Домен бэкенда
 const API_BASE_URL = 'https://tylmus-tylmus-backend-a4a1.twc1.net'
@@ -65,11 +65,6 @@ export const gameApi = {
 
   async getGameStatus() {
     const response = await api.get('/api/game_status')
-    return response.data
-  },
-
-  async getDailyInfo(): Promise<DailyInfo> {
-    const response = await api.get('/api/daily_info')
     return response.data
   }
 }

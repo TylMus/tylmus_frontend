@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Category, DailyInfo } from '../types/game'
+import type { Category } from '../types/game'
 import { gameApi } from '../api/gameApi'
 
 export const useGameStore = defineStore('game', () => {
@@ -15,7 +15,7 @@ export const useGameStore = defineStore('game', () => {
   const messageClass = ref<'success' | 'error' | 'info'>('info')
   const loading = ref(false)
   const gameDate = ref('')
-  const dailyInfo = ref<DailyInfo | null>(null)
+  // Removed: dailyInfo ref
 
   const gameStatus = computed(() => {
     if (gameOver.value) return 'game-over'
@@ -23,7 +23,7 @@ export const useGameStore = defineStore('game', () => {
     return 'playing'
   })
 
-  const dailyDisplay = computed(() => {
+  const gameDisplay = computed(() => {
     if (!gameDate.value) return 'Загрузка...'
 
     const gameDateObj = new Date(gameDate.value)
@@ -86,7 +86,6 @@ export const useGameStore = defineStore('game', () => {
         gameOver.value = false
       }
 
-      await checkDayChange()
     } catch (error) {
       console.error('❌ Error loading game:', error)
       showMessage.value = true
@@ -96,15 +95,6 @@ export const useGameStore = defineStore('game', () => {
       foundCategories.value = []
     } finally {
       loading.value = false
-    }
-  }
-
-  const checkDayChange = async () => {
-    try {
-      dailyInfo.value = await gameApi.getDailyInfo()
-      console.log('📅 Daily info:', dailyInfo.value)
-    } catch (error) {
-      console.error('Error checking day change:', error)
     }
   }
 
@@ -274,11 +264,10 @@ const handleMistake = (message: string, result?: any) => {
     messageClass,
     loading,
     gameDate,
-    dailyInfo,
     attemptHistory,
 
     gameStatus,
-    dailyDisplay,
+    gameDisplay, // Renamed from dailyDisplay
 
     initializeGame,
     toggleWord,
