@@ -8,19 +8,68 @@
       @close="closePopup"
     />
     
-    <NotificationPopup 
-      v-if="gameStore.gameOver && gameStore.foundCategories.length !== 4" 
-      type="error"
-      :text="gameOverErrorText"
-      @close="closeGameOver"
-    />
-    
-    <NotificationPopup 
-      v-if="gameStore.gameOver && gameStore.foundCategories.length === 4" 
-      type="success"
-      :text="gameOverErrorTextWin"
-      @close="closeGameOver"
-    />
+    <!-- Game Over Modal -->
+    <div v-if="gameStore.gameOver" class="game-over-modal-overlay">
+      <div class="game-over-modal">
+        <div class="modal-header">
+          <h2 v-if="gameStore.foundCategories.length === 4"> Победа!</h2>
+          <h2 v-else> Поражение</h2>
+          <p class="game-result-stats">
+            Найдено категорий: {{ gameStore.foundCategories.length }}/4 • 
+            Ошибок: {{ gameStore.mistakes }}/4
+          </p>
+        </div>
+        
+        <div class="modal-content">
+          <!-- Attempt History Visualization -->
+          <div class="attempt-history">
+            <h3>История попыток</h3>
+            <div class="attempt-grid">
+              <div 
+                v-for="(attempt, index) in gameStore.attemptHistory" 
+                :key="index"
+                class="attempt-row"
+              >
+                <div class="attempt-squares">
+                  <div 
+                    v-for="(color, colorIndex) in attempt.colors" 
+                    :key="colorIndex"
+                    class="color-square"
+                    :class="color"
+                  ></div>
+                </div>
+                <div class="attempt-info">
+                  <span class="attempt-type" :class="attempt.type">
+                    {{ attempt.type === 'success' ? '✓' : '✗' }}
+                  </span>
+                  <span class="attempt-time">
+                    {{ formatTime(attempt.timestamp) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Countdown Timer -->
+          <div class="next-game-countdown">
+            <p>Следующая игра через:</p>
+            <div class="countdown-timer">
+              {{ countdownTime }}
+            </div>
+          </div>
+          
+          <!-- Share Button -->
+          <button 
+            @click="shareResults"
+            class="modal-share-button"
+          >
+            📋 Поделиться результатом
+          </button>
+        </div>
+        
+        <button class="modal-close" @click="closeGameOverModal">×</button>
+      </div>
+    </div>
     
     <!-- Уведомление о копировании -->
     <NotificationPopup 
@@ -45,7 +94,6 @@
     </div>
 
     <!-- Game Header -->
-    <!-- CHANGE HERE: Replace daily-display with game-display -->
     <GameHeader :game-display="gameStore.gameDisplay" />
     
     <!-- Main Game Area -->
@@ -113,11 +161,10 @@
         <GameControls
           :can-submit="gameStore.selectedWords.length === 4 && !gameStore.gameOver"
           :game-over="gameStore.gameOver"
-          :show-share-button="gameStore.gameOver"
+          :show-share-button="false"
           @deselect-all="gameStore.deselectAll"
           @shuffle-words="gameStore.shuffleWords"
           @submit-guess="gameStore.submitGuess"
-          @share-results="shareResults"
         />
       </div>
     </div>
@@ -225,10 +272,6 @@ const closePopup = () => {
   gameStore.showMessage = false
 }
 
-const closeGameOver = () => {
-  gameStore.showMessage = false
-}
-
 const closeShareNotification = () => {
   showShareNotification.value = false
 }
@@ -271,32 +314,18 @@ const formatTimeRemaining = (endTime: Date): string => {
   return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
 }
 
+// Format time for attempt history
+const formatTime = (date: Date): string => {
+  return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+}
+
 // Reactive value to force updates
 const forceUpdate = ref(0)
 
-// Computed property for game over text with countdown
-const gameOverErrorText = computed(() => {
-  if (!gameStore.gameOver || gameStore.foundCategories.length === 4) return ""
-  
+// Computed countdown time
+const countdownTime = computed(() => {
   const nextMidnight = getNextMidnightGMT9()
-  const timeRemaining = formatTimeRemaining(nextMidnight)
-  
-  // Use forceUpdate to make TypeScript happy
-  void forceUpdate.value
-  
-  return `Игра окончена! Слишком много ошибок. Следующая игра будет доступна через: ${timeRemaining}`
-})
-
-const gameOverErrorTextWin = computed(() => {
-  if (!gameStore.gameOver || gameStore.foundCategories.length !== 4) return ""
-  
-  const nextMidnight = getNextMidnightGMT9()
-  const timeRemaining = formatTimeRemaining(nextMidnight)
-  
-  // Use forceUpdate to make TypeScript happy
-  void forceUpdate.value
-  
-  return `Поздравляем! Вы нашли все категории! Следующая игра будет доступна через: ${timeRemaining}`
+  return formatTimeRemaining(nextMidnight)
 })
 
 // Start countdown timer
@@ -451,6 +480,12 @@ const shareResults = async () => {
   }
 }
 
+const closeGameOverModal = () => {
+  // We'll just hide the game over modal without resetting game state
+  // So the user can still see the results but can continue browsing
+  gameStore.gameOver = false
+}
+
 onMounted(() => {
   console.log('🎮 GameView mounted, initializing game...')
   gameStore.initializeGame().then(() => {
@@ -479,45 +514,297 @@ watch(() => gameStore.gameOver, (newVal) => {
 })
 </script>
 
-
 <style scoped>
-/* Добавленные стили для лучшего отображения кнопки шаринга */
-.controls {
+/* Game Over Modal Styles */
+.game-over-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.game-over-modal {
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
   position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
 }
 
-.btn-share {
-  animation: pulse 2s infinite;
+.modal-header {
+  text-align: center;
+  margin-bottom: 25px;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 15px;
 }
 
-@keyframes pulse {
-  0% {
-    transform: scale(1);
+.modal-header h2 {
+  font-size: 28px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.modal-header h2:first-child {
+  color: #28a745; /* Green for win */
+}
+
+.modal-header h2:last-child {
+  color: #dc3545; /* Red for loss */
+}
+
+.game-result-stats {
+  font-size: 16px;
+  color: #666;
+  font-weight: 500;
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.attempt-history h3 {
+  font-size: 18px;
+  margin-bottom: 15px;
+  color: #333;
+  text-align: center;
+}
+
+.attempt-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.attempt-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.attempt-squares {
+  display: flex;
+  gap: 6px;
+}
+
+.color-square {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.color-square.yellow { background: #ffcc95; }
+.color-square.green { background: #aef8cb; }
+.color-square.blue { background: #b6ceff; }
+.color-square.purple { background: #E0ceff; }
+
+.attempt-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.attempt-type {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.attempt-type.success {
+  color: #28a745;
+}
+
+.attempt-type.mistake {
+  color: #dc3545;
+}
+
+.attempt-time {
+  font-size: 12px;
+  color: #888;
+}
+
+.next-game-countdown {
+  text-align: center;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border: 2px dashed #dee2e6;
+}
+
+.next-game-countdown p {
+  margin-bottom: 10px;
+  font-size: 16px;
+  color: #666;
+}
+
+.countdown-timer {
+  font-family: 'Courier New', monospace;
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+  background: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  display: inline-block;
+  border: 2px solid #333;
+  letter-spacing: 2px;
+}
+
+.modal-share-button {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 14px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.modal-share-button:hover {
+  background: #45a049;
+}
+
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.modal-close:hover {
+  background: #f5f5f5;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
   }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
+  to { 
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-/* Остальные стили остаются без изменений */
-/* Base Styles */
+/* Responsive styles for modal */
+@media (max-width: 768px) {
+  .game-over-modal {
+    padding: 20px;
+    width: 95%;
+    max-height: 85vh;
+  }
+  
+  .modal-header h2 {
+    font-size: 24px;
+  }
+  
+  .color-square {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .countdown-timer {
+    font-size: 22px;
+    padding: 8px 16px;
+  }
+  
+  .modal-share-button {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-over-modal {
+    padding: 15px;
+  }
+  
+  .modal-header h2 {
+    font-size: 20px;
+  }
+  
+  .game-result-stats {
+    font-size: 14px;
+  }
+  
+  .attempt-history h3 {
+    font-size: 16px;
+  }
+  
+  .attempt-squares {
+    gap: 4px;
+  }
+  
+  .color-square {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .countdown-timer {
+    font-size: 18px;
+    padding: 6px 12px;
+  }
+}
+
+/* Rest of the existing styles remain unchanged */
 .app-container {
   position: relative;
   min-height: 100vh;
   overflow-x: hidden;
 }
 
-/* Fixed height for game screen to prevent layout shift */
 .game-screen {
   width: 100%;
   max-width: 1000px; 
   margin: 0 auto;
   padding: 20px 10px;
   position: relative;
-  min-height: 550px; /* Fixed minimum height */
+  min-height: 550px;
   display: flex;
   flex-direction: column;
 }
@@ -528,16 +815,15 @@ watch(() => gameStore.gameOver, (newVal) => {
   margin: 0 auto;
 }
 
-/* Game Grid - Desktop */
 .combined-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px; /* Consistent gap for all items */
+  gap: 10px;
   margin-bottom: 15px;
-  max-width: 700px; /* Reduced from 800px to make cards less wide */
+  max-width: 700px;
   margin-left: auto;
   margin-right: auto;
-  min-height: 400px; /* Fixed height to prevent layout shift */
+  min-height: 400px;
 }
 
 .grid-item {
@@ -547,32 +833,29 @@ watch(() => gameStore.gameOver, (newVal) => {
   justify-content: center;
 }
 
-/* Category blocks - same height as word cards */
 .category-block {
-  margin: 0; /* Remove margin, use grid gap instead */
+  margin: 0;
   grid-column: 1 / span 4;
-  min-height: 60px; /* Same as word cards */
-  padding: 10px; /* Reduce padding to match height */
+  min-height: 60px;
+  padding: 10px;
 }
 
-/* Loading state with fixed height */
 .loading {
   text-align: center;
   padding: 40px;
   font-size: 18px;
   color: #666;
-  min-height: 400px; /* Match grid height */
+  min-height: 400px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Game Info */
 .game-info {
   margin-bottom: 15px;
   display: flex;
   justify-content: center;
-  flex-shrink: 0; /* Prevent shrinking */
+  flex-shrink: 0;
 }
 
 .mistakes {
@@ -594,7 +877,6 @@ watch(() => gameStore.gameOver, (newVal) => {
   opacity: 0.3;
 }
 
-/* About Section - Full width text */
 .about-section {
   background-color: #D3FBE3;
   padding: 40px 20px;
@@ -607,19 +889,19 @@ watch(() => gameStore.gameOver, (newVal) => {
 }
 
 .about-title {
-  color: #000; 
+  color: #000;
   margin-bottom: 15px;
-  font-size: 20px; 
-  font-weight: 600; 
+  font-size: 20px;
+  font-weight: 600;
 }
 
 .about-text {
   font-size: 16px;
-  line-height: 1.6; 
-  color: #333; 
+  line-height: 1.6;
+  color: #333;
   text-align: center;
 }
-/* Instructions Section */
+
 .instructions-section {
   position: relative;
   background: #f8f9fa;
@@ -635,7 +917,7 @@ watch(() => gameStore.gameOver, (newVal) => {
 
 .instructions-title {
   font-size: 24px;
-  color: #000; /* Changed to black */
+  color: #000;
   margin-bottom: 25px;
   font-weight: bold;
 }
@@ -651,7 +933,7 @@ watch(() => gameStore.gameOver, (newVal) => {
 }
 
 .instruction-step {
-  color: #000; /* Changed to black */
+  color: #000;
   margin-bottom: 10px;
   font-size: 20px;
   font-weight: 600;
@@ -678,7 +960,6 @@ watch(() => gameStore.gameOver, (newVal) => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Footer */
 .footer {
   background: #f8f9fa;
   padding: 25px 0;
@@ -705,6 +986,7 @@ watch(() => gameStore.gameOver, (newVal) => {
   align-items: center;
   justify-content: center;
 }
+
 .background-ornament2 {
   position: absolute;
   top: 18%;
@@ -720,6 +1002,7 @@ watch(() => gameStore.gameOver, (newVal) => {
   justify-content: center;
   transform: scaleY(-1);
 }
+
 .corner {
   position: absolute;
   pointer-events: none;
@@ -754,6 +1037,7 @@ watch(() => gameStore.gameOver, (newVal) => {
   bottom: -100px;
   right: 0px;
 }
+
 .no-words {
   text-align: center;
   padding: 40px;
@@ -761,7 +1045,7 @@ watch(() => gameStore.gameOver, (newVal) => {
   color: #ff0000;
   background: #ffe6e6;
   border-radius: 8px;
-  min-height: 400px; /* Match grid height */
+  min-height: 400px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -771,101 +1055,11 @@ watch(() => gameStore.gameOver, (newVal) => {
   text-align: center;
 }
 
-.categories-complete {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-/* ========== RESPONSIVE IMAGE SIZING ========== */
-/* Desktop: smaller images (30-40%) */
-@media (min-width: 992px) {
-  .instruction-image {
-    max-width: 35%;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  
-  .adaptive-image {
-    max-width: 100%;
-    height: auto;
-  }
-}
-
-/* Tablet (768px to 991px) - FIXED */
-@media (min-width: 768px) and (max-width: 991px) {
-  .instruction-image {
-    max-width: 50%;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  
-  /* Fixed: Always use 4 columns on tablet */
-  .combined-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    max-width: 600px;
-    min-height: 350px;
-  }
-  
-  .grid-item {
-    min-height: 45px;
-    font-size: 13px;
-    padding: 8px 4px;
-  }
-  
-  .category-block {
-    grid-column: 1 / span 4;
-    min-height: 45px;
-    padding: 8px;
-  }
-}
-
-/* Small Tablet (576px to 767px) - FIXED */
-@media (min-width: 576px) and (max-width: 767px) {
-  .instruction-image {
-    max-width: 60%;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  
-  /* Fixed: Always use 4 columns on small tablet */
-  .combined-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
-    max-width: 500px;
-    min-height: 300px;
-  }
-  
-  .grid-item {
-    min-height: 40px;
-    font-size: 12px;
-    padding: 6px 3px;
-  }
-  
-  .category-block {
-    grid-column: 1 / span 4;
-    min-height: 40px;
-    padding: 6px;
-  }
-}
-
-/* Mobile (Below 576px) */
-@media (max-width: 575px) {
-  .instruction-image {
-    max-width: 75%;
-    margin-left: auto;
-    margin-right: auto;
-  }
-}
-
-/* ========== MOBILE RESPONSIVE DESIGN ========== */
+/* Responsive styles */
 @media (max-width: 768px) {
   .game-screen {
     padding: 15px 8px;
-    min-height: 450px; /* Adjusted for mobile */
+    min-height: 450px;
   }
   
   .container {
@@ -890,58 +1084,9 @@ watch(() => gameStore.gameOver, (newVal) => {
     min-height: 45px;
     padding: 8px;
   }
-  
-  .loading,
-  .no-words {
-    min-height: 350px;
-  }
-  
-  .about-section,
-  .instructions-section {
-    padding: 30px 15px;
-    margin-top: 30px;
-  }
-  
-  .about-title {
-    font-size: 18px; 
-  }
-  
-  .about-text {
-    font-size: 15px; 
-  }
-  
-  .instructions-title {
-    font-size: 20px;
-  }
-  
-  .instruction-step {
-    font-size: 18px;
-  }
-  
-  .instruction-text {
-    font-size: 15px;
-  }
-  
-  .footer {
-    padding: 20px 0;
-    margin-top: 30px;
-  }
-  
-  .footer p {
-    font-size: 13px;
-  }
 }
 
 @media (max-width: 576px) {
-  .game-screen {
-    padding: 12px 5px;
-    min-height: 400px;
-  }
-  
-  .container {
-    padding: 0 5px;
-  }
-  
   .combined-grid {
     grid-template-columns: repeat(4, 1fr);
     gap: 4px;
@@ -960,109 +1105,5 @@ watch(() => gameStore.gameOver, (newVal) => {
     min-height: 40px;
     padding: 6px;
   }
-  
-  .loading,
-  .no-words {
-    min-height: 300px;
-  }
-  
-  .about-section,
-  .instructions-section {
-    padding: 25px 10px;
-    margin-top: 25px;
-  }
-  
-  .about-title {
-    font-size: 20px;
-  }
-  
-  .about-text {
-    font-size: 15px;
-  }
-  
-  .instructions-title {
-    font-size: 18px;
-  }
-  
-  .instruction-step {
-    font-size: 16px;
-  }
-  
-  .instruction-text {
-    font-size: 14px;
-  }
-  
-  .instruction-image {
-    max-width: 85%;
-  }
-  
-  .footer {
-    padding: 15px 0;
-    margin-top: 25px;
-  }
-  
-  .footer p {
-    font-size: 12px;
-  }
 }
-
-@media (max-width: 375px) {
-  .grid-item {
-    min-height: 35px;
-    font-size: 11px;
-  }
-  
-  .category-block {
-    min-height: 35px;
-  }
-  
-  .combined-grid {
-    min-height: 280px;
-  }
-  
-  .loading,
-  .no-words {
-    min-height: 280px;
-  }
-  
-  .about-title {
-    font-size: 18px;
-  }
-  
-  .about-text {
-    font-size: 14px;
-  }
-  
-  .instructions-title {
-    font-size: 17px;
-  }
-  
-  .instruction-step {
-    font-size: 15px;
-  }
-  
-  .instruction-text {
-    font-size: 13px;
-  }
-  
-  .game-complete {
-    text-align: center;
-  }
-
-  /* Use the same grid layout for complete mode */
-  .complete-mode {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 10px;
-    max-width: 700px;
-    margin: 0 auto;
-  }
-
-  .complete-mode .category-block {
-    grid-column: 1;
-    min-height: 60px;
-    padding: 10px;
-  }
-}
-
 </style>
