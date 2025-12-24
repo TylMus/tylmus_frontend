@@ -11,6 +11,13 @@
     <!-- Game Over Modal - Super Simplified -->
     <div v-if="gameStore.gameOver" class="game-over-modal-overlay">
       <div class="game-over-modal">
+        <!-- Кнопка закрытия в правом верхнем углу -->
+        <button class="close-button" @click="closeGameOverModal">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+        
         <div class="modal-content">
           <!-- Game Result Header -->
           <div class="game-result-header">
@@ -243,6 +250,7 @@
 </template>
 
 <script setup lang="ts">
+<script setup lang="ts">
 import { onMounted, ref, computed, onUnmounted, watch } from 'vue'
 import { useGameStore } from '../stores/gameStore'
 import GameHeader from '../components/GameHeader.vue'
@@ -255,6 +263,7 @@ const gameStore = useGameStore()
 const countdownInterval = ref<NodeJS.Timeout | null>(null)
 const showShareNotification = ref(false)
 const shareNotificationText = ref('')
+const showGameOverModal = ref(true) // Добавлено: состояние для отображения модального окна
 
 const closePopup = () => {
   gameStore.showMessage = false
@@ -262,6 +271,12 @@ const closePopup = () => {
 
 const closeShareNotification = () => {
   showShareNotification.value = false
+}
+
+const closeGameOverModal = () => {
+  showGameOverModal.value = false
+  // Также можно сбросить состояние игры, если нужно:
+  // gameStore.resetGame()
 }
 
 // Function to get next midnight in GMT+9
@@ -481,11 +496,13 @@ onUnmounted(() => {
 watch(() => gameStore.gameOver, (newVal) => {
   if (newVal) {
     startCountdownTimer()
+    showGameOverModal.value = true // Показываем модальное окно при окончании игры
   } else if (countdownInterval.value) {
     clearInterval(countdownInterval.value)
     countdownInterval.value = null
   }
 })
+</script>
 </script>
 
 <style scoped>
@@ -510,6 +527,39 @@ watch(() => gameStore.gameOver, (newVal) => {
   max-width: 380px;
   width: 90%;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  position: relative; /* Добавлено для позиционирования кнопки закрытия */
+}
+
+/* Кнопка закрытия */
+.close-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #f0f0f0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+  padding: 0;
+}
+
+.close-button:hover {
+  background: #e0e0e0;
+  transform: scale(1.1);
+}
+
+.close-button svg {
+  stroke: #666;
+}
+
+.close-button:hover svg {
+  stroke: #333;
 }
 
 .modal-content {
@@ -521,6 +571,7 @@ watch(() => gameStore.gameOver, (newVal) => {
 /* Game Result Header */
 .game-result-header {
   text-align: center;
+  padding-top: 10px; /* Добавлено для отступа от кнопки закрытия */
 }
 
 .game-result-header h2 {
@@ -611,7 +662,53 @@ watch(() => gameStore.gameOver, (newVal) => {
   background: #45a049;
 }
 
-/* Rest of existing styles */
+/* Responsive adjustments for close button */
+@media (max-width: 768px) {
+  .game-over-modal {
+    padding: 20px;
+    width: 95%;
+  }
+  
+  .close-button {
+    top: 10px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+  }
+  
+  .close-button svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .game-result-header {
+    padding-top: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-over-modal {
+    padding: 15px;
+  }
+  
+  .close-button {
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+  }
+  
+  .close-button svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .game-result-header {
+    padding-top: 6px;
+  }
+}
+
+/* ... остальные стили остаются без изменений ... */
 .app-container {
   position: relative;
   min-height: 100vh;
