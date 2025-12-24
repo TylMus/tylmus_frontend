@@ -15,6 +15,9 @@ export const useGameStore = defineStore('game', () => {
   const messageClass = ref<'success' | 'error' | 'info'>('info')
   const loading = ref(false)
   const gameDate = ref('')
+  
+  // Add local storage key for last played date
+  const LAST_PLAYED_KEY = 'tylmus_last_played_date'
 
   const gameStatus = computed(() => {
     if (gameOver.value) return 'game-over'
@@ -36,36 +39,93 @@ export const useGameStore = defineStore('game', () => {
     }
   })
 
+  // Helper function to check if it's a new day
+  const isNewDay = (): boolean => {
+    const lastPlayed = localStorage.getItem(LAST_PLAYED_KEY)
+    if (!lastPlayed) return true
+    
+    const lastPlayedDate = new Date(lastPlayed)
+    const today = new Date()
+    
+    return lastPlayedDate.toDateString() !== today.toDateString()
+  }
+
+  // Helper function to save today's date
+  const savePlayedDate = () => {
+    const today = new Date().toISOString().split('T')[0]
+    localStorage.setItem(LAST_PLAYED_KEY, today)
+  }
+
   const initializeGame = async () => {
     console.log('🔄 Initializing game...')
     loading.value = true
+    
     try {
+      // Check if it's a new day
+      const newDay = isNewDay()
+      console.log('📅 New day check:', newDay)
+      
+      // If it's a new day, clear local attempt history
+      if (newDay) {
+        attemptHistory.value = []
+        console.log('🆕 New day detected, clearing local history')
+      }
+      
       const response = await gameApi.getGame()
       console.log('✅ Game data in store:', response)
-
-      // Check if the game date is from today
+      
+      // Save the game date from backend
+      gameDate.value = response.game_date
+      
+      // Parse the game date from backend
+      const backendGameDate = new Date(response.game_date)
       const today = new Date()
-      const gameDateFromResponse = new Date(response.game_date)
-      const isToday = gameDateFromResponse.toDateString() === today.toDateString()
-
-      if (!isToday) {
-        // It's a new day, reset the game state
-        console.log('📅 New day detected, resetting game state')
+      const isTodayGame = backendGameDate.toDateString() === today.toDateString()
+      
+      console.log('📊 Date analysis:', {
+        backendDate: backendGameDate.toDateString(),
+        today: today.toDateString(),
+        isTodayGame,
+        newDay
+      })
+      
+      // If backend says it's not today's game OR we detect a new day locally
+      // We should reset the game state
+      if (!isTodayGame || newDay) {
+        console.log('🔄 Resetting game state - either backend has old game or new day detected')
+        
+        // Reset all game state
         foundCategories.value = []
         mistakes.value = 0
         gameOver.value = false
+        selectedWords.value = []
+        showMessage.value = false
         
+        // Clear attempt history if it's a completely new day
+        if (newDay) {
+          attemptHistory.value = []
+        }
+        
+        // Use all words from backend
         if (response.words && Array.isArray(response.words)) {
           words.value = response.words
+          console.log('📝 Using all words (new game):', words.value.length)
         } else {
           console.error('❌ No words in response:', response)
           words.value = []
         }
+        
+        // Save that we played today
+        if (newDay) {
+          savePlayedDate()
+        }
       } else {
-        // Same day, restore progress
+        // It's today's game, restore progress
+        console.log('📅 Restoring today\'s game progress')
+        
         if (response.found_categories && Array.isArray(response.found_categories)) {
           foundCategories.value = response.found_categories
-          console.log('🎯 Restored found categories:', foundCategories.value)
+          console.log('🎯 Restored found categories:', foundCategories.value.length)
         } else {
           console.log('📝 No found categories to restore')
           foundCategories.value = []
@@ -81,15 +141,16 @@ export const useGameStore = defineStore('game', () => {
 
         if (response.words && Array.isArray(response.words)) {
           const foundWords = foundCategories.value.flatMap((category: Category) => category.words)
-          console.log('🗑️ Removing found words from available:', foundWords)
+          console.log('🗑️ Removing found words from available:', foundWords.length)
 
           words.value = response.words.filter((word: string) => !foundWords.includes(word))
-          console.log('📝 Available words after filtering:', words.value)
+          console.log('📝 Available words after filtering:', words.value.length)
         } else {
           console.error('❌ No words in response:', response)
           words.value = []
         }
 
+        // Check game status
         if (foundCategories.value.length === 4) {
           gameOver.value = true
           console.log('🏆 Game already completed')
@@ -99,12 +160,11 @@ export const useGameStore = defineStore('game', () => {
         } else {
           gameOver.value = false
         }
+        
+        selectedWords.value = []
+        showMessage.value = false
       }
-
-      gameDate.value = response.game_date
-      selectedWords.value = []
-      showMessage.value = false
-
+      
     } catch (error) {
       console.error('❌ Error loading game:', error)
       showMessage.value = true
@@ -112,6 +172,8 @@ export const useGameStore = defineStore('game', () => {
       messageClass.value = 'error'
       words.value = []
       foundCategories.value = []
+      mistakes.value = 0
+      gameOver.value = false
     } finally {
       loading.value = false
     }
