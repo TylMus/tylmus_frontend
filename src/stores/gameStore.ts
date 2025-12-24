@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Category, DailyInfo } from '../types/game'
+import type { Category, DailyInfo, GameResponse } from '../types/game'
 import { gameApi } from '../api/gameApi'
 
 export const useGameStore = defineStore('game', () => {
@@ -65,7 +65,7 @@ export const useGameStore = defineStore('game', () => {
       const isNewDay = await checkDayChange()
       console.log('📅 New day check result:', isNewDay)
       
-      const response = await gameApi.getGame()
+      const response: GameResponse = await gameApi.getGame()
       console.log('✅ Game data in store:', response)
       
       // Save the game date from backend
@@ -80,7 +80,10 @@ export const useGameStore = defineStore('game', () => {
         backendDate: backendGameDate.toDateString(),
         today: today.toDateString(),
         isTodayGame,
-        isNewDay
+        isNewDay,
+        gameComplete: response.game_complete,
+        foundCategoriesCount: response.found_categories?.length,
+        mistakes: response.mistakes
       })
       
       // If it's a new day OR backend game date is not today, reset everything
@@ -105,6 +108,9 @@ export const useGameStore = defineStore('game', () => {
       } else {
         // It's today's game, restore progress
         console.log('📅 Restoring today\'s game progress')
+        
+        // IMPORTANT: Check if game is already complete from backend
+        const isGameCompleteFromBackend = response.game_complete === true
         
         if (response.found_categories && Array.isArray(response.found_categories)) {
           foundCategories.value = response.found_categories
@@ -133,13 +139,25 @@ export const useGameStore = defineStore('game', () => {
           words.value = []
         }
 
-        // Check game status - use both conditions
-        const hasWon = foundCategories.value.length === 4
+        // Check game status - IMPORTANT FIX HERE
+        const hasWonFromBackend = isGameCompleteFromBackend
+        const hasWonFromCategories = foundCategories.value.length === 4
         const hasLost = mistakes.value >= 4
         
-        if (hasWon) {
+        console.log('🎮 Game status check:', {
+          hasWonFromBackend,
+          hasWonFromCategories,
+          hasLost,
+          mistakes: mistakes.value,
+          foundCategories: foundCategories.value.length
+        })
+        
+        // If backend says game is complete OR we have 4 categories OR 4+ mistakes
+        if (hasWonFromBackend || hasWonFromCategories) {
           gameOver.value = true
           console.log('🏆 Game already completed - WIN')
+          // Make sure words array is empty when game is won
+          words.value = []
         } else if (hasLost) {
           gameOver.value = true
           console.log('💀 Game over due to too many mistakes')
@@ -272,9 +290,12 @@ const handleSuccess = (result: any) => {
   
   selectedWords.value = []
 
+  // Check if game is complete from backend response
   if (result.game_complete) {
     gameOver.value = true
     console.log('🏆 Game complete - WIN!')
+    // Clear words when game is won
+    words.value = []
     setTimeout(() => {
       showMessage.value = true
       messageText.value = 'Поздравляем! Вы нашли все категории!'
