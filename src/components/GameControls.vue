@@ -2,8 +2,8 @@
   <div class="controls">
     <!-- Основные кнопки управления -->
     <button @click="$emit('deselect-all')" class="btn-control">
-      <span class="btn-text">Снять отметку</span>
-      <span class="btn-text-mobile">Снять отметку</span>
+      <span class="btn-text">Снять всё </span>
+      <span class="btn-text-mobile">Снять всё </span>
     </button>
     <button @click="$emit('shuffle-words')" class="btn-control">
       <span class="btn-text">Перемешать</span>
