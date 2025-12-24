@@ -9,7 +9,7 @@
     />
     
     <!-- Game Over Modal - Super Simplified -->
-    <div v-if="gameStore.gameOver" class="game-over-modal-overlay">
+    <div v-if="gameStore.gameOver && showGameOverModal" class="game-over-modal-overlay">
       <div class="game-over-modal">
         <!-- Кнопка закрытия в правом верхнем углу -->
         <button class="close-button" @click="closeGameOverModal">
@@ -248,7 +248,6 @@
     
   </div>
 </template>
-
 <script setup lang="ts">
 import { onMounted, ref, computed, onUnmounted, watch } from 'vue'
 import { useGameStore } from '../stores/gameStore'
@@ -262,7 +261,7 @@ const gameStore = useGameStore()
 const countdownInterval = ref<NodeJS.Timeout | null>(null)
 const showShareNotification = ref(false)
 const shareNotificationText = ref('')
-const showGameOverModal = ref(true) // Добавлено: состояние для отображения модального окна
+const showGameOverModal = ref(true)
 
 const closePopup = () => {
   gameStore.showMessage = false
@@ -272,10 +271,9 @@ const closeShareNotification = () => {
   showShareNotification.value = false
 }
 
+// Функция для закрытия модального окна окончания игры
 const closeGameOverModal = () => {
   showGameOverModal.value = false
-  // Также можно сбросить состояние игры, если нужно:
-  // gameStore.resetGame()
 }
 
 // Function to get next midnight in GMT+9
