@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Category, DailyInfo, GameResponse } from '../types/game'
+import type { Category, DailyInfo } from '../types/game'
 import { gameApi } from '../api/gameApi'
 
 export const useGameStore = defineStore('game', () => {
@@ -16,6 +16,7 @@ export const useGameStore = defineStore('game', () => {
   const loading = ref(false)
   const gameDate = ref('')
   const dailyInfo = ref<DailyInfo | null>(null)
+  const wordColors = ref<Record<string, string>>({}) // ADDED: Store word colors from backend
 
   const gameStatus = computed(() => {
     if (gameOver.value) return 'game-over'
@@ -65,11 +66,17 @@ export const useGameStore = defineStore('game', () => {
       const isNewDay = await checkDayChange()
       console.log('📅 New day check result:', isNewDay)
       
-      const response: GameResponse = await gameApi.getGame()
+      const response = await gameApi.getGame()
       console.log('✅ Game data in store:', response)
       
       // Save the game date from backend
       gameDate.value = response.game_date
+      
+      // Store word colors from backend if available
+      if (response.word_colors) {
+        wordColors.value = response.word_colors
+        console.log('🎨 Word colors loaded:', Object.keys(wordColors.value).length)
+      }
       
       // Parse the game date from backend
       const backendGameDate = new Date(response.game_date)
@@ -81,94 +88,70 @@ export const useGameStore = defineStore('game', () => {
         today: today.toDateString(),
         isTodayGame,
         isNewDay,
-        gameComplete: response.game_complete,
         foundCategoriesCount: response.found_categories?.length,
-        mistakes: response.mistakes
+        mistakes: response.mistakes,
+        gameComplete: response.game_complete
       })
       
-      // If it's a new day OR backend game date is not today, reset everything
-      if (isNewDay || !isTodayGame) {
-        console.log('🔄 Resetting game state - new day or old game detected')
-        
-        // Reset all game state
-        foundCategories.value = []
-        mistakes.value = 0
-        gameOver.value = false
-        selectedWords.value = []
-        showMessage.value = false
-        
-        // Use all words from backend
-        if (response.words && Array.isArray(response.words)) {
-          words.value = response.words
-          console.log('📝 Using all words (new game):', words.value.length)
-        } else {
-          console.error('❌ No words in response:', response)
-          words.value = []
-        }
+      // Always use the backend's game state - it handles day changes via cookies
+      // The backend ensures we get the correct state for today
+      
+      if (response.found_categories && Array.isArray(response.found_categories)) {
+        foundCategories.value = response.found_categories
+        console.log('🎯 Found categories from backend:', foundCategories.value.length)
       } else {
-        // It's today's game, restore progress
-        console.log('📅 Restoring today\'s game progress')
-        
-        // IMPORTANT: Check if game is already complete from backend
-        const isGameCompleteFromBackend = response.game_complete === true
-        
-        if (response.found_categories && Array.isArray(response.found_categories)) {
-          foundCategories.value = response.found_categories
-          console.log('🎯 Restored found categories:', foundCategories.value.length)
-        } else {
-          console.log('📝 No found categories to restore')
-          foundCategories.value = []
-        }
-
-        if (response.mistakes !== undefined && response.mistakes !== null) {
-          mistakes.value = response.mistakes
-          console.log('❌ Restored mistakes:', mistakes.value)
-        } else {
-          mistakes.value = 0
-          console.log('📝 No mistakes to restore')
-        }
-
-        if (response.words && Array.isArray(response.words)) {
-          const foundWords = foundCategories.value.flatMap((category: Category) => category.words)
-          console.log('🗑️ Removing found words from available:', foundWords.length)
-
-          words.value = response.words.filter((word: string) => !foundWords.includes(word))
-          console.log('📝 Available words after filtering:', words.value.length)
-        } else {
-          console.error('❌ No words in response:', response)
-          words.value = []
-        }
-
-        // Check game status - IMPORTANT FIX HERE
-        const hasWonFromBackend = isGameCompleteFromBackend
-        const hasWonFromCategories = foundCategories.value.length === 4
-        const hasLost = mistakes.value >= 4
-        
-        console.log('🎮 Game status check:', {
-          hasWonFromBackend,
-          hasWonFromCategories,
-          hasLost,
-          mistakes: mistakes.value,
-          foundCategories: foundCategories.value.length
-        })
-        
-        // If backend says game is complete OR we have 4 categories OR 4+ mistakes
-        if (hasWonFromBackend || hasWonFromCategories) {
-          gameOver.value = true
-          console.log('🏆 Game already completed - WIN')
-          // Make sure words array is empty when game is won
-          words.value = []
-        } else if (hasLost) {
-          gameOver.value = true
-          console.log('💀 Game over due to too many mistakes')
-        } else {
-          gameOver.value = false
-          console.log('🎮 Game continues, found:', foundCategories.value.length, 'mistakes:', mistakes.value)
-        }
-        
-        selectedWords.value = []
-        showMessage.value = false
+        console.log('📝 No found categories in response')
+        foundCategories.value = []
       }
+
+      if (response.mistakes !== undefined && response.mistakes !== null) {
+        mistakes.value = response.mistakes
+        console.log('❌ Mistakes from backend:', mistakes.value)
+      } else {
+        mistakes.value = 0
+        console.log('📝 No mistakes in response')
+      }
+
+      if (response.words && Array.isArray(response.words)) {
+        const foundWords = foundCategories.value.flatMap((category: Category) => category.words)
+        console.log('🗑️ Removing found words from available:', foundWords.length)
+
+        words.value = response.words.filter((word: string) => !foundWords.includes(word))
+        console.log('📝 Available words after filtering:', words.value.length)
+      } else {
+        console.error('❌ No words in response:', response)
+        words.value = []
+      }
+
+      // Check game status - IMPORTANT: Use all available info
+      const hasWonFromBackend = response.game_complete === true
+      const hasWonFromCategories = foundCategories.value.length === 4
+      const hasLost = mistakes.value >= 4
+      
+      console.log('🎮 Game status check:', {
+        hasWonFromBackend,
+        hasWonFromCategories,
+        hasLost,
+        mistakes: mistakes.value,
+        foundCategories: foundCategories.value.length
+      })
+      
+      // Determine game over state
+      if (hasWonFromBackend || hasWonFromCategories) {
+        gameOver.value = true
+        console.log('🏆 Game already completed - WIN')
+        // Clear words when game is won
+        words.value = []
+      } else if (hasLost) {
+        gameOver.value = true
+        console.log('💀 Game over due to too many mistakes')
+      } else {
+        gameOver.value = false
+        console.log('🎮 Game continues, found:', foundCategories.value.length, 'mistakes:', mistakes.value)
+      }
+      
+      selectedWords.value = []
+      showMessage.value = false
       
     } catch (error) {
       console.error('❌ Error loading game:', error)
@@ -179,6 +162,7 @@ export const useGameStore = defineStore('game', () => {
       foundCategories.value = []
       mistakes.value = 0
       gameOver.value = false
+      wordColors.value = {}
     } finally {
       loading.value = false
     }
@@ -272,18 +256,27 @@ const handleSuccess = (result: any) => {
   messageText.value = `Правильно! "${result.category_name}"`
   messageClass.value = 'success'
 
-  foundCategories.value.push({
+  // Add the found category with color from backend
+  const newCategory = {
     name: result.category_name!,
-    words: [...selectedWords.value]
-  })
+    words: [...selectedWords.value],
+    color: result.category_color || 'yellow'
+  }
+  
+  foundCategories.value.push(newCategory)
 
+  // Remove found words from available words
   words.value = words.value.filter((word: string) => !selectedWords.value.includes(word))
   
-  // Сохраняем в историю с цветом из ответа сервера
-  const color = result.category_color || 'yellow'
+  // Get colors for each word from wordColors map
+  const attemptColors = selectedWords.value.map(word => 
+    wordColors.value[word] || 'gray'
+  )
+  
+  // Save to history
   attemptHistory.value.push({
     type: 'success',
-    colors: [color, color, color, color], // All 4 squares same color for success
+    colors: attemptColors,
     timestamp: new Date(),
     words: [...selectedWords.value]
   })
@@ -316,12 +309,22 @@ const handleMistake = (message: string, result?: any) => {
   messageText.value = message
   messageClass.value = 'error'
   
-  // Используем цвета из ответа сервера или default gray
-  const selectedColors = result?.selected_colors || ['gray', 'gray', 'gray', 'gray']
+  // Get colors for each word from wordColors map or use result.selected_colors
+  let attemptColors: string[]
+  
+  if (result?.selected_colors && result.selected_colors.length === 4) {
+    // Use colors from backend if available
+    attemptColors = result.selected_colors
+  } else {
+    // Fallback: get colors from wordColors map
+    attemptColors = selectedWords.value.map(word => 
+      wordColors.value[word] || 'gray'
+    )
+  }
   
   attemptHistory.value.push({
     type: 'mistake',
-    colors: selectedColors,
+    colors: attemptColors,
     timestamp: new Date(),
     words: [...selectedWords.value]
   })
@@ -359,6 +362,11 @@ const handleMistake = (message: string, result?: any) => {
     return colors[index % colors.length]
   }
 
+  // Helper to get color for a specific word
+  const getWordColor = (word: string): string => {
+    return wordColors.value[word] || 'gray'
+  }
+
   return {
     words,
     foundCategories,
@@ -373,6 +381,7 @@ const handleMistake = (message: string, result?: any) => {
     gameDate,
     dailyInfo,
     attemptHistory,
+    wordColors, // EXPORT wordColors
 
     gameStatus,
     gameDisplay,
@@ -383,6 +392,7 @@ const handleMistake = (message: string, result?: any) => {
     shuffleWords,
     submitGuess,
     getCategoryColor,
+    getWordColor, // EXPORT getWordColor
     resetGameState
   }
 })
