@@ -250,7 +250,6 @@
 </template>
 
 <script setup lang="ts">
-<script setup lang="ts">
 import { onMounted, ref, computed, onUnmounted, watch } from 'vue'
 import { useGameStore } from '../stores/gameStore'
 import GameHeader from '../components/GameHeader.vue'
@@ -502,7 +501,6 @@ watch(() => gameStore.gameOver, (newVal) => {
     countdownInterval.value = null
   }
 })
-</script>
 </script>
 
 <style scoped>
