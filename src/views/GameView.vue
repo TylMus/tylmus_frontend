@@ -8,23 +8,25 @@
       @close="closePopup"
     />
     
-    <!-- Game Over Modal -->
+    <!-- Game Over Modal - Simplified -->
     <div v-if="gameStore.gameOver" class="game-over-modal-overlay">
       <div class="game-over-modal">
-        <div class="modal-header">
-          <h2 v-if="gameStore.foundCategories.length === 4"> Победа!</h2>
-          <h2 v-else> Поражение</h2>
-          <p class="game-result-stats">
-            Найдено категорий: {{ gameStore.foundCategories.length }}/4 • 
-            Ошибок: {{ gameStore.mistakes }}/4
-          </p>
-        </div>
+        <button class="modal-close" @click="closeGameOverModal">×</button>
         
         <div class="modal-content">
-          <!-- Attempt History Visualization -->
-          <div class="attempt-history">
-            <h3>История попыток</h3>
-            <div class="attempt-grid">
+          <!-- Game Result Header -->
+          <div class="game-result-header">
+            <h2 v-if="gameStore.foundCategories.length === 4"> Победа!</h2>
+            <h2 v-else> Поражение</h2>
+            <div class="result-stats">
+              <span class="stat">Найдено категорий: {{ gameStore.foundCategories.length }}/4</span>
+              <span class="stat">Ошибок: {{ gameStore.mistakes }}/4</span>
+            </div>
+          </div>
+          
+          <!-- Game History Visualization -->
+          <div class="game-history">
+            <div class="history-grid">
               <div 
                 v-for="(attempt, index) in gameStore.attemptHistory" 
                 :key="index"
@@ -38,22 +40,17 @@
                     :class="color"
                   ></div>
                 </div>
-                <div class="attempt-info">
-                  <span class="attempt-type" :class="attempt.type">
-                    {{ attempt.type === 'success' ? '✓' : '✗' }}
-                  </span>
-                  <span class="attempt-time">
-                    {{ formatTime(attempt.timestamp) }}
-                  </span>
+                <div class="attempt-badge" :class="attempt.type">
+                  {{ attempt.type === 'success' ? '✓' : '✗' }}
                 </div>
               </div>
             </div>
           </div>
           
-          <!-- Countdown Timer -->
-          <div class="next-game-countdown">
+          <!-- Countdown Timer - Simplified -->
+          <div class="next-game-timer">
             <p>Следующая игра через:</p>
-            <div class="countdown-timer">
+            <div class="timer-text">
               {{ countdownTime }}
             </div>
           </div>
@@ -61,13 +58,11 @@
           <!-- Share Button -->
           <button 
             @click="shareResults"
-            class="modal-share-button"
+            class="share-button"
           >
-            📋 Поделиться результатом
+            Поделиться результатом
           </button>
         </div>
-        
-        <button class="modal-close" @click="closeGameOverModal">×</button>
       </div>
     </div>
     
@@ -314,11 +309,6 @@ const formatTimeRemaining = (endTime: Date): string => {
   return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
 }
 
-// Format time for attempt history
-const formatTime = (date: Date): string => {
-  return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
-}
-
 // Reactive value to force updates
 const forceUpdate = ref(0)
 
@@ -515,7 +505,7 @@ watch(() => gameStore.gameOver, (newVal) => {
 </script>
 
 <style scoped>
-/* Game Over Modal Styles */
+/* Simplified Game Over Modal Styles */
 .game-over-modal-overlay {
   position: fixed;
   top: 0;
@@ -527,176 +517,23 @@ watch(() => gameStore.gameOver, (newVal) => {
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  animation: fadeIn 0.3s ease;
+  animation: fadeIn 0.2s ease;
 }
 
 .game-over-modal {
   background: white;
-  border-radius: 16px;
-  padding: 30px;
-  max-width: 500px;
+  border-radius: 12px;
+  padding: 20px;
+  max-width: 400px;
   width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
   position: relative;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  animation: slideUp 0.3s ease;
-}
-
-.modal-header {
-  text-align: center;
-  margin-bottom: 25px;
-  border-bottom: 2px solid #f0f0f0;
-  padding-bottom: 15px;
-}
-
-.modal-header h2 {
-  font-size: 28px;
-  margin-bottom: 10px;
-  color: #333;
-}
-
-.modal-header h2:first-child {
-  color: #28a745; /* Green for win */
-}
-
-.modal-header h2:last-child {
-  color: #dc3545; /* Red for loss */
-}
-
-.game-result-stats {
-  font-size: 16px;
-  color: #666;
-  font-weight: 500;
-}
-
-.modal-content {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-}
-
-.attempt-history h3 {
-  font-size: 18px;
-  margin-bottom: 15px;
-  color: #333;
-  text-align: center;
-}
-
-.attempt-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-height: 200px;
-  overflow-y: auto;
-  padding: 10px;
-  background: #f8f9fa;
-  border-radius: 8px;
-}
-
-.attempt-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  background: white;
-  border-radius: 6px;
-  border: 1px solid #e9ecef;
-}
-
-.attempt-squares {
-  display: flex;
-  gap: 6px;
-}
-
-.color-square {
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.color-square.yellow { background: #ffcc95; }
-.color-square.green { background: #aef8cb; }
-.color-square.blue { background: #b6ceff; }
-.color-square.purple { background: #E0ceff; }
-
-.attempt-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.attempt-type {
-  font-size: 16px;
-  font-weight: bold;
-}
-
-.attempt-type.success {
-  color: #28a745;
-}
-
-.attempt-type.mistake {
-  color: #dc3545;
-}
-
-.attempt-time {
-  font-size: 12px;
-  color: #888;
-}
-
-.next-game-countdown {
-  text-align: center;
-  padding: 15px;
-  background: #f8f9fa;
-  border-radius: 10px;
-  border: 2px dashed #dee2e6;
-}
-
-.next-game-countdown p {
-  margin-bottom: 10px;
-  font-size: 16px;
-  color: #666;
-}
-
-.countdown-timer {
-  font-family: 'Courier New', monospace;
-  font-size: 28px;
-  font-weight: bold;
-  color: #333;
-  background: white;
-  padding: 10px 20px;
-  border-radius: 8px;
-  display: inline-block;
-  border: 2px solid #333;
-  letter-spacing: 2px;
-}
-
-.modal-share-button {
-  background: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 14px 20px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s ease;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.modal-share-button:hover {
-  background: #45a049;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .modal-close {
   position: absolute;
-  top: 15px;
-  right: 15px;
+  top: 10px;
+  right: 10px;
   background: none;
   border: none;
   font-size: 24px;
@@ -715,69 +552,199 @@ watch(() => gameStore.gameOver, (newVal) => {
   background: #f5f5f5;
 }
 
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Game Result Header */
+.game-result-header {
+  text-align: center;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.game-result-header h2 {
+  font-size: 28px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.game-result-header h2:first-child {
+  color: #28a745; /* Green for win */
+}
+
+.game-result-header h2:last-child {
+  color: #dc3545; /* Red for loss */
+}
+
+.result-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 14px;
+  color: #666;
+}
+
+.stat {
+  background: #f8f9fa;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+/* Game History */
+.game-history {
+  margin: 10px 0;
+}
+
+.history-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.attempt-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.attempt-squares {
+  display: flex;
+  gap: 4px;
+}
+
+.color-square {
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+}
+
+.color-square.yellow { background: #ffcc95; }
+.color-square.green { background: #aef8cb; }
+.color-square.blue { background: #b6ceff; }
+.color-square.purple { background: #E0ceff; }
+
+.attempt-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.attempt-badge.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.attempt-badge.mistake {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* Next Game Timer - Simplified */
+.next-game-timer {
+  text-align: center;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.next-game-timer p {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #666;
+}
+
+.timer-text {
+  font-family: 'Courier New', monospace;
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  background: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  display: inline-block;
+  border: 1px solid #ddd;
+  min-width: 120px;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+/* Share Button */
+.share-button {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: 100%;
+}
+
+.share-button:hover {
+  background: #45a049;
+}
+
+/* Animations */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-@keyframes slideUp {
-  from { 
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to { 
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Responsive styles for modal */
+/* Responsive styles */
 @media (max-width: 768px) {
   .game-over-modal {
-    padding: 20px;
+    padding: 15px;
     width: 95%;
-    max-height: 85vh;
   }
   
-  .modal-header h2 {
+  .game-result-header h2 {
     font-size: 24px;
   }
   
-  .color-square {
-    width: 20px;
-    height: 20px;
+  .timer-text {
+    font-size: 20px;
+    padding: 6px 12px;
+    min-width: 110px;
   }
   
-  .countdown-timer {
-    font-size: 22px;
-    padding: 8px 16px;
-  }
-  
-  .modal-share-button {
-    padding: 12px 16px;
-    font-size: 14px;
+  .share-button {
+    padding: 10px;
+    font-size: 15px;
   }
 }
 
 @media (max-width: 480px) {
   .game-over-modal {
-    padding: 15px;
+    padding: 12px;
   }
   
-  .modal-header h2 {
+  .game-result-header h2 {
     font-size: 20px;
   }
   
-  .game-result-stats {
-    font-size: 14px;
-  }
-  
-  .attempt-history h3 {
-    font-size: 16px;
-  }
-  
-  .attempt-squares {
-    gap: 4px;
+  .result-stats {
+    font-size: 13px;
   }
   
   .color-square {
@@ -785,9 +752,15 @@ watch(() => gameStore.gameOver, (newVal) => {
     height: 18px;
   }
   
-  .countdown-timer {
+  .timer-text {
     font-size: 18px;
-    padding: 6px 12px;
+    padding: 5px 10px;
+    min-width: 100px;
+  }
+  
+  .share-button {
+    padding: 8px;
+    font-size: 14px;
   }
 }
 
