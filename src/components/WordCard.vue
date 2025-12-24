@@ -14,8 +14,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-
 interface Props {
   word: string
   selected?: boolean
@@ -26,7 +24,7 @@ interface Emits {
   (e: 'click', word: string): void
 }
 
-const props = defineProps<Props>()
+defineProps<Props>()
 defineEmits<Emits>()
 </script>
 
@@ -68,5 +66,18 @@ defineEmits<Emits>()
   50% { transform: translateX(5px); }
   75% { transform: translateX(-3px); }
   100% { transform: translateX(0); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .word-text {
+    -webkit-line-clamp: 2;
+  }
+}
+
+@media (max-width: 480px) {
+  .word-text {
+    -webkit-line-clamp: 2;
+  }
 }
 </style>
