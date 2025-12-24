@@ -3,10 +3,10 @@
     <div class="container">
       <div class="d-flex justify-content-between align-items-center">
         <h3 class="game-title m-0">ТылМус</h3>
-        <div class="daily-info" v-if="dailyDisplay && !isMobile">
-          {{ dailyDisplay }}
+        <div class="game-info" v-if="gameDisplay && !isMobile">
+          {{ gameDisplay }}
         </div>
-        <div class="daily-info-mobile" v-else-if="dailyDisplay && isMobile">
+        <div class="game-info-mobile" v-else-if="gameDisplay && isMobile">
           {{ getShortDate }}
         </div>
       </div>
@@ -18,7 +18,7 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 
 interface Props {
-  dailyDisplay: string
+  gameDisplay: string  // Changed from dailyDisplay to gameDisplay
 }
 
 defineProps<Props>()
@@ -58,13 +58,13 @@ onUnmounted(() => {
   color: black;
 }
 
-.daily-info {
+.game-info {
   font-size: 0.9rem;
   color: #666;
   font-weight: 500;
 }
 
-.daily-info-mobile {
+.game-info-mobile {
   font-size: 0.8rem;
   color: #666;
   font-weight: 500;
@@ -81,7 +81,7 @@ onUnmounted(() => {
     font-size: 1.3rem;
   }
   
-  .daily-info-mobile {
+  .game-info-mobile {
     font-size: 0.75rem;
   }
 }
@@ -99,7 +99,7 @@ onUnmounted(() => {
     font-weight: 600;
   }
   
-  .daily-info-mobile {
+  .game-info-mobile {
     font-size: 0.7rem;
   }
 }
@@ -117,7 +117,7 @@ onUnmounted(() => {
     font-weight: 600;
   }
   
-  .daily-info-mobile {
+  .game-info-mobile {
     font-size: 0.65rem;
     display: none; /* Hide on very small screens to save space */
   }

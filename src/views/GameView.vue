@@ -45,7 +45,8 @@
     </div>
 
     <!-- Game Header -->
-    <GameHeader :daily-display="gameStore.dailyDisplay" />
+    <!-- CHANGE HERE: Replace daily-display with game-display -->
+    <GameHeader :game-display="gameStore.gameDisplay" />
     
     <!-- Main Game Area -->
     <div class="game-screen">
@@ -477,6 +478,7 @@ watch(() => gameStore.gameOver, (newVal) => {
   }
 })
 </script>
+
 
 <style scoped>
 /* Добавленные стили для лучшего отображения кнопки шаринга */
