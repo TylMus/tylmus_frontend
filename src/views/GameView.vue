@@ -624,7 +624,7 @@ watch(() => gameStore.gameOver, (newVal) => {
   margin: 0 auto;
   padding: 20px 10px;
   position: relative;
-  min-height: 550px;
+  min-height: 600px; /* Increased min-height for taller cards */
   display: flex;
   flex-direction: column;
 }
@@ -635,41 +635,47 @@ watch(() => gameStore.gameOver, (newVal) => {
   margin: 0 auto;
 }
 
+/* UPDATED GRID - Taller cards with equal vertical/horizontal spacing */
 .combined-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-bottom: 15px;
-  max-width: 700px;
+  gap: 15px; /* Equal spacing in both directions */
+  margin-bottom: 20px;
+  max-width: 800px; /* Slightly wider to accommodate taller cards */
   margin-left: auto;
   margin-right: auto;
-  min-height: 400px;
+  min-height: 500px; /* Increased for taller layout */
+  align-content: start; /* Align items to top */
 }
 
+/* UPDATED GRID ITEMS - Much taller */
 .grid-item {
-  min-height: 80px;
-  max-height: 80px;
+  min-height: 100px; /* Increased from 80px */
+  max-height: 100px; /* Increased from 80px */
+  height: 100px; /* Fixed height */
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 4px;
-  border-radius: 8px;
+  padding: 10px 6px; /* Slightly more padding */
+  border-radius: 10px; /* Slightly more rounded */
   font-weight: 600;
   text-align: center;
   overflow: hidden;
   word-break: break-word;
   overflow-wrap: break-word;
   hyphens: auto;
-  line-height: 1.2;
-  font-size: 0.9em;
+  line-height: 1.3; /* Better line height */
+  font-size: 1em; /* Reset to normal size */
 }
 
+/* UPDATED CATEGORY BLOCK - Much taller to match */
 .category-block {
   margin: 0;
   grid-column: 1 / span 4;
-  min-height: 80px;
-  max-height: 80px;
-  padding: 10px;
+  min-height: 100px; /* Match word card height */
+  max-height: 100px; /* Match word card height */
+  height: 100px; /* Fixed height */
+  padding: 12px; /* More padding */
 }
 
 .loading {
@@ -677,14 +683,14 @@ watch(() => gameStore.gameOver, (newVal) => {
   padding: 40px;
   font-size: 18px;
   color: #666;
-  min-height: 400px;
+  min-height: 500px; /* Increased */
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .game-info {
-  margin-bottom: 15px;
+  margin-bottom: 20px; /* Increased spacing */
   display: flex;
   justify-content: center;
   flex-shrink: 0;
@@ -693,7 +699,7 @@ watch(() => gameStore.gameOver, (newVal) => {
 .mistakes {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px; /* Slightly more gap */
   font-size: 14px;
   flex-wrap: wrap;
   justify-content: center;
@@ -879,7 +885,7 @@ watch(() => gameStore.gameOver, (newVal) => {
   color: #ff0000;
   background: #ffe6e6;
   border-radius: 8px;
-  min-height: 400px;
+  min-height: 500px; /* Increased */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -893,16 +899,17 @@ watch(() => gameStore.gameOver, (newVal) => {
 .complete-mode {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 10px;
-  max-width: 700px;
+  gap: 15px; /* Same spacing */
+  max-width: 800px;
   margin: 0 auto;
 }
 
 .complete-mode .category-block {
   grid-column: 1;
-  min-height: 80px;
-  max-height: 80px;
-  padding: 10px;
+  min-height: 100px; /* Match new height */
+  max-height: 100px;
+  height: 100px;
+  padding: 12px;
 }
 
 /* Responsive styles */
@@ -934,32 +941,45 @@ watch(() => gameStore.gameOver, (newVal) => {
     font-size: 15px;
   }
 
-  /* Game Grid Responsive */
+  /* Game Grid Responsive - Tablet */
+  .game-screen {
+    padding: 15px 8px;
+    min-height: 500px;
+  }
+  
   .combined-grid {
     grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    max-width: 600px;
-    min-height: 350px;
+    gap: 12px; /* Slightly reduced but still equal */
+    max-width: 650px;
+    min-height: 420px;
   }
   
   .grid-item {
-    min-height: 60px;
-    max-height: 60px;
-    font-size: 0.85em;
-    padding: 6px 3px;
+    min-height: 85px;
+    max-height: 85px;
+    height: 85px;
+    font-size: 0.95em;
+    padding: 8px 4px;
   }
   
   .category-block {
     grid-column: 1 / span 4;
-    min-height: 60px;
-    max-height: 60px;
-    padding: 8px;
+    min-height: 85px;
+    max-height: 85px;
+    height: 85px;
+    padding: 10px;
   }
 
   .complete-mode .category-block {
-    min-height: 60px;
-    max-height: 60px;
-    padding: 8px;
+    min-height: 85px;
+    max-height: 85px;
+    height: 85px;
+    padding: 10px;
+  }
+  
+  .loading,
+  .no-words {
+    min-height: 420px;
   }
 }
 
@@ -1020,31 +1040,43 @@ watch(() => gameStore.gameOver, (newVal) => {
   }
 
   /* Game Grid for small tablets */
+  .game-screen {
+    min-height: 450px;
+  }
+  
   .combined-grid {
     grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
-    max-width: 500px;
-    min-height: 300px;
+    gap: 10px;
+    max-width: 550px;
+    min-height: 380px;
   }
   
   .grid-item {
-    min-height: 50px;
-    max-height: 50px;
-    font-size: 0.8em;
-    padding: 5px 2px;
+    min-height: 75px;
+    max-height: 75px;
+    height: 75px;
+    font-size: 0.9em;
+    padding: 7px 3px;
   }
   
   .category-block {
     grid-column: 1 / span 4;
-    min-height: 50px;
-    max-height: 50px;
-    padding: 6px;
+    min-height: 75px;
+    max-height: 75px;
+    height: 75px;
+    padding: 8px;
   }
 
   .complete-mode .category-block {
-    min-height: 50px;
-    max-height: 50px;
-    padding: 6px;
+    min-height: 75px;
+    max-height: 75px;
+    height: 75px;
+    padding: 8px;
+  }
+  
+  .loading,
+  .no-words {
+    min-height: 380px;
   }
 }
 
@@ -1057,61 +1089,82 @@ watch(() => gameStore.gameOver, (newVal) => {
   }
 
   /* Game Grid for mobile */
+  .game-screen {
+    min-height: 400px;
+    padding: 12px 5px;
+  }
+  
   .combined-grid {
     grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
-    max-width: 400px;
-    min-height: 280px;
+    gap: 8px;
+    max-width: 450px;
+    min-height: 320px;
   }
   
   .grid-item {
-    min-height: 45px;
-    max-height: 45px;
-    font-size: 0.75em;
-    padding: 4px 1px;
-    line-height: 1.1;
+    min-height: 65px;
+    max-height: 65px;
+    height: 65px;
+    font-size: 0.85em;
+    padding: 6px 2px;
+    line-height: 1.2;
   }
   
   .category-block {
     grid-column: 1 / span 4;
-    min-height: 45px;
-    max-height: 45px;
-    padding: 4px;
+    min-height: 65px;
+    max-height: 65px;
+    height: 65px;
+    padding: 6px;
   }
 
   .complete-mode .category-block {
-    min-height: 45px;
-    max-height: 45px;
-    padding: 4px;
+    min-height: 65px;
+    max-height: 65px;
+    height: 65px;
+    padding: 6px;
+  }
+  
+  .loading,
+  .no-words {
+    min-height: 320px;
   }
 }
 
 /* Very small mobile screens */
 @media (max-width: 375px) {
   .combined-grid {
-    gap: 3px;
-    max-width: 350px;
-    min-height: 250px;
+    gap: 6px;
+    max-width: 380px;
+    min-height: 280px;
   }
   
   .grid-item {
-    min-height: 40px;
-    max-height: 40px;
-    font-size: 0.7em;
-    padding: 3px 1px;
-    line-height: 1;
+    min-height: 55px;
+    max-height: 55px;
+    height: 55px;
+    font-size: 0.8em;
+    padding: 5px 1px;
+    line-height: 1.1;
   }
   
   .category-block {
-    min-height: 40px;
-    max-height: 40px;
-    padding: 3px;
+    min-height: 55px;
+    max-height: 55px;
+    height: 55px;
+    padding: 4px;
   }
 
   .complete-mode .category-block {
-    min-height: 40px;
-    max-height: 40px;
-    padding: 3px;
+    min-height: 55px;
+    max-height: 55px;
+    height: 55px;
+    padding: 4px;
+  }
+  
+  .loading,
+  .no-words {
+    min-height: 280px;
   }
 }
 
@@ -1224,41 +1277,8 @@ watch(() => gameStore.gameOver, (newVal) => {
 
 /* ========== MOBILE RESPONSIVE DESIGN ========== */
 @media (max-width: 768px) {
-  .game-screen {
-    padding: 15px 8px;
-    min-height: 450px;
-  }
-  
   .container {
     padding: 0 8px;
-  }
-  
-  .loading,
-  .no-words {
-    min-height: 350px;
-  }
-}
-
-@media (max-width: 576px) {
-  .game-screen {
-    padding: 12px 5px;
-    min-height: 400px;
-  }
-  
-  .container {
-    padding: 0 5px;
-  }
-  
-  .loading,
-  .no-words {
-    min-height: 300px;
-  }
-}
-
-@media (max-width: 375px) {
-  .loading,
-  .no-words {
-    min-height: 280px;
   }
 }
 </style>
