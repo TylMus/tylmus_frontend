@@ -14,8 +14,8 @@
         <div class="modal-content">
           <!-- Game Result Header -->
           <div class="game-result-header">
-            <h2 v-if="gameStore.foundCategories.length === 4">🎉 Победа!</h2>
-            <h2 v-else>❌ Поражение</h2>
+            <h2 v-if="gameStore.foundCategories.length === 4"> Победа!</h2>
+            <h2 v-else> Поражение</h2>
             <div class="result-stats">
               Найдено категорий: {{ gameStore.foundCategories.length }}/4
               <br>

@@ -15,7 +15,6 @@ export const useGameStore = defineStore('game', () => {
   const messageClass = ref<'success' | 'error' | 'info'>('info')
   const loading = ref(false)
   const gameDate = ref('')
-  // Removed: dailyInfo ref
 
   const gameStatus = computed(() => {
     if (gameOver.value) return 'game-over'
@@ -44,47 +43,67 @@ export const useGameStore = defineStore('game', () => {
       const response = await gameApi.getGame()
       console.log('✅ Game data in store:', response)
 
-      if (response.found_categories && Array.isArray(response.found_categories)) {
-        foundCategories.value = response.found_categories
-        console.log('🎯 Restored found categories:', foundCategories.value)
-      } else {
-        console.log('📝 No found categories to restore')
+      // Check if the game date is from today
+      const today = new Date()
+      const gameDateFromResponse = new Date(response.game_date)
+      const isToday = gameDateFromResponse.toDateString() === today.toDateString()
+
+      if (!isToday) {
+        // It's a new day, reset the game state
+        console.log('📅 New day detected, resetting game state')
         foundCategories.value = []
-      }
-
-      if (response.mistakes !== undefined) {
-        mistakes.value = response.mistakes
-        console.log('❌ Restored mistakes:', mistakes.value)
-      } else {
         mistakes.value = 0
-        console.log('📝 No mistakes to restore')
-      }
-
-      if (response.words && Array.isArray(response.words)) {
-        const foundWords = foundCategories.value.flatMap((category: Category) => category.words)
-        console.log('🗑️ Removing found words from available:', foundWords)
-
-        words.value = response.words.filter((word: string) => !foundWords.includes(word))
-        console.log('📝 Available words after filtering:', words.value)
+        gameOver.value = false
+        
+        if (response.words && Array.isArray(response.words)) {
+          words.value = response.words
+        } else {
+          console.error('❌ No words in response:', response)
+          words.value = []
+        }
       } else {
-        console.error('❌ No words in response:', response)
-        words.value = []
+        // Same day, restore progress
+        if (response.found_categories && Array.isArray(response.found_categories)) {
+          foundCategories.value = response.found_categories
+          console.log('🎯 Restored found categories:', foundCategories.value)
+        } else {
+          console.log('📝 No found categories to restore')
+          foundCategories.value = []
+        }
+
+        if (response.mistakes !== undefined) {
+          mistakes.value = response.mistakes
+          console.log('❌ Restored mistakes:', mistakes.value)
+        } else {
+          mistakes.value = 0
+          console.log('📝 No mistakes to restore')
+        }
+
+        if (response.words && Array.isArray(response.words)) {
+          const foundWords = foundCategories.value.flatMap((category: Category) => category.words)
+          console.log('🗑️ Removing found words from available:', foundWords)
+
+          words.value = response.words.filter((word: string) => !foundWords.includes(word))
+          console.log('📝 Available words after filtering:', words.value)
+        } else {
+          console.error('❌ No words in response:', response)
+          words.value = []
+        }
+
+        if (foundCategories.value.length === 4) {
+          gameOver.value = true
+          console.log('🏆 Game already completed')
+        } else if (mistakes.value >= 4) {
+          gameOver.value = true
+          console.log('💀 Game over due to too many mistakes')
+        } else {
+          gameOver.value = false
+        }
       }
 
       gameDate.value = response.game_date
-
       selectedWords.value = []
       showMessage.value = false
-
-      if (foundCategories.value.length === 4) {
-        gameOver.value = true
-        console.log('🏆 Game already completed')
-      } else if (mistakes.value >= 4) {
-        gameOver.value = true
-        console.log('💀 Game over due to too many mistakes')
-      } else {
-        gameOver.value = false
-      }
 
     } catch (error) {
       console.error('❌ Error loading game:', error)
@@ -267,7 +286,7 @@ const handleMistake = (message: string, result?: any) => {
     attemptHistory,
 
     gameStatus,
-    gameDisplay, // Renamed from dailyDisplay
+    gameDisplay,
 
     initializeGame,
     toggleWord,
