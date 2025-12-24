@@ -3,14 +3,15 @@
     <div class="category-content">
       <strong class="category-name">{{ name }}</strong>
       <div class="category-words">
-        <span 
-          v-for="(word, index) in words" 
-          :key="index"
-          class="category-word"
-          :class="{'long-word': word.length > 10}"
-        >
-          {{ word }}<span v-if="index < words.length - 1">,</span>
-        </span>
+        <div class="words-container">
+          <span 
+            v-for="(word, index) in words" 
+            :key="index"
+            class="category-word"
+          >
+            {{ word }}<span v-if="index < words.length - 1">, </span>
+          </span>
+        </div>
       </div>
     </div>
   </div>
@@ -28,20 +29,10 @@ defineProps<Props>()
 
 <style scoped>
 .category-block {
-  padding: 10px;
-  border-radius: 8px;
-  color: #333;
-  font-weight: bold;
-  text-align: center;
-  grid-column: 1 / span 4;
-  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   animation: fadeIn 0.5s ease-in;
-  min-height: 60px; /* Base height for desktop */
-  word-break: break-word;
-  overflow-wrap: break-word;
 }
 
 .category-content {
@@ -49,15 +40,25 @@ defineProps<Props>()
   flex-direction: column;
   gap: 4px;
   width: 100%;
+  max-height: 100%;
+  overflow: hidden;
 }
 
 .category-name {
   font-size: 1em;
   margin-bottom: 2px;
-  word-break: break-word;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .category-words {
+  width: 100%;
+  max-height: 60%; /* Limit height for words */
+  overflow: hidden;
+}
+
+.words-container {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -67,17 +68,16 @@ defineProps<Props>()
   opacity: 0.8;
   font-weight: normal;
   line-height: 1.2;
+  max-height: 100%;
+  overflow: hidden;
 }
 
 .category-word {
   display: inline-block;
   white-space: nowrap;
-}
-
-.category-word.long-word {
-  white-space: normal;
-  word-break: break-word;
-  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px; /* Limit individual word width */
 }
 
 /* Remove comma from the last word */
@@ -97,96 +97,47 @@ defineProps<Props>()
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .category-block {
-    min-height: 45px;
-    padding: 8px;
-  }
-  
-  .category-name {
-    font-size: 0.95em;
-  }
-  
-  .category-words {
-    font-size: 0.8em;
-    gap: 3px 5px;
-  }
-  
-  .category-word.long-word {
-    max-width: 80px;
-    font-size: 0.75em;
-  }
-}
-
-@media (max-width: 576px) {
-  .category-block {
-    min-height: 40px;
-    padding: 6px;
-  }
-  
   .category-name {
     font-size: 0.9em;
   }
   
-  .category-words {
-    font-size: 0.75em;
-    gap: 2px 4px;
+  .words-container {
+    font-size: 0.8em;
+    gap: 3px 5px;
   }
   
-  .category-word.long-word {
-    max-width: 60px;
-    font-size: 0.7em;
-    white-space: normal;
+  .category-word {
+    max-width: 70px;
   }
 }
 
-@media (max-width: 480px) {
-  .category-block {
-    min-height: 35px;
-    padding: 4px;
-  }
-  
+@media (max-width: 576px) {
   .category-name {
     font-size: 0.85em;
   }
   
-  .category-words {
+  .words-container {
+    font-size: 0.75em;
+    gap: 2px 4px;
+  }
+  
+  .category-word {
+    max-width: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .category-name {
+    font-size: 0.8em;
+  }
+  
+  .words-container {
     font-size: 0.7em;
     gap: 2px 3px;
   }
   
   .category-word {
     max-width: 50px;
-  }
-  
-  .category-word.long-word {
-    max-width: 45px;
-    font-size: 0.65em;
-  }
-}
-
-/* For very small screens */
-@media (max-width: 375px) {
-  .category-block {
-    min-height: 30px;
-    padding: 3px;
-  }
-  
-  .category-name {
-    font-size: 0.8em;
-  }
-  
-  .category-words {
-    font-size: 0.65em;
-    gap: 1px 2px;
-  }
-  
-  .category-word {
-    max-width: 40px;
-  }
-  
-  .category-word.long-word {
-    max-width: 35px;
-    font-size: 0.6em;
   }
 }
 </style>
