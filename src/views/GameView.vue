@@ -751,6 +751,7 @@ watch(() => gameStore.gameOver, (newVal) => {
   opacity: 0.3;
 }
 
+/* About Section */
 .about-section {
   background-color: #D3FBE3;
   padding: 40px 20px;
@@ -776,6 +777,7 @@ watch(() => gameStore.gameOver, (newVal) => {
   text-align: center;
 }
 
+/* Instructions Section */
 .instructions-section {
   position: relative;
   background: #f8f9fa;
@@ -929,6 +931,196 @@ watch(() => gameStore.gameOver, (newVal) => {
   text-align: center;
 }
 
+/* ========== RESPONSIVE IMAGE SIZING (ORIGINAL - RESTORED) ========== */
+/* Desktop: smaller images (30-40%) */
+@media (min-width: 992px) {
+  .instruction-image {
+    max-width: 35%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .adaptive-image {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* Tablet (768px to 991px) - FIXED */
+@media (min-width: 768px) and (max-width: 991px) {
+  .instruction-image {
+    max-width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  /* Fixed: Always use 4 columns on tablet */
+  .combined-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    max-width: 600px;
+    min-height: 350px;
+  }
+  
+  .grid-item {
+    min-height: 45px;
+    font-size: 13px;
+    padding: 8px 4px;
+  }
+  
+  .category-block {
+    grid-column: 1 / span 4;
+    min-height: 45px;
+    padding: 8px;
+  }
+}
+
+/* Small Tablet (576px to 767px) - FIXED */
+@media (min-width: 576px) and (max-width: 767px) {
+  .instruction-image {
+    max-width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  /* Fixed: Always use 4 columns on small tablet */
+  .combined-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    max-width: 500px;
+    min-height: 300px;
+  }
+  
+  .grid-item {
+    min-height: 40px;
+    font-size: 12px;
+    padding: 6px 3px;
+  }
+  
+  .category-block {
+    grid-column: 1 / span 4;
+    min-height: 40px;
+    padding: 6px;
+  }
+}
+
+/* Mobile (Below 576px) */
+@media (max-width: 575px) {
+  .instruction-image {
+    max-width: 75%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* ========== MOBILE TEXT SIZE ADJUSTMENTS ========== */
+@media (max-width: 768px) {
+  .about-section {
+    padding: 30px 15px;
+    margin-top: 30px;
+  }
+  
+  .about-title {
+    font-size: 18px;
+  }
+  
+  .about-text {
+    font-size: 14px;
+  }
+  
+  .instructions-section {
+    padding: 30px 15px;
+  }
+  
+  .instructions-title {
+    font-size: 20px;
+  }
+  
+  .instruction-step {
+    font-size: 18px;
+  }
+  
+  .instruction-text {
+    font-size: 14px;
+  }
+  
+  .footer {
+    padding: 20px 0;
+    margin-top: 30px;
+  }
+  
+  .footer p {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 576px) {
+  .about-section {
+    padding: 25px 10px;
+    margin-top: 25px;
+  }
+  
+  .about-title {
+    font-size: 16px;
+  }
+  
+  .about-text {
+    font-size: 13px;
+  }
+  
+  .instructions-section {
+    padding: 25px 10px;
+  }
+  
+  .instructions-title {
+    font-size: 18px;
+  }
+  
+  .instruction-step {
+    font-size: 16px;
+  }
+  
+  .instruction-text {
+    font-size: 13px;
+  }
+  
+  .footer {
+    padding: 15px 0;
+    margin-top: 25px;
+  }
+  
+  .footer p {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-title {
+    font-size: 15px;
+  }
+  
+  .about-text {
+    font-size: 12px;
+  }
+  
+  .instructions-title {
+    font-size: 16px;
+  }
+  
+  .instruction-step {
+    font-size: 14px;
+  }
+  
+  .instruction-text {
+    font-size: 12px;
+  }
+  
+  .footer p {
+    font-size: 10px;
+  }
+}
+
+/* ========== MOBILE RESPONSIVE DESIGN ========== */
 @media (max-width: 768px) {
   .game-screen {
     padding: 15px 8px;
@@ -957,9 +1149,23 @@ watch(() => gameStore.gameOver, (newVal) => {
     min-height: 45px;
     padding: 8px;
   }
+  
+  .loading,
+  .no-words {
+    min-height: 350px;
+  }
 }
 
 @media (max-width: 576px) {
+  .game-screen {
+    padding: 12px 5px;
+    min-height: 400px;
+  }
+  
+  .container {
+    padding: 0 5px;
+  }
+  
   .combined-grid {
     grid-template-columns: repeat(4, 1fr);
     gap: 4px;
@@ -977,6 +1183,50 @@ watch(() => gameStore.gameOver, (newVal) => {
     grid-column: 1 / span 4;
     min-height: 40px;
     padding: 6px;
+  }
+  
+  .loading,
+  .no-words {
+    min-height: 300px;
+  }
+}
+
+@media (max-width: 375px) {
+  .grid-item {
+    min-height: 35px;
+    font-size: 11px;
+  }
+  
+  .category-block {
+    min-height: 35px;
+  }
+  
+  .combined-grid {
+    min-height: 280px;
+  }
+  
+  .loading,
+  .no-words {
+    min-height: 280px;
+  }
+  
+  .game-complete {
+    text-align: center;
+  }
+
+  /* Use the same grid layout for complete mode */
+  .complete-mode {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .complete-mode .category-block {
+    grid-column: 1;
+    min-height: 60px;
+    padding: 10px;
   }
 }
 </style>
