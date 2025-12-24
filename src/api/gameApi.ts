@@ -1,7 +1,6 @@
 import axios from 'axios'
-import type { CheckSelectionResponse, GameResponse } from '../types/game'
+import type { CheckSelectionResponse, DailyInfo, GameResponse } from '../types/game'
 
-// Домен бэкенда
 const API_BASE_URL = 'https://tylmus-tylmus-backend-a4a1.twc1.net'
 
 const api = axios.create({
@@ -10,7 +9,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true  // Важно для куков между доменами
+  withCredentials: true
 })
 
 export const testConnection = async () => {
@@ -66,5 +65,24 @@ export const gameApi = {
   async getGameStatus() {
     const response = await api.get('/api/game_status')
     return response.data
+  },
+
+  async getDailyInfo(): Promise<DailyInfo> {
+    try {
+      const response = await api.get('/api/daily_info')
+      console.log('📅 Daily info received:', response.data)
+      return response.data
+    } catch (error) {
+      console.error('❌ Failed to fetch daily info:', error)
+      // Return a default daily info object if API fails
+      return {
+        today: new Date().toISOString().split('T')[0],
+        current_game_date: new Date().toISOString().split('T')[0],
+        is_new_day: true,
+        game_complete: false,
+        found_count: 0,
+        mistakes: 0
+      }
+    }
   }
 }

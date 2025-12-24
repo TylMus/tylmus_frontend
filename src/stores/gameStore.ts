@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Category } from '../types/game'
+import type { Category, DailyInfo } from '../types/game'
 import { gameApi } from '../api/gameApi'
 
 export const useGameStore = defineStore('game', () => {
@@ -15,9 +15,7 @@ export const useGameStore = defineStore('game', () => {
   const messageClass = ref<'success' | 'error' | 'info'>('info')
   const loading = ref(false)
   const gameDate = ref('')
-  
-  // Add local storage key for last played date
-  const LAST_PLAYED_KEY = 'tylmus_last_played_date'
+  const dailyInfo = ref<DailyInfo | null>(null)
 
   const gameStatus = computed(() => {
     if (gameOver.value) return 'game-over'
@@ -39,21 +37,23 @@ export const useGameStore = defineStore('game', () => {
     }
   })
 
-  // Helper function to check if it's a new day
-  const isNewDay = (): boolean => {
-    const lastPlayed = localStorage.getItem(LAST_PLAYED_KEY)
-    if (!lastPlayed) return true
-    
-    const lastPlayedDate = new Date(lastPlayed)
-    const today = new Date()
-    
-    return lastPlayedDate.toDateString() !== today.toDateString()
-  }
-
-  // Helper function to save today's date
-  const savePlayedDate = () => {
-    const today = new Date().toISOString().split('T')[0]
-    localStorage.setItem(LAST_PLAYED_KEY, today)
+  // Check day change using backend daily info
+  const checkDayChange = async (): Promise<boolean> => {
+    try {
+      dailyInfo.value = await gameApi.getDailyInfo()
+      console.log('📅 Daily info from backend:', dailyInfo.value)
+      
+      if (dailyInfo.value?.is_new_day) {
+        console.log('🆕 Backend detected new day')
+        // Clear attempt history for new day
+        attemptHistory.value = []
+        return true
+      }
+      return false
+    } catch (error) {
+      console.error('Error checking day change:', error)
+      return false
+    }
   }
 
   const initializeGame = async () => {
@@ -61,15 +61,9 @@ export const useGameStore = defineStore('game', () => {
     loading.value = true
     
     try {
-      // Check if it's a new day
-      const newDay = isNewDay()
-      console.log('📅 New day check:', newDay)
-      
-      // If it's a new day, clear local attempt history
-      if (newDay) {
-        attemptHistory.value = []
-        console.log('🆕 New day detected, clearing local history')
-      }
+      // First check if it's a new day via backend
+      const isNewDay = await checkDayChange()
+      console.log('📅 New day check result:', isNewDay)
       
       const response = await gameApi.getGame()
       console.log('✅ Game data in store:', response)
@@ -86,13 +80,12 @@ export const useGameStore = defineStore('game', () => {
         backendDate: backendGameDate.toDateString(),
         today: today.toDateString(),
         isTodayGame,
-        newDay
+        isNewDay
       })
       
-      // If backend says it's not today's game OR we detect a new day locally
-      // We should reset the game state
-      if (!isTodayGame || newDay) {
-        console.log('🔄 Resetting game state - either backend has old game or new day detected')
+      // If it's a new day OR backend game date is not today, reset everything
+      if (isNewDay || !isTodayGame) {
+        console.log('🔄 Resetting game state - new day or old game detected')
         
         // Reset all game state
         foundCategories.value = []
@@ -101,11 +94,6 @@ export const useGameStore = defineStore('game', () => {
         selectedWords.value = []
         showMessage.value = false
         
-        // Clear attempt history if it's a completely new day
-        if (newDay) {
-          attemptHistory.value = []
-        }
-        
         // Use all words from backend
         if (response.words && Array.isArray(response.words)) {
           words.value = response.words
@@ -113,11 +101,6 @@ export const useGameStore = defineStore('game', () => {
         } else {
           console.error('❌ No words in response:', response)
           words.value = []
-        }
-        
-        // Save that we played today
-        if (newDay) {
-          savePlayedDate()
         }
       } else {
         // It's today's game, restore progress
@@ -131,7 +114,7 @@ export const useGameStore = defineStore('game', () => {
           foundCategories.value = []
         }
 
-        if (response.mistakes !== undefined) {
+        if (response.mistakes !== undefined && response.mistakes !== null) {
           mistakes.value = response.mistakes
           console.log('❌ Restored mistakes:', mistakes.value)
         } else {
@@ -150,15 +133,19 @@ export const useGameStore = defineStore('game', () => {
           words.value = []
         }
 
-        // Check game status
-        if (foundCategories.value.length === 4) {
+        // Check game status - use both conditions
+        const hasWon = foundCategories.value.length === 4
+        const hasLost = mistakes.value >= 4
+        
+        if (hasWon) {
           gameOver.value = true
-          console.log('🏆 Game already completed')
-        } else if (mistakes.value >= 4) {
+          console.log('🏆 Game already completed - WIN')
+        } else if (hasLost) {
           gameOver.value = true
           console.log('💀 Game over due to too many mistakes')
         } else {
           gameOver.value = false
+          console.log('🎮 Game continues, found:', foundCategories.value.length, 'mistakes:', mistakes.value)
         }
         
         selectedWords.value = []
@@ -234,8 +221,9 @@ export const useGameStore = defineStore('game', () => {
       if (result.valid) {
         handleSuccess(result)
       } else {
-        if (result.mistakes !== undefined) {
+        if (result.mistakes !== undefined && result.mistakes !== null) {
           mistakes.value = result.mistakes
+          console.log('❌ Updated mistakes from backend:', mistakes.value)
         }
         handleMistake(result.message || 'Неправильно! Попробуйте еще раз.', result)
       }
@@ -274,9 +262,10 @@ const handleSuccess = (result: any) => {
   words.value = words.value.filter((word: string) => !selectedWords.value.includes(word))
   
   // Сохраняем в историю с цветом из ответа сервера
+  const color = result.category_color || 'yellow'
   attemptHistory.value.push({
     type: 'success',
-    colors: [result.category_color || 'yellow'], // Цвет из сервера
+    colors: [color, color, color, color], // All 4 squares same color for success
     timestamp: new Date(),
     words: [...selectedWords.value]
   })
@@ -285,11 +274,15 @@ const handleSuccess = (result: any) => {
 
   if (result.game_complete) {
     gameOver.value = true
+    console.log('🏆 Game complete - WIN!')
     setTimeout(() => {
       showMessage.value = true
       messageText.value = 'Поздравляем! Вы нашли все категории!'
       messageClass.value = 'success'
     }, 1000)
+  } else {
+    // Game continues
+    console.log('✅ Found category, game continues. Found:', foundCategories.value.length)
   }
 
   setTimeout(() => {
@@ -302,25 +295,37 @@ const handleMistake = (message: string, result?: any) => {
   messageText.value = message
   messageClass.value = 'error'
   
-  // Используем цвета из ответа сервера
-  const selectedColors = result?.selected_colors || []
+  // Используем цвета из ответа сервера или default gray
+  const selectedColors = result?.selected_colors || ['gray', 'gray', 'gray', 'gray']
   
   attemptHistory.value.push({
     type: 'mistake',
-    colors: selectedColors, // Реальные цвета из сервера
+    colors: selectedColors,
     timestamp: new Date(),
     words: [...selectedWords.value]
   })
   
   selectedWords.value = []
 
+  // Check if game is over after this mistake
+  console.log('❌ Mistake made. Current mistakes:', mistakes.value, 'Max: 4')
+  
+  // Make sure mistakes don't exceed 4
+  if (mistakes.value > 4) {
+    console.warn('⚠️ Mistakes exceed 4, correcting to 4')
+    mistakes.value = 4
+  }
+  
   if (mistakes.value >= 4) {
     gameOver.value = true
+    console.log('💀 Game over - too many mistakes')
     setTimeout(() => {
       showMessage.value = true
       messageText.value = 'Игра окончена! Слишком много ошибок.'
       messageClass.value = 'error'
     }, 1000)
+  } else {
+    console.log('🎮 Game continues after mistake')
   }
 
   setTimeout(() => {
@@ -345,6 +350,7 @@ const handleMistake = (message: string, result?: any) => {
     messageClass,
     loading,
     gameDate,
+    dailyInfo,
     attemptHistory,
 
     gameStatus,
