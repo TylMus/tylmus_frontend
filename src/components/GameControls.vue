@@ -76,6 +76,15 @@ defineEmits<Emits>()
   max-width: 150px; /* Maximum width for desktop */
   text-align: center;
   white-space: nowrap; /* Prevent text from wrapping inside button */
+  color: black; /* EXPLICITLY SET TEXT COLOR */
+  -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+}
+
+/* Remove default button styling on iOS */
+.btn-control, .btn-submit, .btn-share {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
 
 .btn-control:hover, .btn-submit:not(:disabled):hover, .btn-share:hover {
@@ -129,6 +138,7 @@ defineEmits<Emits>()
     font-size: 0.8em;
     max-width: 120px;
     flex: 1 1 0; /* Equal distribution */
+    color: black; /* Ensure text color stays black */
   }
 }
 
@@ -148,6 +158,7 @@ defineEmits<Emits>()
     border-radius: 6px;
     border-width: 1px;
     flex: 1 1 0; /* Equal distribution */
+    color: black; /* Ensure text color stays black */
   }
   
   /* Show mobile text, hide desktop text */
@@ -173,6 +184,7 @@ defineEmits<Emits>()
     font-size: 0.6em;
     max-width: 85px;
     flex: 1 1 0; /* Equal distribution */
+    color: black; /* Ensure text color stays black */
   }
 }
 
@@ -189,6 +201,7 @@ defineEmits<Emits>()
     max-width: 75px;
     min-height: 36px;
     flex: 1 1 0; /* Equal distribution */
+    color: black; /* Ensure text color stays black */
   }
 }
 
@@ -199,6 +212,7 @@ defineEmits<Emits>()
     font-size: 0.45em;
     max-width: 70px;
     flex: 1 1 0; /* Equal distribution */
+    color: black; /* Ensure text color stays black */
   }
 }
 </style>
