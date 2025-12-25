@@ -1,17 +1,15 @@
 <template>
-  <div class="category-block grid-item" :class="color">
+  <div class="category-block" :class="color">
     <div class="category-content">
       <strong class="category-name">{{ name }}</strong>
       <div class="category-words">
-        <div class="words-container">
-          <span 
-            v-for="(word, index) in words" 
-            :key="index"
-            class="category-word"
-          >
-            {{ word }}<span v-if="index < words.length - 1">, </span>
-          </span>
-        </div>
+        <span 
+          v-for="(word, index) in words" 
+          :key="index"
+          class="category-word"
+        >
+          {{ word }}<span v-if="index < words.length - 1">, </span>
+        </span>
       </div>
     </div>
   </div>
@@ -29,55 +27,53 @@ defineProps<Props>()
 
 <style scoped>
 .category-block {
+  padding: 15px;
+  border-radius: 12px;
+  color: #333;
+  font-weight: bold;
+  text-align: center;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   animation: fadeIn 0.5s ease-in;
+  min-height: 80px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  margin: 0 auto;
 }
 
 .category-content {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
   width: 100%;
-  max-height: 100%;
-  overflow: hidden;
+  max-width: 100%;
 }
 
 .category-name {
-  font-size: 1em;
-  margin-bottom: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 1.1em;
+  margin-bottom: 4px;
+  word-break: break-word;
+  line-height: 1.2;
 }
 
 .category-words {
-  width: 100%;
-  max-height: 60%; /* Limit height for words */
-  overflow: hidden;
-}
-
-.words-container {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 4px 6px;
-  font-size: 0.85em;
-  opacity: 0.8;
+  gap: 8px;
+  font-size: 0.95em;
+  opacity: 0.9;
   font-weight: normal;
-  line-height: 1.2;
-  max-height: 100%;
-  overflow: hidden;
+  line-height: 1.3;
 }
 
 .category-word {
   display: inline-block;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100px; /* Limit individual word width */
+  word-break: break-word;
 }
 
 /* Remove comma from the last word */
@@ -91,53 +87,87 @@ defineProps<Props>()
 .category-block.purple { background: #E0ceff; }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.8); }
+  from { opacity: 0; transform: scale(0.9); }
   to { opacity: 1; transform: scale(1); }
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+  .category-block {
+    padding: 12px;
+    min-height: 70px;
+  }
+  
   .category-name {
+    font-size: 1em;
+  }
+  
+  .category-words {
     font-size: 0.9em;
-  }
-  
-  .words-container {
-    font-size: 0.8em;
-    gap: 3px 5px;
-  }
-  
-  .category-word {
-    max-width: 70px;
+    gap: 6px;
   }
 }
 
 @media (max-width: 576px) {
-  .category-name {
-    font-size: 0.85em;
+  .category-block {
+    padding: 10px;
+    min-height: 65px;
+    border-radius: 10px;
   }
   
-  .words-container {
-    font-size: 0.75em;
-    gap: 2px 4px;
+  .category-name {
+    font-size: 0.95em;
+  }
+  
+  .category-words {
+    font-size: 0.85em;
+    gap: 4px;
   }
   
   .category-word {
-    max-width: 60px;
+    white-space: normal;
+    word-break: break-word;
+    max-width: 100px;
   }
 }
 
 @media (max-width: 480px) {
-  .category-name {
-    font-size: 0.8em;
+  .category-block {
+    padding: 8px;
+    min-height: 60px;
   }
   
-  .words-container {
-    font-size: 0.7em;
-    gap: 2px 3px;
+  .category-name {
+    font-size: 0.9em;
+  }
+  
+  .category-words {
+    font-size: 0.8em;
+    gap: 3px;
   }
   
   .category-word {
-    max-width: 50px;
+    max-width: 80px;
+  }
+}
+
+@media (max-width: 375px) {
+  .category-block {
+    padding: 6px;
+    min-height: 55px;
+  }
+  
+  .category-name {
+    font-size: 0.85em;
+  }
+  
+  .category-words {
+    font-size: 0.75em;
+    gap: 2px;
+  }
+  
+  .category-word {
+    max-width: 70px;
   }
 }
 </style>

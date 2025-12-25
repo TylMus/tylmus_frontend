@@ -1027,25 +1027,36 @@ watch(() => gameStore.gameOver, (newVal) => {
   justify-content: center;
 }
 
+/* Complete Game Mode - Full width categories */
 .game-complete {
   text-align: center;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px 0;
 }
 
-/* Use the same grid layout for complete mode */
 .complete-mode {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 15px; /* Same spacing */
+  gap: 15px;
+  width: 100%;
   max-width: 800px;
   margin: 0 auto;
 }
 
 .complete-mode .category-block {
+  width: 100%;
+  max-width: 100%;
+  min-height: 90px;
+  max-height: none;
+  height: auto;
+  padding: 15px;
+  margin: 0;
   grid-column: 1;
-  min-height: 100px; /* Match new height */
-  max-height: 100px;
-  height: 100px;
-  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Responsive styles */
@@ -1106,11 +1117,15 @@ watch(() => gameStore.gameOver, (newVal) => {
     padding: 10px;
   }
 
+  /* Complete mode tablet */
+  .complete-mode {
+    gap: 12px;
+    max-width: 650px;
+  }
+  
   .complete-mode .category-block {
-    min-height: 85px;
-    max-height: 85px;
-    height: 85px;
-    padding: 10px;
+    min-height: 80px;
+    padding: 12px;
   }
   
   .loading,
@@ -1203,11 +1218,15 @@ watch(() => gameStore.gameOver, (newVal) => {
     padding: 8px;
   }
 
+  /* Complete mode small tablet */
+  .complete-mode {
+    gap: 10px;
+    max-width: 500px;
+  }
+  
   .complete-mode .category-block {
     min-height: 75px;
-    max-height: 75px;
-    height: 75px;
-    padding: 8px;
+    padding: 10px;
   }
   
   .loading,
@@ -1254,11 +1273,15 @@ watch(() => gameStore.gameOver, (newVal) => {
     padding: 6px;
   }
 
+  /* Complete mode mobile */
+  .complete-mode {
+    gap: 8px;
+    max-width: 400px;
+  }
+  
   .complete-mode .category-block {
-    min-height: 65px;
-    max-height: 65px;
-    height: 65px;
-    padding: 6px;
+    min-height: 70px;
+    padding: 8px;
   }
   
   .loading,
@@ -1291,11 +1314,15 @@ watch(() => gameStore.gameOver, (newVal) => {
     padding: 4px;
   }
 
+  /* Complete mode very small */
+  .complete-mode {
+    gap: 6px;
+    max-width: 350px;
+  }
+  
   .complete-mode .category-block {
-    min-height: 55px;
-    max-height: 55px;
-    height: 55px;
-    padding: 4px;
+    min-height: 65px;
+    padding: 6px;
   }
   
   .loading,
