@@ -277,14 +277,27 @@ const closeGameOverModal = () => {
   showGameOverModal.value = false
 }
 
-const getNextMidnightGMT9Correct = (): Date => {
+// Правильная функция для получения следующей полуночи в GMT+9
+const getNextMidnightGMT9 = (): Date => {
   const now = new Date()
   const nextMidnight = new Date(now)
-  const currentUtcHours = now.getUTCHours()
   
-  if (currentUtcHours < 15) {
+  // GMT+9 = UTC+9
+  // 00:00 GMT+9 = 15:00 UTC предыдущего дня
+  
+  // Получаем текущее время в UTC
+  const currentUtcHours = now.getUTCHours()
+  const currentUtcMinutes = now.getUTCMinutes()
+  const currentUtcSeconds = now.getUTCSeconds()
+  
+  if (currentUtcHours < 15 || (currentUtcHours === 15 && currentUtcMinutes === 0 && currentUtcSeconds === 0)) {
+    // Если сейчас меньше 15:00 UTC или ровно 15:00:00, 
+    // то полночь GMT+9 сегодня еще не наступила
+    // Устанавливаем на сегодня 15:00 UTC
     nextMidnight.setUTCHours(15, 0, 0, 0)
   } else {
+    // Если сейчас 15:00 UTC или больше, то полночь GMT+9 уже прошла
+    // Устанавливаем на завтра 15:00 UTC
     nextMidnight.setUTCDate(nextMidnight.getUTCDate() + 1)
     nextMidnight.setUTCHours(15, 0, 0, 0)
   }
