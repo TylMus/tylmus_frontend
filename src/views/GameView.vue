@@ -262,6 +262,7 @@ const countdownInterval = ref<NodeJS.Timeout | null>(null)
 const showShareNotification = ref(false)
 const shareNotificationText = ref('')
 const showGameOverModal = ref(true)
+const currentTime = ref(Date.now()) // Для принудительного обновления каждую секунду
 
 const closePopup = () => {
   gameStore.showMessage = false
@@ -276,34 +277,39 @@ const closeGameOverModal = () => {
   showGameOverModal.value = false
 }
 
-// Function to get next midnight in GMT+9
-const getNextMidnightGMT9 = (): Date => {
+const getNextMidnightGMT9Correct = (): Date => {
   const now = new Date()
+  const nextMidnight = new Date(now)
+  const currentUtcHours = now.getUTCHours()
   
-  // Convert current time to GMT+9
-  const gmt9Offset = 9 * 60 // 9 hours in minutes
-  const localOffset = now.getTimezoneOffset()
-  const totalOffset = gmt9Offset + localOffset
+  if (currentUtcHours < 15) {
+    nextMidnight.setUTCHours(15, 0, 0, 0)
+  } else {
+    nextMidnight.setUTCDate(nextMidnight.getUTCDate() + 1)
+    nextMidnight.setUTCHours(15, 0, 0, 0)
+  }
   
-  // Create date in GMT+9
-  const gmt9Time = new Date(now.getTime() + totalOffset * 60 * 1000)
-  
-  // Set to next midnight in GMT+9
-  const nextMidnightGMT9 = new Date(gmt9Time)
-  nextMidnightGMT9.setHours(24, 0, 0, 0)
-  
-  // Convert back to local time
-  const localNextMidnight = new Date(nextMidnightGMT9.getTime() - totalOffset * 60 * 1000)
-  
-  return localNextMidnight
+  return nextMidnight
 }
 
 // Format time remaining
 const formatTimeRemaining = (endTime: Date): string => {
-  const now = new Date()
+  const now = new Date(currentTime.value) // Используем реактивное время
+  
+  // Для отладки - выводим в консоль если осталось мало времени
   const diff = endTime.getTime() - now.getTime()
   
   if (diff <= 0) {
+    // Если время вышло, запускаем обновление игры
+    setTimeout(() => {
+      if (gameStore.gameOver) {
+        console.log('🔄 Время вышло, запускаем новую игру...')
+        gameStore.initializeGame().then(() => {
+          console.log('✅ Новая игра загружена')
+        })
+      }
+    }, 1000)
+    
     return "00:00:00"
   }
   
@@ -337,26 +343,46 @@ const getFourColors = (attempt: any): string[] => {
   return result
 }
 
-// Reactive value to force updates
-const forceUpdate = ref(0)
-
-// Computed countdown time
+// Вычисляемое свойство для времени до следующей игры
 const countdownTime = computed(() => {
   const nextMidnight = getNextMidnightGMT9()
   return formatTimeRemaining(nextMidnight)
 })
 
-// Start countdown timer
+// Также показываем, во сколько следующая игра (для информации)
+const nextGameTime = computed(() => {
+  const nextMidnight = getNextMidnightGMT9()
+  return nextMidnight.toLocaleTimeString('ru-RU', {
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZoneName: 'short'
+  })
+})
+
+// Функция для обновления текущего времени
+const updateCurrentTime = () => {
+  currentTime.value = Date.now()
+}
+
+// Start countdown timer - УПРОЩЕННАЯ ВЕРСИЯ
 const startCountdownTimer = () => {
   if (countdownInterval.value) {
     clearInterval(countdownInterval.value)
   }
   
-  if (gameStore.gameOver) {
-    countdownInterval.value = setInterval(() => {
-      forceUpdate.value++
-    }, 1000)
-  }
+  // Всегда запускаем таймер, если игра окончена
+  // или если мы хотим показывать обратный отсчет
+  countdownInterval.value = setInterval(() => {
+    updateCurrentTime() // Обновляем время каждую секунду
+    
+    // Для отладки - логируем каждые 30 секунд
+    const now = new Date()
+    if (now.getSeconds() === 0 || now.getSeconds() === 30) {
+      const nextMidnight = getNextMidnightGMT9()
+      const diff = nextMidnight.getTime() - now.getTime()
+      console.log(`⏱️ Таймер: ${countdownTime.value}, до следующей игры: ${Math.floor(diff/1000)} сек`)
+    }
+  }, 1000)
 }
 
 const generateShareText = (): string => {
@@ -476,9 +502,16 @@ const shareResults = async () => {
 
 onMounted(() => {
   console.log('🎮 GameView mounted, initializing game...')
+  
+  // Запускаем таймер обновления времени
+  startCountdownTimer()
+  
+  // Для отладки
+  console.log('Следующая игра в:', nextGameTime.value)
+  console.log('Текущий обратный отсчет:', countdownTime.value)
+  
   gameStore.initializeGame().then(() => {
     console.log('✅ Game initialization complete')
-    startCountdownTimer()
   }).catch(error => {
     console.error('❌ Game initialization failed:', error)
   })
@@ -487,16 +520,13 @@ onMounted(() => {
 onUnmounted(() => {
   if (countdownInterval.value) {
     clearInterval(countdownInterval.value)
+    countdownInterval.value = null
   }
 })
 
 watch(() => gameStore.gameOver, (newVal) => {
   if (newVal) {
-    startCountdownTimer()
     showGameOverModal.value = true // Показываем модальное окно при окончании игры
-  } else if (countdownInterval.value) {
-    clearInterval(countdownInterval.value)
-    countdownInterval.value = null
   }
 })
 </script>
