@@ -50,7 +50,7 @@ export const gameApi = {
     console.log('📤 Submitting selection:', selectedWords)
     try {
       const response = await api.post('/api/check_selection', selectedWords)
-      console.log('✅ Selection response:', response.data)
+      //console.log('✅ Selection response:', response.data)
       return response.data
     } catch (error: any) {
       console.error('❌ Selection error details:', {

@@ -147,7 +147,7 @@ export const useGameStore = defineStore('game', () => {
       }
       
       const response = await gameApi.getGame()
-      console.log('✅ Game data in store:', response)
+      // console.log('✅ Game data in store:', response)
       
       // Save the game date from backend
       gameDate.value = response.game_date
@@ -292,7 +292,7 @@ export const useGameStore = defineStore('game', () => {
     loading.value = true
     try {
       const result = await gameApi.checkSelection(selectedWords.value)
-      console.log('✅ Guess result:', result)
+      //console.log('✅ Guess result:', result)
 
       if (result.valid) {
         handleSuccess(result)
