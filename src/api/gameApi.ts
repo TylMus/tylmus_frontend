@@ -35,10 +35,10 @@ export const gameApi = {
 
     try {
       const response = await api.get('/api/game')
-      console.log('✅ Game data received:', response.data)
-      console.log('📝 Words count:', response.data.words?.length)
-      console.log('📝 Words:', response.data.words)
-      console.log('❌ Mistakes:', response.data.mistakes)
+      // console.log('✅ Game data received:', response.data)
+      // console.log('📝 Words count:', response.data.words?.length)
+      // console.log('📝 Words:', response.data.words)
+      // console.log('❌ Mistakes:', response.data.mistakes)
       return response.data
     } catch (error) {
       console.error('❌ Failed to fetch game:', error)
