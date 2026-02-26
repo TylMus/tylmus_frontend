@@ -13,7 +13,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-const props = defineProps<{
+// Just define props – no need to assign to a variable if not used in script
+defineProps<{
   gameDisplay: string
 }>()
 
