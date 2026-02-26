@@ -10,6 +10,14 @@
     <span class="word-text">{{ word }}</span>
   </div>
 </template>
+<script setup lang="ts">
+defineProps<{
+  word: string
+  selected?: boolean
+  scrambleAnimation?: boolean
+}>()
+defineEmits<{ (e: 'click', word: string): void }>()
+</script>
 
 <style scoped>
 .word-card.selected {
@@ -45,3 +53,4 @@
   .word-text { font-size: 0.75rem; }
 }
 </style>
+
