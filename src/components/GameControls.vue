@@ -33,3 +33,43 @@
     </button>
   </div>
 </template>
+
+<script setup lang="ts">
+defineProps<{
+  canSubmit: boolean
+  gameOver: boolean
+  showShareButton: boolean
+}>()
+
+defineEmits<{
+  (e: 'deselect-all'): void
+  (e: 'shuffle-words'): void
+  (e: 'submit-guess'): void
+  (e: 'share-results'): void
+}>()
+</script>
+
+<style scoped>
+/* Additional mobile tweaks from original */
+@media (max-width: 576px) {
+  button {
+    padding: 8px 6px;
+    font-size: 0.75em;
+    max-width: 100px;
+  }
+}
+@media (max-width: 480px) {
+  button {
+    padding: 6px 4px;
+    font-size: 0.65em;
+    max-width: 85px;
+  }
+}
+@media (max-width: 360px) {
+  button {
+    padding: 5px 3px;
+    font-size: 0.55em;
+    max-width: 75px;
+  }
+}
+</style>
