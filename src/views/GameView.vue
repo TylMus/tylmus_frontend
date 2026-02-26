@@ -6,6 +6,7 @@
       :type="gameStore.messageClass"
       :text="gameStore.messageText"
       @close="gameStore.showMessage = false"
+      class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50"
     />
 
     <!-- Game Over Modal -->
@@ -62,7 +63,7 @@
       </div>
 
       <!-- Game grid -->
-      <div class="grid grid-cols-4 gap-3 md:gap-4 mb-2 max-w-2xl mx-auto min-h-[450px] md:min-h-[500px]">
+      <div class="grid grid-cols-4 gap-2 mb-2 max-w-4xl mx-auto w-full min-h-[400px] md:min-h-[450px]">
         <!-- Found categories -->
         <CategoryBlock
           v-for="(cat, idx) in gameStore.foundCategories"
