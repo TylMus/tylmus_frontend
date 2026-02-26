@@ -1,10 +1,7 @@
 <template>
   <div
-    class="bg-[#d3fbe3] border-2 border-[#d3fbe3] rounded-lg cursor-pointer select-none transition-all hover:bg-[#a1eec0] hover:-translate-y-0.5 flex items-center justify-center p-2 text-center break-words"
-    :class="{
-      'bg-[#a1eec0] border-[#88c8a1]': selected,
-      'animate-scramble': scrambleAnimation
-    }"
+    class="bg-[#d3fbe3] border-2 border-[#d3fbe3] rounded-lg cursor-pointer select-none transition-all hover:bg-[#a1eec0] hover:-translate-y-0.5 flex items-center justify-center p-1 text-center break-words aspect-square"
+    :class="{ 'bg-[#a1eec0] border-[#88c8a1]': selected, 'animate-scramble': scrambleAnimation }"
     @click="$emit('click', word)"
   >
     <span class="word-text">{{ word }}</span>

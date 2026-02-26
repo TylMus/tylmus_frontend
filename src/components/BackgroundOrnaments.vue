@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed inset-0 -z-10 w-full h-full pointer-events-none overflow-hidden">
+  <div class="absolute inset-0 -z-10 w-full h-full pointer-events-none overflow-hidden">
     <img src="/img/background-ornament.svg" alt="" class="absolute top-[3%] left-0 w-full opacity-100" />
     <img src="/img/background-ornament.svg" alt="" class="absolute top-[18%] left-0 w-full scale-y-[-1]" />
   </div>

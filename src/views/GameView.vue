@@ -1,5 +1,5 @@
 <template>
-  <div class="relative min-h-screen overflow-x-hidden">
+  <div class="relative w-full max-w-4xl mx-auto px-2 py-5 flex flex-col">
     <!-- Notifications -->
     <NotificationPopup
       v-if="gameStore.showMessage && !gameStore.gameOver"
@@ -62,7 +62,7 @@
       </div>
 
       <!-- Game grid -->
-      <div class="grid grid-cols-4 gap-3 md:gap-4 mb-5 max-w-2xl mx-auto min-h-[450px] md:min-h-[500px]">
+      <div class="grid grid-cols-4 gap-2 md:gap-4 mb-5 max-w-2xl mx-auto min-h-[450px] md:min-h-[500px]">
         <!-- Found categories -->
         <CategoryBlock
           v-for="(cat, idx) in gameStore.foundCategories"
@@ -85,7 +85,7 @@
       </div>
 
       <!-- Mistakes display -->
-      <div class="flex justify-center mb-5 sticky bottom-0 bg-white/80 backdrop-blur-sm py-2 z-10">
+      <div class="flex justify-center mb-2 sticky bottom-0 bg-white/80 backdrop-blur-sm py-2 z-10">
         <div class="flex items-center gap-2 text-sm flex-wrap justify-center">
           Осталось ошибок:
           <span v-for="n in 4" :key="n" class="text-2xl text-gray-400 transition-opacity" :class="{ 'opacity-30': (5 - n) <= gameStore.mistakes }">●</span>
