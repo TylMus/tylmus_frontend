@@ -13,6 +13,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+const props = computed(() => {
+  gameDisplay: string
+}>()
 
 const shortDate = computed(() => {
   const today = new Date()
