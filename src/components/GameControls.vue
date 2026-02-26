@@ -21,7 +21,7 @@
       :class="canSubmit ? 'bg-black text-white border-black hover:bg-gray-800' : 'bg-white text-gray-400 border-gray-400'"
     >
       <span class="hidden sm:inline">Подтвердить</span>
-      <span class="inline sm:hidden">Ок</span>
+      <span class="inline sm:hidden">Готово</span>
     </button>
     <button
       v-if="showShareButton"

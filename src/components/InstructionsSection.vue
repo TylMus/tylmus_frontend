@@ -1,16 +1,23 @@
 <template>
   <section class="relative bg-gray-50 rounded-b-xl py-10 px-5 overflow-hidden">
     <!-- corners (keep as before, but adjust positioning later) -->
-    <div class="absolute -top-16 left-0 w-32 h-32 md:w-48 md:h-48 pointer-events-none z-10">
+    <!-- Top-left corner -->
+    <div class="absolute -top-24 left-0 w-48 h-48 md:w-64 md:h-64 pointer-events-none z-10">
     <img src="/img/corner-top-left.svg" alt="" class="w-full h-full object-contain opacity-80" />
     </div>
-    <div class="absolute -top-16 right-0 w-32 h-32 md:w-48 md:h-48 pointer-events-none z-10">
+
+    <!-- Top-right corner -->
+    <div class="absolute -top-24 right-0 w-48 h-48 md:w-64 md:h-64 pointer-events-none z-10">
     <img src="/img/corner-top-right.svg" alt="" class="w-full h-full object-contain opacity-80" />
     </div>
-    <div class="absolute -bottom-16 left-0 w-32 h-32 md:w-48 md:h-48 pointer-events-none z-10">
+
+    <!-- Bottom-left corner -->
+    <div class="absolute -bottom-24 left-0 w-48 h-48 md:w-64 md:h-64 pointer-events-none z-10">
     <img src="/img/corner-bottom-left.svg" alt="" class="w-full h-full object-contain opacity-80" />
     </div>
-    <div class="absolute -bottom-16 right-0 w-32 h-32 md:w-48 md:h-48 pointer-events-none z-10">
+
+    <!-- Bottom-right corner -->
+    <div class="absolute -bottom-24 right-0 w-48 h-48 md:w-64 md:h-64 pointer-events-none z-10">
     <img src="/img/corner-bottom-right.svg" alt="" class="w-full h-full object-contain opacity-80" />
     </div>
 

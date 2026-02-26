@@ -4,7 +4,7 @@
     :class="{ 'bg-[#a1eec0] border-[#88c8a1]': selected, 'animate-scramble': scrambleAnimation }"
     @click="$emit('click', word)"
   >
-    <span class="word-text">{{ word }}</span>
+    <span class="word-text font-bold">{{ word }}</span>
   </div>
 </template>
 
