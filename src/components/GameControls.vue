@@ -1,218 +1,75 @@
 <template>
-  <div class="controls">
-    <!-- Основные кнопки управления -->
-    <button @click="$emit('deselect-all')" class="btn-control">
-      <span class="btn-text">Снять всё </span>
-      <span class="btn-text-mobile">Снять всё </span>
-    </button>
-    <button @click="$emit('shuffle-words')" class="btn-control">
-      <span class="btn-text">Перемешать</span>
-      <span class="btn-text-mobile">Перемешать</span>
-    </button>
-    <button 
-      @click="$emit('submit-guess')" 
-      :disabled="!canSubmit" 
-      class="btn-submit"
-      :class="{ 'enabled': canSubmit }"
+  <div class="flex flex-row flex-nowrap gap-2 justify-center items-center mb-5 px-1">
+    <button
+      @click="$emit('deselect-all')"
+      class="flex-1 min-w-0 max-w-[150px] text-center whitespace-nowrap px-4 py-3 border-2 border-black rounded-lg bg-white font-bold hover:bg-green-100 transition text-black"
     >
-      <span class="btn-text">Подтвердить</span>
-      <span class="btn-text-mobile">Подтвердить</span>
+      <span class="hidden sm:inline">Снять всё</span>
+      <span class="inline sm:hidden">Снять всё</span>
     </button>
-    
-    <!-- Кнопка "Поделиться результатом!" -->
-    <button 
+    <button
+      @click="$emit('shuffle-words')"
+      class="flex-1 min-w-0 max-w-[150px] text-center whitespace-nowrap px-4 py-3 border-2 border-black rounded-lg bg-white font-bold hover:bg-green-100 transition text-black"
+    >
+      <span class="hidden sm:inline">Перемешать</span>
+      <span class="inline sm:hidden">Перемешать</span>
+    </button>
+    <button
+      @click="$emit('submit-guess')"
+      :disabled="!canSubmit"
+      class="flex-1 min-w-0 max-w-[150px] text-center whitespace-nowrap px-4 py-3 border-2 rounded-lg font-bold transition disabled:opacity-50 disabled:cursor-not-allowed"
+      :class="canSubmit ? 'bg-black text-white border-black hover:bg-gray-800' : 'bg-white text-gray-400 border-gray-400'"
+    >
+      <span class="hidden sm:inline">Подтвердить</span>
+      <span class="inline sm:hidden">Подтвердить</span>
+    </button>
+    <button
       v-if="showShareButton"
       @click="$emit('share-results')"
-      class="btn-share"
+      class="flex-1 min-w-0 max-w-[150px] text-center whitespace-nowrap px-4 py-3 border-2 border-green-600 rounded-lg bg-green-600 text-white font-bold hover:bg-green-700 transition"
     >
-      <span class="btn-text">Поделиться результатом!</span>
-      <span class="btn-text-mobile">Поделиться</span>
+      <span class="hidden sm:inline">Поделиться результатом!</span>
+      <span class="inline sm:hidden">Поделиться</span>
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
-interface Props {
+defineProps<{
   canSubmit: boolean
   gameOver: boolean
   showShareButton: boolean
-}
+}>()
 
-interface Emits {
+defineEmits<{
   (e: 'deselect-all'): void
   (e: 'shuffle-words'): void
   (e: 'submit-guess'): void
   (e: 'share-results'): void
-}
-
-defineProps<Props>()
-defineEmits<Emits>()
+}>()
 </script>
 
 <style scoped>
-.controls {
-  display: flex;
-  flex-direction: row; /* EXPLICITLY SET TO ROW */
-  flex-wrap: nowrap; /* PREVENT WRAPPING */
-  gap: 8px;
-  justify-content: center;
-  align-items: center; /* Center vertically */
-  margin-bottom: 20px;
-  padding: 0 5px;
-  width: 100%;
-}
-
-.btn-control, .btn-submit, .btn-share {
-  padding: 12px 16px;
-  border: 2px solid black;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1em;
-  font-weight: bold;
-  background: white;
-  transition: all 0.3s ease;
-  flex: 1 1 auto; /* Allow growth and shrinkage */
-  min-width: 0; /* Allow buttons to shrink below min-content */
-  max-width: 150px; /* Maximum width for desktop */
-  text-align: center;
-  white-space: nowrap; /* Prevent text from wrapping inside button */
-  color: black; /* EXPLICITLY SET TEXT COLOR */
-  -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
-}
-
-/* Remove default button styling on iOS */
-.btn-control, .btn-submit, .btn-share {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-
-.btn-control:hover, .btn-submit:not(:disabled):hover, .btn-share:hover {
-  background: #d4edda;
-}
-
-.btn-submit:disabled {
-  cursor: not-allowed;
-  border-color: gray;
-  color: gray;
-}
-
-.btn-submit.enabled:not(:disabled) {
-  background: black;
-  color: white;
-}
-
-.btn-submit.enabled:not(:disabled):hover {
-  background: #333;
-  color: white;
-}
-
-/* Стиль для кнопки шаринга */
-.btn-share {
-  background: #4CAF50;
-  color: white;
-  border-color: #4CAF50;
-}
-
-.btn-share:hover {
-  background: #45a049;
-  border-color: #45a049;
-}
-
-/* Hide mobile text by default */
-.btn-text-mobile {
-  display: none;
-}
-
-/* Tablet */
-@media (max-width: 768px) {
-  .controls {
-    gap: 6px;
-    margin-bottom: 15px;
-    padding: 0 4px;
-    flex-direction: row !important; /* FORCE ROW */
-  }
-  
-  .btn-control, .btn-submit, .btn-share {
-    padding: 10px 8px;
-    font-size: 0.85em;
-    max-width: 120px;
-    flex: 1 1 0; /* Equal distribution */
-    color: black; /* Ensure text color stays black */
-  }
-}
-
-/* Mobile */
+/* Additional mobile tweaks from original */
 @media (max-width: 576px) {
-  .controls {
-    gap: 4px;
-    margin-bottom: 12px;
-    padding: 0 3px;
-    flex-direction: row !important; /* FORCE ROW */
-  }
-  
-  .btn-control, .btn-submit, .btn-share {
+  button {
     padding: 8px 6px;
     font-size: 0.75em;
     max-width: 100px;
-    border-radius: 6px;
-    border-width: 1px;
-    flex: 1 1 0; /* Equal distribution */
-    color: black; /* Ensure text color stays black */
-  }
-  
-  /* Show mobile text, hide desktop text */
-  .btn-text {
-    display: none;
-  }
-  
-  .btn-text-mobile {
-    display: inline;
   }
 }
-
-/* Small Mobile */
 @media (max-width: 480px) {
-  .controls {
-    gap: 3px;
-    padding: 0 2px;
-    flex-direction: row !important; /* FORCE ROW */
-  }
-  
-  .btn-control, .btn-submit, .btn-share {
+  button {
     padding: 6px 4px;
     font-size: 0.65em;
     max-width: 85px;
-    flex: 1 1 0; /* Equal distribution */
-    color: black; /* Ensure text color stays black */
   }
 }
-
-/* Very Small Mobile */
 @media (max-width: 360px) {
-  .controls {
-    gap: 2px;
-    flex-direction: row !important; /* FORCE ROW */
-  }
-  
-  .btn-control, .btn-submit, .btn-share {
+  button {
     padding: 5px 3px;
     font-size: 0.55em;
     max-width: 75px;
-    min-height: 36px;
-    flex: 1 1 0; /* Equal distribution */
-    color: black; /* Ensure text color stays black */
-  }
-}
-
-/* Fix for iPhone SE and similar very small screens */
-@media (max-width: 320px) {
-  .btn-control, .btn-submit, .btn-share {
-    padding: 4px 2px;
-    font-size: 0.5em;
-    max-width: 70px;
-    flex: 1 1 0; /* Equal distribution */
-    color: black; /* Ensure text color stays black */
   }
 }
 </style>
