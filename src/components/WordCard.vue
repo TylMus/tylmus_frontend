@@ -1,15 +1,13 @@
 <template>
   <div
-    class="bg-[#d3fbe3] border-2 border-[#d3fbe3] rounded-lg cursor-pointer select-none transition-all hover:bg-[#a1eec0] hover:-translate-y-0.5 grid-item"
+    class="bg-[#d3fbe3] border-2 border-[#d3fbe3] rounded-lg cursor-pointer select-none transition-all hover:bg-[#a1eec0] hover:-translate-y-0.5 flex items-center justify-center p-2 text-center break-words"
     :class="{
       'bg-[#a1eec0] border-[#88c8a1]': selected,
       'animate-scramble': scrambleAnimation
     }"
     @click="$emit('click', word)"
   >
-    <div class="w-full max-h-full overflow-hidden line-clamp-3 text-center break-words p-2">
-      {{ word }}
-    </div>
+    <span class="word-text">{{ word }}</span>
   </div>
 </template>
 
@@ -19,65 +17,44 @@ defineProps<{
   selected?: boolean
   scrambleAnimation?: boolean
 }>()
-
-defineEmits<{
-  (e: 'click', word: string): void
-}>()
+defineEmits<{ (e: 'click', word: string): void }>()
 </script>
 
 <style scoped>
-/* Keep minimal scoped styles if needed for grid-item sizing */
-.grid-item {
-  min-height: 100px;
-  max-height: 100px;
-  height: 100px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 6px;
-  font-weight: 600;
-  text-align: center;
+.word-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  word-break: break-word;
-  overflow-wrap: break-word;
-  hyphens: auto;
+  font-size: 1rem;
   line-height: 1.3;
-  font-size: 1em;
+  word-break: break-word;
 }
 
+/* Responsive adjustments */
 @media (max-width: 768px) {
-  .grid-item {
-    min-height: 85px;
-    max-height: 85px;
-    height: 85px;
-    font-size: 0.95em;
+  .word-text {
+    font-size: 0.95rem;
   }
 }
-
 @media (max-width: 576px) {
-  .grid-item {
-    min-height: 75px;
-    max-height: 75px;
-    height: 75px;
-    font-size: 0.9em;
+  .word-text {
+    font-size: 0.9rem;
   }
 }
-
 @media (max-width: 480px) {
-  .grid-item {
-    min-height: 65px;
-    max-height: 65px;
-    height: 65px;
-    font-size: 0.85em;
+  .word-text {
+    font-size: 0.85rem;
   }
 }
-
 @media (max-width: 375px) {
-  .grid-item {
-    min-height: 55px;
-    max-height: 55px;
-    height: 55px;
-    font-size: 0.8em;
+  .word-text {
+    font-size: 0.8rem;
+  }
+}
+@media (max-width: 320px) {
+  .word-text {
+    font-size: 0.75rem;
   }
 }
 </style>

@@ -1,17 +1,17 @@
 <template>
   <section class="relative bg-gray-50 rounded-b-xl py-10 px-5 overflow-hidden">
-    <!-- Corner decorations -->
-    <div class="absolute top-[-100px] left-0 w-1/4 h-1/4 pointer-events-none z-10">
-      <img src="/public/img/corner-top-left.svg" alt="" class="w-full h-full object-contain opacity-80" />
+    <!-- corners (keep as before, but adjust positioning later) -->
+    <div class="absolute -top-16 left-0 w-32 h-32 md:w-48 md:h-48 pointer-events-none z-10">
+    <img src="/img/corner-top-left.svg" alt="" class="w-full h-full object-contain opacity-80" />
     </div>
-    <div class="absolute top-[-100px] right-0 w-1/4 h-1/4 pointer-events-none z-10">
-      <img src="/public/img/corner-top-right.svg" alt="" class="w-full h-full object-contain opacity-80" />
+    <div class="absolute -top-16 right-0 w-32 h-32 md:w-48 md:h-48 pointer-events-none z-10">
+    <img src="/img/corner-top-right.svg" alt="" class="w-full h-full object-contain opacity-80" />
     </div>
-    <div class="absolute bottom-[-100px] left-0 w-1/4 h-1/4 pointer-events-none z-10">
-      <img src="/public/img/corner-bottom-left.svg" alt="" class="w-full h-full object-contain opacity-80" />
+    <div class="absolute -bottom-16 left-0 w-32 h-32 md:w-48 md:h-48 pointer-events-none z-10">
+    <img src="/img/corner-bottom-left.svg" alt="" class="w-full h-full object-contain opacity-80" />
     </div>
-    <div class="absolute bottom-[-100px] right-0 w-1/4 h-1/4 pointer-events-none z-10">
-      <img src="/public/img/corner-bottom-right.svg" alt="" class="w-full h-full object-contain opacity-80" />
+    <div class="absolute -bottom-16 right-0 w-32 h-32 md:w-48 md:h-48 pointer-events-none z-10">
+    <img src="/img/corner-bottom-right.svg" alt="" class="w-full h-full object-contain opacity-80" />
     </div>
 
     <div class="container mx-auto text-center relative z-20">
@@ -32,17 +32,17 @@ const steps = [
   {
     title: 'Прочти слова',
     text: 'Первый шаг — внимательно прочитать и понять слова, представленные в игре "ТылМус". Не спешите, постарайтесь понять каждое слово и подумать, что оно означает в контексте головоломки.',
-    img: '/public/img/step1.png'
+    img: '/img/step1.png'
   },
   {
     title: 'Найди общее',
     text: 'После того как вы прочитаете и поймёте слова, следующий шаг — найти общую тему, которая их связывает.',
-    img: '/public/img/step2.png'
+    img: '/img/step2.png'
   },
   {
     title: 'Выбери и отправь свой ответ',
     text: 'Когда вы определите общую тему и найдёте четыре слова, подходящие под неё, пора сделать свой выбор.',
-    img: '/public/img/step3.png'
+    img: '/img/step3.png'
   }
 ]
 </script>
