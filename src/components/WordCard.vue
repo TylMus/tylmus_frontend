@@ -1,6 +1,6 @@
 <template>
   <div
-    class="word-card bg-[#d3fbe3] border-2 border-[#d3fbe3] rounded-lg cursor-pointer select-none transition-all hover:bg-[#a1eec0] hover:-translate-y-0.5 flex items-center justify-center p-2 text-center break-words aspect-square font-bold"
+    class="word-card bg-[#d3fbe3] border-2 border-[#d3fbe3] rounded-lg cursor-pointer select-none transition-all hover:bg-[#a1eec0] hover:-translate-y-0.5 flex items-center justify-center p-2 text-center break-words font-bold h-[75px] sm:h-[85px] md:h-[100px]"
     :class="{
       'selected': selected,
       'animate-scramble will-change-transform': scrambleAnimation
@@ -10,7 +10,6 @@
     <span class="word-text">{{ word }}</span>
   </div>
 </template>
-
 <script setup lang="ts">
 defineProps<{
   word: string

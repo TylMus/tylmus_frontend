@@ -63,7 +63,7 @@
       </div>
 
       <!-- Game grid -->
-      <div class="grid grid-cols-4 gap-3 md:gap-4 mb-2 max-w-2xl mx-auto min-h-[450px] md:min-h-[500px]">
+      <div class="grid grid-cols-4 gap-2 md:gap-3 mb-2 max-w-2xl mx-auto">
         <!-- Found categories -->
         <CategoryBlock
           v-for="(cat, idx) in gameStore.foundCategories"
