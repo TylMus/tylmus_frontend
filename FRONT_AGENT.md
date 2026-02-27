@@ -6,72 +6,44 @@ Vue 3 + TypeScript application. TailwindCSS is used for styling (to be fully int
 
 ### Project Structure
 
-```
-
 frontend/
-
 ├── src/
-
 │   ├── api/
-
-│   │   └── gameApi.ts          # Axios instance, API methods
-
+│   │   └── gameApi.ts               # Axios instance, API methods
 │   ├── components/
-
+│   │   ├── AboutSection.vue
+│   │   ├── BackgroundOrnaments.vue
 │   │   ├── CategoryBlock.vue
-
+│   │   ├── CountdownTimer.vue
+│   │   ├── FooterSection.vue
 │   │   ├── GameControls.vue
-
 │   │   ├── GameHeader.vue
-
-│   │   ├── MessageAlert.vue
-
+│   │   ├── GameHistory.vue
+│   │   ├── GameOverModal.vue
+│   │   ├── InstructionsSection.vue
 │   │   ├── NotificationPopup.vue
-
+│   │   ├── ShareButton.vue
 │   │   └── WordCard.vue
-
 │   ├── router/
-
-│   │   └── index.ts             # Vue Router configuration
-
+│   │   └── index.ts                  # Vue Router configuration
 │   ├── stores/
-
-│   │   ├── counter.ts           # Example store (can be removed)
-
-│   │   └── gameStore.ts          # Main game state (Pinia)
-
+│   │   └── gameStore.ts               # Main game state (Pinia)
 │   ├── types/
-
-│   │   └── game.ts               # TypeScript interfaces
-
+│   │   └── game.ts                    # TypeScript interfaces
 │   ├── views/
-
-│   │   └── GameView.vue           # Main game view
-
+│   │   └── GameView.vue                # Main game view
 │   ├── App.vue
-
 │   ├── main.ts
-
-│   └── style.css                  # Tailwind imports
-
+│   └── style.css                       # Tailwind imports + global overrides
 ├── public/
-
+│   └── img/                            # SVG ornaments, step images, etc.
 ├── index.html
-
 ├── package.json
-
 ├── vite.config.ts
-
-├── Dockerfile                     # Multi-stage build with nginx
-
-├── nginx.conf                      # SPA routing
-
-├── .env                            # VITE\\\_\\\* environment variables
-
-└── tests/                          # Vitest suite (optional)
-
-```
-
+├── Dockerfile                           # Multi-stage build with nginx
+├── nginx.conf                           # SPA routing, listens on port 3000
+├── .env                                  # VITE_* environment variables
+└── tests/                                # Vitest suite (optional)
 
 
 ### Code Style
