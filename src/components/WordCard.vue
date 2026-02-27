@@ -1,6 +1,6 @@
 <template>
   <div
-    class="word-card bg-[#d3fbe3] border-2 border-[#d3fbe3] rounded-lg cursor-pointer select-none transition-all hover:bg-[#a1eec0] hover:-translate-y-0.5 flex items-center justify-center p-1 text-center break-words aspect-square font-bold"
+    class="word-card bg-[#d3fbe3] border-2 border-[#d3fbe3] rounded-lg cursor-pointer select-none transition-all hover:bg-[#a1eec0] hover:-translate-y-0.5 flex items-center justify-center p-2 text-center break-words aspect-square font-bold"
     :class="{
       'selected': selected,
       'animate-scramble will-change-transform': scrambleAnimation
@@ -10,6 +10,7 @@
     <span class="word-text">{{ word }}</span>
   </div>
 </template>
+
 <script setup lang="ts">
 defineProps<{
   word: string
@@ -21,8 +22,9 @@ defineEmits<{ (e: 'click', word: string): void }>()
 
 <style scoped>
 .word-card.selected {
-  background-color: #a1eec0 !important;
-  border-color: #a1eec0 !important;
+  background-color: #2e7d32 !important;
+  border-color: #81c784 !important;
+  color: white !important;
 }
 
 .word-text {
@@ -52,4 +54,3 @@ defineEmits<{ (e: 'click', word: string): void }>()
   .word-text { font-size: 0.75rem; }
 }
 </style>
-
