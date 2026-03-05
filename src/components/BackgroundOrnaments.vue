@@ -3,12 +3,12 @@
     <img 
       src="/img/background-ornament.svg" 
       alt="" 
-      class="absolute top-[3%] left-0 w-full scale-150 md:scale-100 opacity-100"
+      class="absolute top-[1%] md:top-[3%] left-0 w-full scale-150 md:scale-100 opacity-100"
     />
     <img 
       src="/img/background-ornament.svg" 
       alt="" 
-      class="absolute top-[26%] left-0 w-full scale-150 md:scale-100 scale-y-[-1]"
+      class="absolute bottom-[5%] md:top-[26%] left-0 w-full scale-150 md:scale-100 scale-y-[-1]"
     />
   </div>
 </template>
