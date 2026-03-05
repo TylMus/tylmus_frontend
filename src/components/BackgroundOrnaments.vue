@@ -10,7 +10,7 @@
     <img 
       src="/img/background-ornament.svg" 
       alt="" 
-      class="absolute bottom-[2%] md:top-[26%] left-0 w-full scale-150 md:scale-100"
+      class="absolute top-[20%] md:top-[26%] left-0 w-full scale-150 md:scale-100"
       :style="{ transform: 'rotate(180deg)' }"
     />
   </div>
