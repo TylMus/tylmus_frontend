@@ -3,7 +3,7 @@
     <div class="container mx-auto flex justify-between items-center">
       <h3 class="text-xl font-bold text-black sm:text-2xl">ТылМус</h3>
       <div class="flex items-center gap-4">
-        <button @click="$emit('open-leaderboard')" class="text-2xl hover:scale-110 transition" title="Таблица лидеров">
+        <button @click="$emit('open-leaderboard')" class="text-2xl hover:scale-110 transition p-2" title="Таблица лидеров">
           🏆
         </button>
         <div v-if="gameDisplay" class="text-gray-500 text-sm sm:text-base">

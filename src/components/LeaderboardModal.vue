@@ -1,7 +1,7 @@
 <template>
-  <div v-if="show" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50" @click.self="$emit('close')">
-    <div class="bg-white rounded-xl p-6 max-w-md w-11/12 relative shadow-xl">
-      <button @click="$emit('close')" class="absolute top-3 right-3 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition">
+  \<div v-if="show" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50" @click.self="$emit('close')">
+    <div class="bg-white rounded-xl p-6 max-w-md w-11/12 relative shadow-xl" @click.stop>
+       <button @click="$emit('close')" class="absolute top-3 right-3 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition">
         <svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path d="M18 6L6 18M6 6l12 12" />
         </svg>

@@ -34,15 +34,17 @@
 
     <!-- Header -->
     <GameHeader :game-display="gameStore.gameDisplay" @open-leaderboard="openLeaderboard" />
+    
+    <!-- Leader Board -->
     <LeaderboardModal
     :show="showLeaderboard"
     :game-date="gameDate"
     :game-complete="gameStore.foundCategories.length === 4"
     :user-entry="gameStore.userLeaderboardEntry"
     :entries="gameStore.leaderboardEntries"
-    @close="showLeaderboard = false"
+    @close="closeLeaderboard"
     @submitted="handleLeaderboardSubmitted"
-  />
+    />
     <!-- Main game area -->
     <div class="w-full max-w-4xl mx-auto px-2 py-5 min-h-[600px] flex flex-col">
       <!-- Loading / Error / Complete states -->
@@ -69,9 +71,8 @@
       >
         Не удалось загрузить слова. Проверьте консоль.
       </div>
-
-      <!-- Game grid -->
-      <div class="grid grid-cols-4 gap-2 md:gap-3 mb-2 max-w-2xl mx-auto">
+      <!-- Game grid – only shown when there are words and game not complete -->
+      <div v-else class="grid grid-cols-4 gap-2 md:gap-3 mb-2 max-w-2xl mx-auto">
         <!-- Found categories -->
         <CategoryBlock
           v-for="(cat, idx) in gameStore.foundCategories"
@@ -81,7 +82,6 @@
           :color="gameStore.getCategoryColor(idx)"
           class="col-span-4"
         />
-
         <!-- Word cards -->
         <WordCard
           v-for="(word, idx) in gameStore.words"
@@ -92,6 +92,7 @@
           @click="gameStore.toggleWord(word)"
         />
       </div>
+    </div>
 
       <!-- Mistakes display -->
       <div class="flex justify-center mb-2 sticky bottom-0 bg-white/80 backdrop-blur-sm py-2 z-10">
@@ -142,8 +143,13 @@ const showLeaderboard = ref(false)
 const gameDate = computed(() => gameStore.gameDisplay?.split(' ')[0] || new Date().toISOString().split('T')[0])
 
 const openLeaderboard = async () => {
+  console.log('🏆 Opening leaderboard')
   showLeaderboard.value = true
   await gameStore.fetchLeaderboard()
+}
+const closeLeaderboard = () => {
+  console.log('🏆 Closing leaderboard')
+  showLeaderboard.value = false
 }
 const handleLeaderboardSubmitted = () => {
   gameStore.refreshLeaderboard()
