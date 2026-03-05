@@ -5,18 +5,33 @@
       'selected': selected,
       'animate-scramble will-change-transform': scrambleAnimation
     }"
+    :style="{ fontSize: dynamicFontSize }"
     @click="$emit('click', word)"
   >
     <span class="word-text">{{ word }}</span>
   </div>
 </template>
+
 <script setup lang="ts">
-defineProps<{
+import { computed } from 'vue'
+
+const props = defineProps<{
   word: string
   selected?: boolean
   scrambleAnimation?: boolean
 }>()
+
 defineEmits<{ (e: 'click', word: string): void }>()
+
+// Dynamic font size based on word length
+const dynamicFontSize = computed(() => {
+  const baseSize = 1 // rem
+  const length = props.word.length
+  if (length <= 6) return '1rem'
+  if (length <= 8) return '0.9rem'
+  if (length <= 10) return '0.8rem'
+  return '0.7rem'
+})
 </script>
 
 <style scoped>
@@ -30,25 +45,7 @@ defineEmits<{ (e: 'click', word: string): void }>()
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  font-size: 1rem;
   line-height: 1.3;
   word-break: break-word;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .word-text { font-size: 0.95rem; }
-}
-@media (max-width: 576px) {
-  .word-text { font-size: 0.9rem; }
-}
-@media (max-width: 480px) {
-  .word-text { font-size: 0.85rem; }
-}
-@media (max-width: 375px) {
-  .word-text { font-size: 0.8rem; }
-}
-@media (max-width: 320px) {
-  .word-text { font-size: 0.75rem; }
 }
 </style>

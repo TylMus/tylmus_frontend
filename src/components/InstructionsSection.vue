@@ -1,26 +1,25 @@
 <template>
-  <section class="relative bg-gray-50 rounded-b-xl py-10 px-5 overflow-hidden">
+  <section class="relative bg-gray-50 rounded-b-xl py-16 px-5 overflow-hidden">
     <!-- corners (keep as before, but adjust positioning later) -->
     <!-- Top-left corner -->
-    <div class="absolute -top-24 left-0 w-48 h-48 md:w-64 md:h-64 pointer-events-none z-10">
-    <img src="/img/corner-top-left.svg" alt="" class="w-full h-full object-contain opacity-80" />
-    </div>
+<div class="absolute -top-8 left-0 w-32 h-32 md:-top-16 md:w-48 md:h-48 pointer-events-none z-10">
+  <img src="/img/corner-top-left.svg" alt="" class="w-full h-full object-contain opacity-80" />
+</div>
 
-    <!-- Top-right corner -->
-    <div class="absolute -top-24 right-0 w-48 h-48 md:w-64 md:h-64 pointer-events-none z-10">
-    <img src="/img/corner-top-right.svg" alt="" class="w-full h-full object-contain opacity-80" />
-    </div>
+<!-- Top-right corner -->
+<div class="absolute -top-8 right-0 w-32 h-32 md:-top-16 md:w-48 md:h-48 pointer-events-none z-10">
+  <img src="/img/corner-top-right.svg" alt="" class="w-full h-full object-contain opacity-80" />
+</div>
 
-    <!-- Bottom-left corner -->
-    <div class="absolute -bottom-24 left-0 w-48 h-48 md:w-64 md:h-64 pointer-events-none z-10">
-    <img src="/img/corner-bottom-left.svg" alt="" class="w-full h-full object-contain opacity-80" />
-    </div>
+<!-- Bottom-left corner -->
+<div class="absolute -bottom-8 left-0 w-32 h-32 md:-bottom-16 md:w-48 md:h-48 pointer-events-none z-10">
+  <img src="/img/corner-bottom-left.svg" alt="" class="w-full h-full object-contain opacity-80" />
+</div>
 
-    <!-- Bottom-right corner -->
-    <div class="absolute -bottom-24 right-0 w-48 h-48 md:w-64 md:h-64 pointer-events-none z-10">
-    <img src="/img/corner-bottom-right.svg" alt="" class="w-full h-full object-contain opacity-80" />
-    </div>
-
+<!-- Bottom-right corner -->
+<div class="absolute -bottom-8 right-0 w-32 h-32 md:-bottom-16 md:w-48 md:h-48 pointer-events-none z-10">
+  <img src="/img/corner-bottom-right.svg" alt="" class="w-full h-full object-contain opacity-80" />
+</div>
     <div class="container mx-auto text-center relative z-20">
       <h3 class="text-2xl font-bold text-black mb-6">Как играть в ТылМус</h3>
       <ul class="space-y-10">

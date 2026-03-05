@@ -72,7 +72,7 @@
     Не удалось загрузить слова. Проверьте консоль.
   </div>
   <!-- Game grid – only shown when there are words and game not complete -->
-  <div v-else class="grid grid-cols-4 gap-2 md:gap-3 mb-2 max-w-2xl mx-auto">
+  <div v-else class="grid grid-cols-4 gap-2 md:gap-3 mb-3 max-w-2xl mx-auto">
     <!-- Found categories -->
     <CategoryBlock
       v-for="(cat, idx) in gameStore.foundCategories"
@@ -94,7 +94,7 @@
   </div>
 
       <!-- Mistakes display -->
-      <div class="flex justify-center mb-2 sticky bottom-0 bg-white/80 backdrop-blur-sm py-2 z-10">
+      <div class="flex justify-center mb-3 sticky bottom-0 bg-white/80 backdrop-blur-sm py-2 z-10">
         <div class="flex items-center gap-2 text-sm flex-wrap justify-center">
           Осталось ошибок:
           <span v-for="n in 4" :key="n" class="text-2xl text-gray-400 transition-opacity" :class="{ 'opacity-30': (5 - n) <= gameStore.mistakes }">●</span>
