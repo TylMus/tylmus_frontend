@@ -21,9 +21,8 @@ defineEmits<{ (e: 'click', word: string): void }>()
 
 <style scoped>
 .word-card.selected {
-  background-color: #2e7d32 !important;
-  border-color: #81c784 !important;
-  color: white !important;
+  background-color: #a1eec0 !important;
+  border-color: #a1eec0 !important;
 }
 
 .word-text {

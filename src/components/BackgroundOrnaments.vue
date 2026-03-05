@@ -8,7 +8,7 @@
     <img 
       src="/img/background-ornament.svg" 
       alt="" 
-      class="absolute top-[16%] left-0 w-full scale-150 md:scale-100 scale-y-[-1]"
+      class="absolute top-[22%] left-0 w-full scale-150 md:scale-100 scale-y-[-1]"
     />
   </div>
 </template>

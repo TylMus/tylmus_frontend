@@ -33,8 +33,16 @@
     <BackgroundOrnaments />
 
     <!-- Header -->
-    <GameHeader :game-display="gameStore.gameDisplay" />
-
+    <GameHeader :game-display="gameStore.gameDisplay" @open-leaderboard="openLeaderboard" />
+    <LeaderboardModal
+    :show="showLeaderboard"
+    :game-date="gameDate"
+    :game-complete="gameStore.foundCategories.length === 4"
+    :user-entry="gameStore.userLeaderboardEntry"
+    :entries="gameStore.leaderboardEntries"
+    @close="showLeaderboard = false"
+    @submitted="handleLeaderboardSubmitted"
+  />
     <!-- Main game area -->
     <div class="w-full max-w-4xl mx-auto px-2 py-5 min-h-[600px] flex flex-col">
       <!-- Loading / Error / Complete states -->
@@ -124,12 +132,22 @@ import BackgroundOrnaments from '../components/BackgroundOrnaments.vue'
 import AboutSection from '../components/AboutSection.vue'
 import InstructionsSection from '../components/InstructionsSection.vue'
 import FooterSection from '../components/FooterSection.vue'
+import LeaderboardModal from '../components/LeaderboardModal.vue'
 
 const gameStore = useGameStore()
 const showShareNotification = ref(false)
 const shareNotificationText = ref('')
 const showGameOverModal = ref(true)
+const showLeaderboard = ref(false)
+const gameDate = computed(() => gameStore.gameDisplay?.split(' ')[0] || new Date().toISOString().split('T')[0])
 
+const openLeaderboard = async () => {
+  showLeaderboard.value = true
+  await gameStore.fetchLeaderboard()
+}
+const handleLeaderboardSubmitted = () => {
+  gameStore.refreshLeaderboard()
+}
 // Share logic (same as original)
 const generateShareText = (): string => {
   const today = new Date().toISOString().split('T')[0]
