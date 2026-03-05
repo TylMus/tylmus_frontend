@@ -61,18 +61,20 @@ export const useGameStore = defineStore('game', () => {
 
   // ========== Leaderboard functions ==========
   const fetchLeaderboard = async () => {
-  loadingLeaderboard.value = true
-  try {
-    const response = await axios.get('/api/leaderboard/today')
-    leaderboardEntries.value = response.data.entries
-    userLeaderboardEntry.value = response.data.user_entry
-  } catch (error) {
-    console.error('Failed to fetch leaderboard', error)
-    // Don't close modal on error – keep it open
-  } finally {
-    loadingLeaderboard.value = false
+    loadingLeaderboard.value = true
+    try {
+      const response = await axios.get('/api/leaderboard/today')
+      // Ensure entries is always an array, user_entry either object or null
+      leaderboardEntries.value = response.data.entries || []
+      userLeaderboardEntry.value = response.data.user_entry || null
+    } catch (error) {
+      console.error('Failed to fetch leaderboard', error)
+      leaderboardEntries.value = []
+      userLeaderboardEntry.value = null
+    } finally {
+      loadingLeaderboard.value = false
+    }
   }
-}
 
   const refreshLeaderboard = async () => {
     await fetchLeaderboard()
