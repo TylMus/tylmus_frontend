@@ -14,19 +14,19 @@
       <div v-if="canSubmit" class="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
         <p class="text-green-700 font-medium mb-2">Поздравляем! Вы прошли игру</p>
         <p class="text-sm text-gray-600 mb-3">Введите никнейм (2–12 символов):</p>
-        <div class="flex gap-2">
+        <div class="flex flex-col sm:flex-row gap-2">
           <input
             v-model="nickname"
             type="text"
             maxlength="12"
             placeholder="Ваш ник"
-            class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
             :disabled="submitting"
           />
           <button
             @click="submitScore"
             :disabled="!isNicknameValid || submitting"
-            class="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm whitespace-nowrap"
           >
             {{ submitting ? '...' : 'Отправить' }}
           </button>
@@ -36,7 +36,6 @@
 
       <!-- Leaderboard list -->
       <div class="max-h-80 overflow-y-auto">
-        <!-- Show empty state if entries is undefined or empty -->
         <div v-if="!entries || entries.length === 0" class="text-center py-8 text-gray-400">
           Пока нет записей. Будьте первым!
         </div>
@@ -56,7 +55,6 @@
         </div>
       </div>
 
-      <!-- Show user's own entry if exists (with safe check) -->
       <p v-if="userEntry && userEntry.nickname" class="text-xs text-center text-gray-400 mt-4">
         Вы уже в таблице: {{ userEntry.nickname }} ({{ userEntry.mistakes }} ошибок)
       </p>
@@ -73,7 +71,7 @@ const props = defineProps<{
   gameDate: string
   gameComplete: boolean
   userEntry?: any | null
-  entries?: any[]  // make optional with default in store
+  entries?: any[]
 }>()
 
 const emit = defineEmits<{
@@ -104,17 +102,16 @@ const submitScore = async () => {
     await axios.post('/api/leaderboard/submit', null, {
       params: { nickname: trimmed }
     })
-    // Success
     emit('submitted')
     nickname.value = ''
   } catch (err: any) {
+    console.error('Submit error:', err.response?.data || err.message)
     submitError.value = err.response?.data?.error || 'Ошибка отправки'
   } finally {
     submitting.value = false
   }
 }
 
-// Reset input when modal opens
 watch(() => props.show, (newVal) => {
   if (newVal) {
     nickname.value = ''
