@@ -46,53 +46,52 @@
     @submitted="handleLeaderboardSubmitted"
     />
     <!-- Main game area -->
-    <div class="w-full max-w-4xl mx-auto px-2 py-5 min-h-[600px] flex flex-col">
-      <!-- Loading / Error / Complete states -->
-      <div v-if="gameStore.loading" class="text-center py-10 text-gray-500 min-h-[500px] flex items-center justify-center">
-        Загрузка игры...
-      </div>
-      <div
-        v-else-if="gameStore.words.length === 0 && gameStore.foundCategories.length === 4"
-        class="text-center w-full"
-      >
-        <div class="grid grid-cols-1 gap-4 max-w-2xl mx-auto">
-          <CategoryBlock
-            v-for="(cat, idx) in gameStore.foundCategories"
-            :key="'cat-'+idx"
-            :name="cat.name"
-            :words="cat.words"
-            :color="gameStore.getCategoryColor(idx)"
-          />
-        </div>
-      </div>
-      <div
-        v-else-if="gameStore.words.length === 0"
-        class="text-center py-10 text-red-500 bg-red-50 rounded-lg min-h-[500px] flex items-center justify-center"
-      >
-        Не удалось загрузить слова. Проверьте консоль.
-      </div>
-      <!-- Game grid – only shown when there are words and game not complete -->
-      <div v-else class="grid grid-cols-4 gap-2 md:gap-3 mb-2 max-w-2xl mx-auto">
-        <!-- Found categories -->
-        <CategoryBlock
-          v-for="(cat, idx) in gameStore.foundCategories"
-          :key="'found-'+idx"
-          :name="cat.name"
-          :words="cat.words"
-          :color="gameStore.getCategoryColor(idx)"
-          class="col-span-4"
-        />
-        <!-- Word cards -->
-        <WordCard
-          v-for="(word, idx) in gameStore.words"
-          :key="'word-'+idx"
-          :word="word"
-          :selected="gameStore.selectedWords.includes(word)"
-          :scramble-animation="gameStore.scrambleAnimation"
-          @click="gameStore.toggleWord(word)"
-        />
-      </div>
+<div class="w-full max-w-4xl mx-auto px-2 py-5 min-h-[600px] flex flex-col">
+  <!-- Loading / Error / Complete states -->
+  <div v-if="gameStore.loading" class="text-center py-10 text-gray-500 min-h-[500px] flex items-center justify-center">
+    Загрузка игры...
+  </div>
+  <div
+    v-else-if="gameStore.words.length === 0 && gameStore.foundCategories.length === 4"
+    class="text-center w-full"
+  >
+    <div class="grid grid-cols-1 gap-4 max-w-2xl mx-auto">
+      <CategoryBlock
+        v-for="(cat, idx) in gameStore.foundCategories"
+        :key="'cat-'+idx"
+        :name="cat.name"
+        :words="cat.words"
+        :color="gameStore.getCategoryColor(idx)"
+      />
     </div>
+  </div>
+  <div
+    v-else-if="gameStore.words.length === 0"
+    class="text-center py-10 text-red-500 bg-red-50 rounded-lg min-h-[500px] flex items-center justify-center"
+  >
+    Не удалось загрузить слова. Проверьте консоль.
+  </div>
+  <!-- Game grid – only shown when there are words and game not complete -->
+  <div v-else class="grid grid-cols-4 gap-2 md:gap-3 mb-2 max-w-2xl mx-auto">
+    <!-- Found categories -->
+    <CategoryBlock
+      v-for="(cat, idx) in gameStore.foundCategories"
+      :key="'found-'+idx"
+      :name="cat.name"
+      :words="cat.words"
+      :color="gameStore.getCategoryColor(idx)"
+      class="col-span-4"
+    />
+    <!-- Word cards -->
+    <WordCard
+      v-for="(word, idx) in gameStore.words"
+      :key="'word-'+idx"
+      :word="word"
+      :selected="gameStore.selectedWords.includes(word)"
+      :scramble-animation="gameStore.scrambleAnimation"
+      @click="gameStore.toggleWord(word)"
+    />
+  </div>
 
       <!-- Mistakes display -->
       <div class="flex justify-center mb-2 sticky bottom-0 bg-white/80 backdrop-blur-sm py-2 z-10">
