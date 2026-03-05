@@ -120,7 +120,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useGameStore } from '../stores/gameStore'
 import GameHeader from '../components/GameHeader.vue'
 import WordCard from '../components/WordCard.vue'
