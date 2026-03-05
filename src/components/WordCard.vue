@@ -25,7 +25,6 @@ defineEmits<{ (e: 'click', word: string): void }>()
 
 // Dynamic font size based on word length
 const dynamicFontSize = computed(() => {
-  const baseSize = 1 // rem
   const length = props.word.length
   if (length <= 6) return '1rem'
   if (length <= 8) return '0.9rem'
