@@ -14,3 +14,18 @@
     @apply font-montserrat font-semibold;
   }
 }
+/* Mobile text size reduction */
+@media (max-width: 640px) {
+  body {
+    font-size: 14px;
+  }
+  h2 {
+    font-size: 1.25rem;
+  }
+  h3 {
+    font-size: 1.1rem;
+  }
+  p {
+    font-size: 0.9rem;
+  }
+}
