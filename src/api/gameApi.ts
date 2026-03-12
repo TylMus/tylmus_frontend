@@ -84,5 +84,27 @@ export const gameApi = {
         mistakes: 0
       }
     }
+  },
+
+  async getTodayLeaderboard() {
+    try {
+      const response = await api.get('/api/leaderboard/today')
+      return response.data
+    } catch (error) {
+      console.error('❌ Failed to fetch leaderboard:', error)
+      throw error
+    }
+  },
+
+  async submitLeaderboardNickname(nickname: string) {
+    try {
+      const response = await api.post('/api/leaderboard/submit', null, {
+        params: { nickname }
+      })
+      return response.data
+    } catch (error) {
+      console.error('❌ Failed to submit leaderboard entry:', error)
+      throw error
+    }
   }
 }

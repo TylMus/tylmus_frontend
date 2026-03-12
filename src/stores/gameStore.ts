@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import axios from 'axios'
 import type { Category, DailyInfo } from '../types/game'
 import { gameApi } from '../api/gameApi'
 
@@ -71,10 +70,10 @@ export const useGameStore = defineStore('game', () => {
   const fetchLeaderboard = async () => {
     loadingLeaderboard.value = true
     try {
-      const response = await axios.get('/api/leaderboard/today')
+      const response = await gameApi.getTodayLeaderboard()
       // Ensure entries is always an array, user_entry either object or null
-      leaderboardEntries.value = response.data.entries || []
-      userLeaderboardEntry.value = response.data.user_entry || null
+      leaderboardEntries.value = response.entries || []
+      userLeaderboardEntry.value = response.user_entry || null
     } catch (error) {
       console.error('Failed to fetch leaderboard', error)
       leaderboardEntries.value = []

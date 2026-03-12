@@ -72,7 +72,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import axios from 'axios'
+import { gameApi } from '../api/gameApi'
 
 const props = defineProps<{
   show: boolean
@@ -110,9 +110,7 @@ const submitScore = async () => {
 
   try {
     const trimmed = nickname.value.trim()
-    await axios.post('/api/leaderboard/submit', null, {
-      params: { nickname: trimmed }
-    })
+    await gameApi.submitLeaderboardNickname(trimmed)
     emit('submitted')
     nickname.value = ''
   } catch (err: any) {
