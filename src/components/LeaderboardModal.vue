@@ -13,7 +13,9 @@
       <!-- Submission form (only if game complete and not yet submitted) -->
       <div v-if="canSubmit" class="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
         <p class="text-green-700 font-medium mb-2">Поздравляем! Вы прошли игру</p>
-        <p class="text-sm text-gray-600 mb-3">Введите никнейм (2–12 символов):</p>
+        <p class="text-sm text-gray-600 mb-3">
+          Введите никнейм (2–12 символов, только на русском языке):
+        </p>
         <div class="flex flex-col sm:flex-row gap-2">
           <input
             v-model="nickname"
@@ -31,6 +33,12 @@
             {{ submitting ? '...' : 'Отправить' }}
           </button>
         </div>
+        <p
+          v-if="nickname && !isNicknameValid"
+          class="text-red-500 text-xs mt-2"
+        >
+          Никнейм должен содержать только русские буквы (кириллица) и быть длиной от 2 до 12 символов.
+        </p>
         <p v-if="submitError" class="text-red-500 text-xs mt-2">{{ submitError }}</p>
       </div>
 
@@ -83,9 +91,12 @@ const nickname = ref('')
 const submitting = ref(false)
 const submitError = ref('')
 
+const RUSSIAN_NICKNAME_REGEX = /^[А-Яа-яЁё0-9 _.-]+$/
+
 const isNicknameValid = computed(() => {
   const trimmed = nickname.value.trim()
-  return trimmed.length >= 2 && trimmed.length <= 12
+  if (trimmed.length < 2 || trimmed.length > 12) return false
+  return RUSSIAN_NICKNAME_REGEX.test(trimmed)
 })
 
 const canSubmit = computed(() => {

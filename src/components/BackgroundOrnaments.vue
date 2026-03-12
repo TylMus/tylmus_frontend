@@ -1,16 +1,16 @@
 <template>
   <div class="absolute inset-0 -z-10 w-full h-full pointer-events-none overflow-hidden">
-    <!-- Top ornament: lower on mobile (20% from top), higher on desktop (3%) -->
+    <!-- Top ornament: slightly away from very top on mobile -->
     <img 
       src="/img/background-ornament.svg" 
       alt="" 
-      class="absolute top-[4%] md:top-[3%] left-0 w-full scale-150 md:scale-100 opacity-100"
+      class="absolute top-[6%] md:top-[3%] left-0 w-full scale-125 md:scale-100 opacity-100"
     />
-    <!-- Bottom ornament: flipped, positioned at bottom on mobile, at 26% on desktop -->
+    <!-- Bottom ornament: flipped, shifted slightly up to avoid overflowing bottom edge -->
     <img 
       src="/img/background-ornament.svg" 
       alt="" 
-      class="absolute top-[20%] md:top-[26%] left-0 w-full scale-150 md:scale-100"
+      class="absolute top-[22%] md:top-[26%] left-0 w-full scale-125 md:scale-100"
       :style="{ transform: 'rotate(180deg)' }"
     />
   </div>

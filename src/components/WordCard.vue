@@ -1,11 +1,13 @@
 <template>
   <div
-    class="word-card bg-[#d3fbe3] border-2 border-[#d3fbe3] rounded-lg cursor-pointer select-none transition-all hover:bg-[#a1eec0] hover:-translate-y-0.5 flex items-center justify-center p-2 text-center break-words font-bold h-[75px] sm:h-[85px] md:h-[100px]"
-    :class="{
-      'selected': selected,
-      'animate-scramble will-change-transform': scrambleAnimation
-    }"
-    :style="{ fontSize: dynamicFontSize }"
+    class="word-card bg-[#d3fbe3] border-2 border-[#d3fbe3] rounded-lg cursor-pointer select-none transition-all hover:bg-[#a1eec0] hover:-translate-y-0.5 flex items-center justify-center p-2 text-center break-words font-bold h-[70px] sm:h-[80px] md:h-[95px]"
+    :class="[
+      textSizeClass,
+      {
+        'selected': selected,
+        'animate-scramble will-change-transform': scrambleAnimation
+      }
+    ]"
     @click="$emit('click', word)"
   >
     <span class="word-text">{{ word }}</span>
@@ -23,13 +25,12 @@ const props = defineProps<{
 
 defineEmits<{ (e: 'click', word: string): void }>()
 
-// Dynamic font size based on word length
-const dynamicFontSize = computed(() => {
+const textSizeClass = computed(() => {
   const length = props.word.length
-  if (length <= 6) return '1rem'
-  if (length <= 8) return '0.9rem'
-  if (length <= 10) return '0.8rem'
-  return '0.7rem'
+  if (length <= 6) return 'text-xs sm:text-sm'              // mobile ~12px, desktop ~14px
+  if (length <= 8) return 'text-[0.7rem] sm:text-sm'        // mobile slightly smaller
+  if (length <= 10) return 'text-[0.6rem] sm:text-[0.8rem]'
+  return 'text-[0.55rem] sm:text-[0.75rem]'
 })
 </script>
 

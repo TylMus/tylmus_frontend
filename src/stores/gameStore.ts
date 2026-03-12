@@ -41,6 +41,14 @@ export const useGameStore = defineStore('game', () => {
   const ATTEMPT_HISTORY_KEY = 'tylmus_attempt_history'
   const CURRENT_GAME_DATE_KEY = 'tylmus_current_game_date'
 
+  // Helper: current date in Yakutsk time (GMT+9) as YYYY-MM-DD
+  const getYakutskDateString = (): string => {
+    const now = new Date()
+    const yakutskTimeMs = now.getTime() + 9 * 60 * 60 * 1000
+    const yakutskDate = new Date(yakutskTimeMs)
+    return yakutskDate.toISOString().split('T')[0]
+  }
+
   const gameStatus = computed(() => {
     if (gameOver.value) return 'game-over'
     if (foundCategories.value.length === 4) return 'won'
@@ -84,12 +92,12 @@ export const useGameStore = defineStore('game', () => {
   const loadAttemptHistory = (): AttemptHistoryItem[] => {
     try {
       const storedGameDate = localStorage.getItem(CURRENT_GAME_DATE_KEY)
-      const today = new Date().toISOString().split('T')[0]
+      const todayYakutsk = getYakutskDateString()
       
-      if (storedGameDate !== today) {
-        console.log('🆕 New day detected, clearing attempt history')
+      if (storedGameDate !== todayYakutsk) {
+        console.log('🆕 New Yakutsk day detected, clearing attempt history')
         localStorage.removeItem(ATTEMPT_HISTORY_KEY)
-        localStorage.setItem(CURRENT_GAME_DATE_KEY, today)
+        localStorage.setItem(CURRENT_GAME_DATE_KEY, todayYakutsk)
         return []
       }
       
@@ -111,16 +119,16 @@ export const useGameStore = defineStore('game', () => {
 
   const saveAttemptHistory = (attempts: AttemptHistoryItem[]) => {
     try {
-      const today = new Date().toISOString().split('T')[0]
+      const todayYakutsk = getYakutskDateString()
       const historyToSave: StoredAttemptHistory = {
-        gameDate: today,
+        gameDate: todayYakutsk,
         attempts: attempts.map(attempt => ({
           ...attempt,
           timestamp: attempt.timestamp
         }))
       }
       localStorage.setItem(ATTEMPT_HISTORY_KEY, JSON.stringify(historyToSave))
-      localStorage.setItem(CURRENT_GAME_DATE_KEY, today)
+      localStorage.setItem(CURRENT_GAME_DATE_KEY, todayYakutsk)
       console.log('💾 Saved attempt history:', attempts.length)
     } catch (error) {
       console.error('Error saving attempt history:', error)
