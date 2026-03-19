@@ -26,6 +26,7 @@ export const useGameStore = defineStore('game', () => {
   const showMessage = ref(false)
   const messageText = ref('')
   const messageClass = ref<'success' | 'error' | 'info'>('info')
+  const isNetworkErrorMessage = ref(false)
   const loading = ref(false)
   const gameDate = ref('')
   const dailyInfo = ref<DailyInfo | null>(null)
@@ -187,11 +188,13 @@ export const useGameStore = defineStore('game', () => {
 
       selectedWords.value = []
       showMessage.value = false
+      isNetworkErrorMessage.value = false
     } catch (error) {
       console.error('Error loading game:', error)
       showMessage.value = true
       messageText.value = 'Ошибка загрузки игры'
       messageClass.value = 'error'
+      isNetworkErrorMessage.value = false
       words.value = []
       foundCategories.value = []
       mistakes.value = 0
@@ -207,6 +210,7 @@ export const useGameStore = defineStore('game', () => {
   const resetGameState = () => {
     selectedWords.value = []
     showMessage.value = false
+    isNetworkErrorMessage.value = false
   }
 
   const toggleWord = (word: string) => {
@@ -242,6 +246,7 @@ export const useGameStore = defineStore('game', () => {
     showMessage.value = true
     messageText.value = `Правильно! "${result.category_name}"`
     messageClass.value = 'success'
+    isNetworkErrorMessage.value = false
 
     const newCategory = {
       name: result.category_name!,
@@ -283,6 +288,7 @@ export const useGameStore = defineStore('game', () => {
     showMessage.value = true
     messageText.value = message
     messageClass.value = 'error'
+    isNetworkErrorMessage.value = false
     
     let attemptColors: string[]
     if (result?.selected_colors?.length === 4) {
@@ -341,6 +347,7 @@ export const useGameStore = defineStore('game', () => {
       showMessage.value = true
       messageText.value = errorMsg
       messageClass.value = 'error'
+      isNetworkErrorMessage.value = true
     } finally {
       loading.value = false
     }
@@ -373,6 +380,7 @@ export const useGameStore = defineStore('game', () => {
     showMessage,
     messageText,
     messageClass,
+    isNetworkErrorMessage,
     loading,
     gameDate,
     dailyInfo,

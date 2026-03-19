@@ -5,8 +5,8 @@
       v-if="gameStore.showMessage && !gameStore.gameOver"
       :type="gameStore.messageClass"
       :text="gameStore.messageText"
+      :centered="gameStore.isNetworkErrorMessage"
       @close="gameStore.showMessage = false"
-      class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50"
     />
 
     <!-- Game Over Modal -->
@@ -46,6 +46,7 @@
     :projected-rank="projectedRank"
     @close="closeLeaderboard"
     @submitted="handleLeaderboardSubmitted"
+    @proceed="goToWinShareModal"
     />
     <!-- Main game area -->
 <div class="w-full max-w-4xl mx-auto px-2 py-5 min-h-[600px] flex flex-col">
@@ -179,6 +180,13 @@ const closeLeaderboard = () => {
 }
 const handleLeaderboardSubmitted = async () => {
   await gameStore.refreshLeaderboard()
+  showLeaderboard.value = false
+  if (gameStore.gameOver) {
+    showGameOverModal.value = true
+  }
+}
+
+const goToWinShareModal = () => {
   showLeaderboard.value = false
   if (gameStore.gameOver) {
     showGameOverModal.value = true

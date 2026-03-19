@@ -82,6 +82,17 @@
       <p v-if="userEntry && userEntry.nickname" class="text-xs text-center text-gray-400 mt-4">
         Вы уже в таблице: {{ userEntry.nickname }} ({{ userEntry.points ?? 0 }} очков)
       </p>
+      <div v-if="gameComplete && userEntry" class="mt-3 p-3 rounded-lg bg-blue-50 border border-blue-200 text-center">
+        <p class="text-xs text-blue-700 mb-2">
+          Готово! Можно закрыть таблицу и перейти к окну результата, чтобы поделиться игрой.
+        </p>
+        <button
+          @click="$emit('proceed')"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 text-sm"
+        >
+          К результату и шарингу
+        </button>
+      </div>
       <p class="text-[11px] text-center text-gray-400 mt-2 leading-relaxed">
         Рейтинг по очкам: 5000 - (250 × ошибки) - (секунды / 6). При равенстве очков выше тот, кто отправил раньше.
       </p>
@@ -106,6 +117,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'close'): void
   (e: 'submitted'): void
+  (e: 'proceed'): void
 }>()
 
 const nickname = ref('')
