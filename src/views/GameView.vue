@@ -42,6 +42,8 @@
     :game-complete="gameStore.foundCategories.length === 4"
     :user-entry="gameStore.userLeaderboardEntry"
     :entries="gameStore.leaderboardEntries"
+    :current-points="currentPoints"
+    :projected-rank="projectedRank"
     @close="closeLeaderboard"
     @submitted="handleLeaderboardSubmitted"
     />
@@ -139,7 +141,29 @@ const showShareNotification = ref(false)
 const shareNotificationText = ref('')
 const showGameOverModal = ref(true)
 const showLeaderboard = ref(false)
+const autoOpenedLeaderboardForThisGame = ref(false)
+const gameFinishedAt = ref<Date | null>(null)
 const gameDate = computed(() => gameStore.gameDisplay?.split(' ')[0] || new Date().toISOString().split('T')[0])
+
+const currentDurationSeconds = computed(() => {
+  if (!gameStore.attemptHistory?.length) return 0
+  const startedAt = new Date(gameStore.attemptHistory[0].timestamp).getTime()
+  const endedAt = (gameFinishedAt.value ?? new Date()).getTime()
+  return Math.max(0, Math.floor((endedAt - startedAt) / 1000))
+})
+
+const currentPoints = computed(() => {
+  if (gameStore.foundCategories.length < 4) return null
+  const penaltyFromMistakes = gameStore.mistakes * 250
+  const penaltyFromTime = Math.floor(currentDurationSeconds.value / 6)
+  return Math.max(0, 5000 - penaltyFromMistakes - penaltyFromTime)
+})
+
+const projectedRank = computed(() => {
+  if (currentPoints.value === null) return null
+  const betterScoresCount = gameStore.leaderboardEntries.filter(entry => (entry.points ?? 0) > currentPoints.value!).length
+  return betterScoresCount + 1
+})
 
 const openLeaderboard = async () => {
   console.log('🏆 Opening leaderboard')
@@ -149,9 +173,16 @@ const openLeaderboard = async () => {
 const closeLeaderboard = () => {
   console.log('🏆 Closing leaderboard')
   showLeaderboard.value = false
+  if (gameStore.gameOver && gameStore.foundCategories.length === 4 && !showGameOverModal.value) {
+    showGameOverModal.value = true
+  }
 }
-const handleLeaderboardSubmitted = () => {
-  gameStore.refreshLeaderboard()
+const handleLeaderboardSubmitted = async () => {
+  await gameStore.refreshLeaderboard()
+  showLeaderboard.value = false
+  if (gameStore.gameOver) {
+    showGameOverModal.value = true
+  }
 }
 // Share logic (same as original)
 const generateShareText = (): string => {
@@ -275,14 +306,29 @@ const shareResults = async () => {
 
 const handleGameExpired = () => {
   console.log('Game expired, reloading...')
+  autoOpenedLeaderboardForThisGame.value = false
+  gameFinishedAt.value = null
   gameStore.initializeGame()
 }
 
 watch(() => gameStore.gameOver, (newVal) => {
-  if (newVal) showGameOverModal.value = true
+  if (!newVal) return
+  gameFinishedAt.value = new Date()
+
+  const wonGame = gameStore.foundCategories.length === 4
+  if (wonGame && !autoOpenedLeaderboardForThisGame.value && !gameStore.userLeaderboardEntry) {
+    autoOpenedLeaderboardForThisGame.value = true
+    showGameOverModal.value = false
+    openLeaderboard()
+    return
+  }
+
+  showGameOverModal.value = true
 })
 
 onMounted(() => {
+  autoOpenedLeaderboardForThisGame.value = false
+  gameFinishedAt.value = null
   gameStore.initializeGame()
 })
 </script>

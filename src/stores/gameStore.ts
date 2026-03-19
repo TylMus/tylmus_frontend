@@ -332,11 +332,11 @@ export const useGameStore = defineStore('game', () => {
       }
     } catch (error: any) {
       console.error('❌ Error submitting guess:', error)
-      let errorMsg = 'Ошибка соединения'
+      let errorMsg = 'Упс, произошла проблема. Пожалуйста, отправьте попытку ещё раз.'
       if (error.response) {
-        errorMsg = `Ошибка сервера: ${error.response.data.error || error.response.status}`
+        errorMsg = `Упс, произошла проблема на сервере. Пожалуйста, отправьте попытку ещё раз.`
       } else if (error.request) {
-        errorMsg = 'Не удалось соединиться с сервером'
+        errorMsg = 'Упс, произошла проблема с соединением. Пожалуйста, отправьте попытку ещё раз.'
       }
       showMessage.value = true
       messageText.value = errorMsg

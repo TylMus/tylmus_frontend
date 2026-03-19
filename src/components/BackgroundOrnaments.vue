@@ -4,7 +4,7 @@
     <img 
       src="/img/background-ornament.svg" 
       alt="" 
-      class="absolute top-[6%] md:top-[4%] left-0 w-full scale-105 md:scale-100 opacity-100"
+      class="absolute top-[6%] md:top-[3%] left-0 w-full scale-105 md:scale-100 opacity-100"
     />
     <!-- Bottom ornament -->
     <img 

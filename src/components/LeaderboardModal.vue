@@ -13,8 +13,14 @@
       <!-- Submission form (only if game complete and not yet submitted) -->
       <div v-if="canSubmit" class="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
         <p class="text-green-700 font-medium mb-2">Поздравляем! Вы прошли игру</p>
+        <p v-if="currentPoints !== null" class="text-sm text-gray-700 mb-1">
+          Ваш результат: <span class="font-semibold">{{ currentPoints }} очков</span>
+        </p>
+        <p v-if="projectedRank !== null" class="text-xs text-gray-500 mb-2">
+          Предпросмотр позиции: #{{ projectedRank }} (если отправите результат сейчас)
+        </p>
         <p class="text-sm text-gray-600 mb-3">
-          Введите никнейм (2–12 символов, только на русском языке):
+          Введите никнейм (2–12 символов, только на русском языке). Можно пропустить отправку, если не хотите добавляться в рейтинг.
         </p>
         <div class="flex flex-col sm:flex-row gap-2">
           <input
@@ -31,6 +37,13 @@
             class="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm whitespace-nowrap"
           >
             {{ submitting ? '...' : 'Отправить' }}
+          </button>
+          <button
+            @click="$emit('close')"
+            :disabled="submitting"
+            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm whitespace-nowrap"
+          >
+            Пропустить
           </button>
         </div>
         <p
@@ -86,6 +99,8 @@ const props = defineProps<{
   gameComplete: boolean
   userEntry?: any | null
   entries?: any[]
+  currentPoints?: number | null
+  projectedRank?: number | null
 }>()
 
 const emit = defineEmits<{
@@ -121,7 +136,7 @@ const submitScore = async () => {
     nickname.value = ''
   } catch (err: any) {
     console.error('Submit error:', err.response?.data || err.message)
-    submitError.value = err.response?.data?.error || 'Ошибка отправки'
+    submitError.value = err.response?.data?.error || 'Упс, произошла проблема. Попробуйте отправить ещё раз.'
   } finally {
     submitting.value = false
   }
