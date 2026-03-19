@@ -58,13 +58,19 @@
               <span class="font-bold w-6">{{ idx + 1 }}</span>
               <span class="font-medium">{{ entry.nickname }}</span>
             </div>
-            <span class="text-sm text-gray-600">Ошибок: {{ entry.mistakes }}</span>
+            <div class="text-right text-sm text-gray-600">
+              <div class="font-semibold text-gray-800">{{ entry.points ?? 0 }} очков</div>
+              <div>Ошибок: {{ entry.mistakes ?? 0 }}</div>
+            </div>
           </div>
         </div>
       </div>
 
       <p v-if="userEntry && userEntry.nickname" class="text-xs text-center text-gray-400 mt-4">
-        Вы уже в таблице: {{ userEntry.nickname }} ({{ userEntry.mistakes }} ошибок)
+        Вы уже в таблице: {{ userEntry.nickname }} ({{ userEntry.points ?? 0 }} очков)
+      </p>
+      <p class="text-[11px] text-center text-gray-400 mt-2 leading-relaxed">
+        Рейтинг по очкам: 5000 - (250 × ошибки) - (секунды / 6). При равенстве очков выше тот, кто отправил раньше.
       </p>
     </div>
   </div>

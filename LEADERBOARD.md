@@ -8,7 +8,7 @@ The leaderboard adds competitive tracking to Tylmus: players who complete the da
 
 - After a player wins the game (finds all 4 categories), the leaderboard modal offers an input field for a nickname.
 - Upon submission, the backend validates the nickname (length 2–12 chars, no profanity), checks that the player has not already submitted for the day, and records the entry in the SQLite database.
-- The leaderboard modal displays all entries for the current day, sorted by fewest mistakes first, then by submission time (earlier is better). The player's own entry is highlighted.
+- The leaderboard modal displays all entries for the current day, sorted by highest points first, then by submission time (earlier is better). The player's own entry is highlighted.
 - If the player has already submitted, the input form is hidden and their entry is shown in the list.
 
 ---
@@ -26,6 +26,8 @@ Created automatically on startup by `leaderboard.init_leaderboard_table()`.
 | user_hash    | TEXT      | Unique identifier from cookie                    |
 | nickname     | TEXT      | User‑chosen nickname (2–12 chars, filtered)      |
 | mistakes     | INTEGER   | Number of mistakes the player had in the game    |
+| duration_seconds | INTEGER | Seconds from game start to leaderboard submit   |
+| points       | INTEGER   | Final score used for ranking                      |
 | submitted_at | TIMESTAMP | Defaults to current timestamp                    |
 
 Unique constraint on `(game_date, user_hash)` ensures one entry per player per day.
@@ -47,7 +49,18 @@ Unique constraint on `(game_date, user_hash)` ensures one entry per player per d
 
 - In `main.py`, the startup event calls `leaderboard.init_leaderboard_table()`.
 - Both endpoints use `user_hash` from the cookie (same as game progress).
-- Mistakes count is taken from the user's progress cookie (the cookie already contains `mistakes`). The backend ensures the game is completed before accepting a submission.
+- Mistakes and game start time are taken from the user's progress cookie. The backend computes `duration_seconds` on submission and calculates points before saving. The backend ensures the game is completed before accepting a submission.
+
+#### Points System
+
+Leaderboard score formula:
+
+`points = max(0, 5000 - (mistakes * 250) - floor(duration_seconds / 6))`
+
+- Each mistake costs **250 points**
+- Time costs roughly **10 points per minute** (`duration_seconds / 6`)
+- Higher points rank higher
+- Tie-breaker: earlier `submitted_at` ranks higher
 
 ---
 
@@ -74,7 +87,7 @@ New actions:
     - Input field (2–12 chars).
     - Submit button – sends `POST /api/leaderboard/submit?nickname=...`.
     - Error display.
-  - Leaderboard list: shows rank, nickname, mistakes. Highlights the current user's row.
+- Leaderboard list: shows rank, nickname, points (and mistakes as secondary info). Highlights the current user's row.
   - Footer note if user already submitted.
 - Responsive design: input and button stack vertically on mobile, use smaller text.
 
