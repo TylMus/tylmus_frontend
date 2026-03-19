@@ -90,7 +90,7 @@
           @click="$emit('proceed')"
           class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 text-sm"
         >
-          К результату и шарингу
+          К результату
         </button>
       </div>
       <p class="text-[11px] text-center text-gray-400 mt-2 leading-relaxed">
