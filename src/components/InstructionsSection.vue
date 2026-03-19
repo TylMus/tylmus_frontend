@@ -2,22 +2,22 @@
   <section class="relative bg-gray-50 rounded-b-xl py-16 px-5 overflow-hidden">
     <!-- corners (keep as before, but adjust positioning later) -->
     <!-- Top-left corner -->
-    <div class="absolute -top-5 left-0 w-40 h-40 md:-top-5 md:w-64 md:h-64 pointer-events-none z-10">
+    <div class="absolute -top-4 left-0 w-40 h-40 md:-top-5 md:w-64 md:h-64 pointer-events-none z-10">
       <img src="/img/corner-top-left.svg" alt="" class="w-full h-full object-contain opacity-80" />
     </div>
 
     <!-- Top-right corner -->
-    <div class="absolute -top-5 right-0 w-40 h-40 md:-top-5 md:w-64 md:h-64 pointer-events-none z-10">
+    <div class="absolute -top-4 right-0 w-40 h-40 md:-top-5 md:w-64 md:h-64 pointer-events-none z-10">
       <img src="/img/corner-top-right.svg" alt="" class="w-full h-full object-contain opacity-80" />
     </div>
 
     <!-- Bottom-left corner -->
-    <div class="absolute -bottom-5 left-0 w-40 h-40 md:-bottom-5 md:w-64 md:h-64 pointer-events-none z-10">
+    <div class="absolute -bottom-4 left-0 w-40 h-40 md:-bottom-5 md:w-64 md:h-64 pointer-events-none z-10">
       <img src="/img/corner-bottom-left.svg" alt="" class="w-full h-full object-contain opacity-80" />
     </div>
 
     <!-- Bottom-right corner -->
-    <div class="absolute -bottom-5 right-0 w-40 h-40 md:-bottom-5 md:w-64 md:h-64 pointer-events-none z-10">
+    <div class="absolute -bottom-4 right-0 w-40 h-40 md:-bottom-5 md:w-64 md:h-64 pointer-events-none z-10">
       <img src="/img/corner-bottom-right.svg" alt="" class="w-full h-full object-contain opacity-80" />
     </div>
     <div class="container mx-auto text-center relative z-20">
