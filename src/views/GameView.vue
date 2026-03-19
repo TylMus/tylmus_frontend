@@ -166,6 +166,25 @@ const projectedRank = computed(() => {
   return betterScoresCount + 1
 })
 
+const sharePoints = computed(() => {
+  if (gameStore.userLeaderboardEntry?.points !== undefined && gameStore.userLeaderboardEntry?.points !== null) {
+    return gameStore.userLeaderboardEntry.points
+  }
+  return currentPoints.value
+})
+
+const shareRank = computed(() => {
+  if (gameStore.userLeaderboardEntry?.nickname && gameStore.leaderboardEntries.length > 0) {
+    const index = gameStore.leaderboardEntries.findIndex(
+      entry =>
+        entry.nickname === gameStore.userLeaderboardEntry.nickname &&
+        (entry.points ?? null) === (gameStore.userLeaderboardEntry.points ?? null)
+    )
+    if (index !== -1) return index + 1
+  }
+  return projectedRank.value
+})
+
 const openLeaderboard = async () => {
   console.log('🏆 Opening leaderboard')
   showLeaderboard.value = true
@@ -247,6 +266,12 @@ const generateShareText = (): string => {
 
   text += `✅ Найдено категорий: ${foundCount}/4\n`
   text += `❌ Ошибок: ${gameStore.mistakes}\n`
+  if (sharePoints.value !== null && sharePoints.value !== undefined) {
+    text += `⭐ Очки: ${sharePoints.value}\n`
+  }
+  if (shareRank.value !== null && shareRank.value !== undefined) {
+    text += `🏅 Место в лидерборде: #${shareRank.value}\n`
+  }
   text += `📅 Дата: ${today}\n\n`
 
   if (foundCount < 4) {
