@@ -1,6 +1,6 @@
 <template>
   <div
-    class="word-card bg-[#d3fbe3] border-2 border-[#d3fbe3] rounded-lg cursor-pointer select-none transition-all hover:bg-[#a1eec0] hover:-translate-y-0.5 flex items-center justify-center p-2 text-center break-words font-bold h-[70px] sm:h-[80px] md:h-[95px]"
+    class="word-card w-full min-w-[78px] sm:min-w-[96px] md:min-w-[116px] bg-[#d3fbe3] border-2 border-[#d3fbe3] rounded-lg cursor-pointer select-none transition-all hover:bg-[#a1eec0] hover:-translate-y-0.5 flex items-center justify-center p-2 text-center break-words font-bold h-[70px] sm:h-[80px] md:h-[95px]"
     :class="[
       textSizeClass,
       {
