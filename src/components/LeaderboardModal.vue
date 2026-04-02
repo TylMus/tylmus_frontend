@@ -22,30 +22,35 @@
         <p class="text-sm text-gray-600 mb-3">
           Введите никнейм (2–12 символов, только на русском языке). Можно пропустить отправку, если не хотите добавляться в рейтинг.
         </p>
+
+        <!-- Input on its own row -->
+        <input
+          v-model="nickname"
+          type="text"
+          maxlength="12"
+          placeholder="Ваш ник"
+          class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm mb-2"
+          :disabled="submitting"
+        />
+
+        <!-- Buttons row: side by side on larger screens, stacked on mobile -->
         <div class="flex flex-col sm:flex-row gap-2">
-          <input
-            v-model="nickname"
-            type="text"
-            maxlength="12"
-            placeholder="Ваш ник"
-            class="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
-            :disabled="submitting"
-          />
           <button
             @click="submitScore"
             :disabled="!isNicknameValid || submitting"
-            class="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm whitespace-nowrap"
+            class="px-4 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:flex-1"
           >
             {{ submitting ? '...' : 'Отправить' }}
           </button>
           <button
             @click="$emit('close')"
             :disabled="submitting"
-            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm whitespace-nowrap"
+            class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-semibold hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:flex-1"
           >
             Пропустить
           </button>
         </div>
+
         <p
           v-if="nickname && !isNicknameValid"
           class="text-red-500 text-xs mt-2"

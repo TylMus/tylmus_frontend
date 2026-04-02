@@ -2,7 +2,7 @@
   <header class="bg-white shadow-md mb-4 px-4 py-3">
     <div class="max-w-4xl mx-auto px-2 flex justify-between items-center">
       <div class="flex items-center gap-2">
-        <img src="/icon.svg" alt="Logo" class="h-8 w-8" />
+        <img src="/icon.svg" alt="Logo" class="h-10 w-10" />
         <h3 class="text-xl font-bold text-black sm:text-2xl">ТылМус</h3>
       </div>
       <div class="flex items-center gap-4">
