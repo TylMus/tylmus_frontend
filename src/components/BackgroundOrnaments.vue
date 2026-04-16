@@ -11,12 +11,12 @@
       <img
         src="/img/background-ornament.svg"
         alt=""
-        class="absolute top-1/2 left-[5%] h-[min(220vh,3000px)] w-auto max-w-[65vw] -translate-x-1/2 -translate-y-1/2 rotate-90 object-contain opacity-100 select-none"
+        class="absolute top-1/2 left-[5%] h-[min(220vh,3000px)] max-sm:h-[min(320vh,4800px)] w-auto max-w-[100vw] sm:max-w-[65vw] -translate-x-1/2 -translate-y-1/2 rotate-90 object-contain opacity-100 select-none origin-center max-sm:scale-[2] sm:scale-100"
       />
       <img
         src="/img/background-ornament.svg"
         alt=""
-        class="absolute top-1/2 right-[5%] h-[min(220vh,3000px)] w-auto max-w-[65vw] translate-x-1/2 -translate-y-1/2 -rotate-90 object-contain opacity-100 select-none"
+        class="absolute top-1/2 right-[5%] h-[min(220vh,3000px)] max-sm:h-[min(320vh,4800px)] w-auto max-w-[100vw] sm:max-w-[65vw] translate-x-1/2 -translate-y-1/2 -rotate-90 object-contain opacity-100 select-none origin-center max-sm:scale-[2] sm:scale-100"
       />
     </div>
   </div>
