@@ -27,7 +27,8 @@ defineEmits<{ (e: 'click', word: string): void }>()
 
 const textSizeClass = computed(() => {
   const length = props.word.length
-  if (length <= 6) return 'text-xs sm:text-sm'              // mobile ~12px, desktop ~14px
+  if (length <= 4) return 'text-[0.7rem] sm:text-sm'
+  if (length <= 6) return 'text-[0.72rem] sm:text-sm'
   if (length <= 8) return 'text-[0.7rem] sm:text-sm'        // mobile slightly smaller
   if (length <= 10) return 'text-[0.6rem] sm:text-[0.8rem]'
   return 'text-[0.55rem] sm:text-[0.75rem]'
@@ -45,7 +46,10 @@ const textSizeClass = computed(() => {
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  line-height: 1.3;
+  line-height: 1.15;
   word-break: break-word;
+  max-width: 100%;
+  width: 100%;
+  text-wrap: balance;
 }
 </style>

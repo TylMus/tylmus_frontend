@@ -1,5 +1,5 @@
 <template>
-  <section class="relative bg-gray-50 rounded-b-xl py-16 px-5 overflow-hidden">
+  <section class="relative w-full bg-gray-50 rounded-none sm:rounded-b-xl py-16 px-0 overflow-hidden">
     <!-- corners (keep as before, but adjust positioning later) -->
     <!-- Top-left corner -->
     <div class="absolute -top-4 left-0 w-40 h-40 md:-top-5 md:w-64 md:h-64 pointer-events-none z-10">
@@ -20,7 +20,7 @@
     <div class="absolute -bottom-4 right-0 w-40 h-40 md:-bottom-5 md:w-64 md:h-64 pointer-events-none z-10">
       <img src="/img/corner-bottom-right.svg" alt="" class="w-full h-full object-contain opacity-80" />
     </div>
-    <div class="container mx-auto text-center relative z-20">
+    <div class="w-full max-w-none mx-auto text-center relative z-20 px-3 sm:px-4">
       <h3 class="text-xl sm:text-2xl font-bold text-black mb-6">Как играть в ТылМус</h3>
       <ul class="space-y-10">
         <li v-for="(step, idx) in steps" :key="idx" class="flex flex-col items-center">

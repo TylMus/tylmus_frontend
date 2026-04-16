@@ -49,7 +49,7 @@
     @proceed="goToWinShareModal"
     />
     <!-- Main game area -->
-<div class="w-full max-w-4xl mx-auto px-2 py-5 min-h-[600px] flex flex-col">
+<div class="w-full max-w-none mx-0 px-3 sm:px-4 md:px-6 py-5 min-h-[600px] flex flex-col">
   <!-- Loading / Error / Complete states -->
   <div v-if="gameStore.loading" class="text-center py-10 text-gray-500 min-h-[500px] flex items-center justify-center">
     Загрузка игры...
@@ -58,7 +58,7 @@
     v-else-if="gameStore.words.length === 0 && gameStore.foundCategories.length === 4"
     class="text-center w-full"
   >
-    <div class="grid grid-cols-1 gap-4 max-w-2xl mx-auto">
+    <div class="grid grid-cols-1 gap-4 w-full max-w-4xl mx-auto">
       <CategoryBlock
         v-for="(cat, idx) in gameStore.foundCategories"
         :key="'cat-'+idx"
@@ -75,7 +75,7 @@
     Не удалось загрузить слова. Проверьте консоль.
   </div>
   <!-- Game grid – only shown when there are words and game not complete -->
-  <div v-else class="grid grid-cols-4 gap-2 md:gap-3 mb-3 w-full max-w-3xl mx-auto">
+  <div v-else class="grid grid-cols-4 gap-2 md:gap-3 mb-3 w-full max-w-4xl mx-auto">
     <!-- Found categories -->
     <CategoryBlock
       v-for="(cat, idx) in gameStore.foundCategories"
@@ -97,7 +97,7 @@
   </div>
 
       <!-- Mistakes display -->
-      <div class="flex justify-center mb-3 sticky bottom-0 bg-white/80 backdrop-blur-sm py-2 z-10">
+      <div class="flex w-full justify-center mb-3 sticky bottom-0 left-0 right-0 py-2 z-10">
         <div class="flex items-center gap-2 text-sm flex-wrap justify-center">
           Осталось ошибок:
           <span v-for="n in 4" :key="n" class="text-2xl text-gray-400 transition-opacity" :class="{ 'opacity-30': (5 - n) <= gameStore.mistakes }">●</span>

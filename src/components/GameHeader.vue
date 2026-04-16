@@ -1,6 +1,6 @@
 <template>
-  <header class="bg-white shadow-md mb-4 px-4 py-3">
-    <div class="max-w-4xl mx-auto px-2 flex justify-between items-center">
+  <header class="w-full bg-white shadow-md mb-4 py-3 px-4 sm:px-6 md:px-8">
+    <div class="w-full max-w-5xl mx-auto flex justify-between items-center">
       <div class="flex items-center gap-2">
         <img src="/icon.svg" alt="Logo" class="h-10 w-10" />
         <h3 class="text-xl font-bold text-black sm:text-2xl">ТылМус</h3>
