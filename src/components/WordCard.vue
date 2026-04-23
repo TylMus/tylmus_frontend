@@ -1,6 +1,6 @@
 <template>
   <div
-    class="word-card w-full min-w-[78px] sm:min-w-[96px] md:min-w-[116px] bg-[#d3fbe3] border-2 border-[#d3fbe3] rounded-lg cursor-pointer select-none transition-all hover:bg-[#a1eec0] hover:-translate-y-0.5 flex items-center justify-center p-2 text-center break-words font-bold h-[70px] sm:h-[80px] md:h-[95px]"
+    class="word-card w-full min-w-[78px] sm:min-w-[96px] md:min-w-[116px] bg-[#d3fbe3] border-2 border-[#d3fbe3] rounded-lg cursor-pointer select-none transition-all hover:bg-[#baf4d1] hover:border-[#baf4d1] hover:-translate-y-0.5 flex items-center justify-center p-2 text-center break-words font-bold uppercase h-[80px] sm:h-[90px] md:h-[102px]"
     :class="[
       textSizeClass,
       {
@@ -27,18 +27,18 @@ defineEmits<{ (e: 'click', word: string): void }>()
 
 const textSizeClass = computed(() => {
   const length = props.word.length
-  if (length <= 4) return 'text-[0.7rem] sm:text-sm'
-  if (length <= 6) return 'text-[0.72rem] sm:text-sm'
-  if (length <= 8) return 'text-[0.7rem] sm:text-sm'        // mobile slightly smaller
-  if (length <= 10) return 'text-[0.6rem] sm:text-[0.8rem]'
-  return 'text-[0.55rem] sm:text-[0.75rem]'
+  if (length <= 4) return 'text-base sm:text-lg'
+  if (length <= 6) return 'text-sm sm:text-base'
+  if (length <= 8) return 'text-sm sm:text-base'
+  if (length <= 10) return 'text-xs sm:text-sm'
+  return 'text-[0.7rem] sm:text-xs'
 })
 </script>
 
 <style scoped>
 .word-card.selected {
   background-color: #a1eec0 !important;
-  border-color: #a1eec0 !important;
+  border-color: #1b6a44 !important;
 }
 
 .word-text {
