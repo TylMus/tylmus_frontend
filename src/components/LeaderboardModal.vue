@@ -13,9 +13,12 @@
       <!-- Submission form (only if game complete and not yet submitted) -->
       <div v-if="canSubmit" class="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
         <p class="text-green-700 font-medium mb-2">Поздравляем! Вы прошли игру</p>
-        <p v-if="currentPoints !== null" class="text-sm text-gray-700 mb-1">
-          Ваш результат: <span class="font-semibold">{{ currentPoints }} очков</span>
-        </p>
+        <div v-if="currentDisplayPoints !== null" class="mb-1">
+          <p class="text-sm text-gray-700">
+            Ваш результат: <span class="font-semibold">{{ currentDisplayPoints }} из 100</span>
+          </p>
+          <p class="text-xs text-gray-500">Чем ближе к 100, тем лучше</p>
+        </div>
         <p v-if="projectedRank !== null" class="text-xs text-gray-500 mb-2">
           Предпросмотр позиции: #{{ projectedRank }} (если отправите результат сейчас)
         </p>
@@ -77,7 +80,9 @@
               <span class="font-medium">{{ entry.nickname }}</span>
             </div>
             <div class="text-right text-sm text-gray-600">
-              <div class="font-semibold text-gray-800">{{ entry.points ?? 0 }} очков</div>
+              <div class="font-semibold text-gray-800">
+                {{ displayPoints(entry) }} из 100
+              </div>
               <div>Ошибок: {{ entry.mistakes ?? 0 }}</div>
             </div>
           </div>
@@ -85,7 +90,7 @@
       </div>
 
       <p v-if="userEntry && userEntry.nickname" class="text-xs text-center text-gray-400 mt-4">
-        Вы уже в таблице: {{ userEntry.nickname }} ({{ userEntry.points ?? 0 }} очков)
+        Вы уже в таблице: {{ userEntry.nickname }} ({{ userEntry ? displayPoints(userEntry) : 0 }} из 100)
       </p>
       <div v-if="gameComplete && userEntry" class="mt-3 p-3 rounded-lg bg-blue-50 border border-blue-200 text-center">
         <p class="text-xs text-blue-700 mb-2">
@@ -99,7 +104,7 @@
         </button>
       </div>
       <p class="text-[11px] text-center text-gray-400 mt-2 leading-relaxed">
-        Рейтинг по очкам: 5000 - (250 × ошибки) - (секунды / 6). При равенстве очков выше тот, кто отправил раньше.
+        Счёт от 0 до 100. Начинаете с лучшего: неудачные попытки и долгое время за столом снижают цифру. Если у двоих одно и то же число, выше тот, кто раньше нажал «Отправить».
       </p>
     </div>
   </div>
@@ -108,6 +113,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { gameApi } from '../api/gameApi'
+import { toDisplayLeaderboardPoints } from '../utils/leaderboardScore'
 
 const props = defineProps<{
   show: boolean
@@ -115,9 +121,11 @@ const props = defineProps<{
   gameComplete: boolean
   userEntry?: any | null
   entries?: any[]
-  currentPoints?: number | null
+  currentDisplayPoints?: number | null
   projectedRank?: number | null
 }>()
+
+const displayPoints = (entry: { points?: number | null }) => toDisplayLeaderboardPoints(entry.points ?? 0)
 
 const emit = defineEmits<{
   (e: 'close'): void

@@ -159,6 +159,7 @@ import AboutSection from "../components/AboutSection.vue";
 import InstructionsSection from "../components/InstructionsSection.vue";
 import FooterSection from "../components/FooterSection.vue";
 import LeaderboardModal from "../components/LeaderboardModal.vue";
+import { toDisplayLeaderboardPoints } from "../utils/leaderboardScore";
 
 const gameStore = useGameStore();
 const showShareNotification = ref(false);
@@ -205,20 +206,11 @@ const sharePoints = computed(() => {
   return currentPoints.value;
 });
 
-const shareRank = computed(() => {
-  if (
-    gameStore.userLeaderboardEntry?.nickname &&
-    gameStore.leaderboardEntries.length > 0
-  ) {
-    const index = gameStore.leaderboardEntries.findIndex(
-      (entry) =>
-        entry.nickname === gameStore.userLeaderboardEntry.nickname &&
-        (entry.points ?? null) ===
-          (gameStore.userLeaderboardEntry.points ?? null),
-    );
-    if (index !== -1) return index + 1;
-  }
-  return projectedRank.value;
+/** Points as 0–100 for sharing */
+const shareDisplayPoints = computed(() => {
+  const raw = sharePoints.value;
+  if (raw === null || raw === undefined) return null;
+  return toDisplayLeaderboardPoints(raw);
 });
 
 const openLeaderboard = async () => {
@@ -251,7 +243,6 @@ const goToWinShareModal = () => {
     showGameOverModal.value = true;
   }
 };
-// Share logic (same as original)
 const generateShareText = (): string => {
   const today = new Date().toISOString().split("T")[0];
   const foundCount = gameStore.foundCategories.length;
@@ -263,11 +254,13 @@ const generateShareText = (): string => {
     purple: "🟪",
   };
 
-  let text = `ТылМус - Результаты игры\n\n`;
+  let text = "ТылМус\n\n";
+
+  if (foundCount === 4) {
+    text += "Победа!\n\n";
+  }
 
   if (gameStore.attemptHistory && gameStore.attemptHistory.length > 0) {
-    text += `История попыток:\n\n`;
-
     gameStore.attemptHistory.forEach((attempt) => {
       if (attempt.type === "success") {
         const color = attempt.colors[0] || "yellow";
@@ -295,32 +288,19 @@ const generateShareText = (): string => {
         }
       });
     }
-
-    text += `\n`;
+    text += "\n";
   }
 
-  if (foundCount === 4) {
-    text += `ПОБЕДА!\n`;
-  } else {
-    text += `РЕЗУЛЬТАТ:\n`;
+  if (
+    shareDisplayPoints.value !== null &&
+    shareDisplayPoints.value !== undefined
+  ) {
+    text += `${shareDisplayPoints.value} из 100\n`;
   }
 
-  text += `Найдено категорий: ${foundCount}/4\n`;
-  if (sharePoints.value !== null && sharePoints.value !== undefined) {
-    text += `Очки: ${sharePoints.value}\n`;
-  }
-  if (shareRank.value !== null && shareRank.value !== undefined) {
-    text += `Место в лидерборде: #${shareRank.value}\n`;
-  }
-  text += `Дата: ${today}\n\n`;
-
-  if (foundCount < 4) {
-    const remaining = 4 - foundCount;
-    text += `Осталось найти: ${remaining} категори${remaining === 1 ? "я" : "и"}\n\n`;
-  }
-
-  text += `Играйте в ТылМус: tylmus.ru\n`;
-  text += `#ТылМус`;
+  text += `${today}\n\n`;
+  text += "Играйте в ТылМус: tylmus.ru\n\n";
+  text += "ТылМус";
 
   return text;
 };
