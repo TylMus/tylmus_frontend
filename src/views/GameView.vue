@@ -33,80 +33,103 @@
     <BackgroundOrnaments />
 
     <!-- Header -->
-    <GameHeader :game-display="gameStore.gameDisplay" @open-leaderboard="openLeaderboard" />
-    
+    <GameHeader
+      :game-display="gameStore.gameDisplay"
+      @open-leaderboard="openLeaderboard"
+    />
+
     <!-- Leader Board -->
     <LeaderboardModal
-    :show="showLeaderboard"
-    :game-date="gameDate"
-    :game-complete="gameStore.foundCategories.length === 4"
-    :user-entry="gameStore.userLeaderboardEntry"
-    :entries="gameStore.leaderboardEntries"
-    :current-points="currentPoints"
-    :projected-rank="projectedRank"
-    @close="closeLeaderboard"
-    @submitted="handleLeaderboardSubmitted"
-    @proceed="goToWinShareModal"
+      :show="showLeaderboard"
+      :game-date="gameDate"
+      :game-complete="gameStore.foundCategories.length === 4"
+      :user-entry="gameStore.userLeaderboardEntry"
+      :entries="gameStore.leaderboardEntries"
+      :current-points="currentPoints"
+      :projected-rank="projectedRank"
+      @close="closeLeaderboard"
+      @submitted="handleLeaderboardSubmitted"
+      @proceed="goToWinShareModal"
     />
     <!-- Main game area -->
-<div class="w-full max-w-none mx-0 px-3 sm:px-4 md:px-6 py-5 min-h-[600px] flex flex-col">
-  <!-- Loading / Error / Complete states -->
-  <div v-if="gameStore.loading" class="text-center py-10 text-gray-500 min-h-[500px] flex items-center justify-center">
-    Загрузка игры...
-  </div>
-  <div
-    v-else-if="gameStore.words.length === 0 && gameStore.foundCategories.length === 4"
-    class="text-center w-full"
-  >
-    <div class="grid grid-cols-1 gap-4 w-full max-w-4xl mx-auto">
-      <CategoryBlock
-        v-for="(cat, idx) in gameStore.foundCategories"
-        :key="'cat-'+idx"
-        :name="cat.name"
-        :words="cat.words"
-        :color="gameStore.getCategoryColor(idx)"
-      />
-    </div>
-  </div>
-  <div
-    v-else-if="gameStore.words.length === 0"
-    class="text-center py-10 text-red-500 bg-red-50 rounded-lg min-h-[500px] flex items-center justify-center"
-  >
-    Не удалось загрузить слова. Проверьте консоль.
-  </div>
-  <!-- Game grid – only shown when there are words and game not complete -->
-  <div v-else class="grid grid-cols-4 gap-2 md:gap-3 mb-3 w-full max-w-4xl mx-auto">
-    <!-- Found categories -->
-    <CategoryBlock
-      v-for="(cat, idx) in gameStore.foundCategories"
-      :key="'found-'+idx"
-      :name="cat.name"
-      :words="cat.words"
-      :color="gameStore.getCategoryColor(idx)"
-      class="col-span-4"
-    />
-    <!-- Word cards -->
-    <WordCard
-      v-for="(word, idx) in gameStore.words"
-      :key="'word-'+idx"
-      :word="word"
-      :selected="gameStore.selectedWords.includes(word)"
-      :scramble-animation="gameStore.scrambleAnimation"
-      @click="gameStore.toggleWord(word)"
-    />
-  </div>
+    <div
+      class="w-full max-w-none mx-0 px-3 sm:px-4 md:px-6 py-5 min-h-[600px] flex flex-col"
+    >
+      <!-- Loading / Error / Complete states -->
+      <div
+        v-if="gameStore.loading"
+        class="text-center py-10 text-gray-500 min-h-[500px] flex items-center justify-center"
+      >
+        Загрузка игры...
+      </div>
+      <div
+        v-else-if="
+          gameStore.words.length === 0 && gameStore.foundCategories.length === 4
+        "
+        class="text-center w-full"
+      >
+        <div class="grid grid-cols-1 gap-4 w-full max-w-4xl mx-auto">
+          <CategoryBlock
+            v-for="(cat, idx) in gameStore.foundCategories"
+            :key="'cat-' + idx"
+            :name="cat.name"
+            :words="cat.words"
+            :color="gameStore.getCategoryColor(idx)"
+          />
+        </div>
+      </div>
+      <div
+        v-else-if="gameStore.words.length === 0"
+        class="text-center py-10 text-red-500 bg-red-50 rounded-lg min-h-[500px] flex items-center justify-center"
+      >
+        Не удалось загрузить слова. Проверьте консоль.
+      </div>
+      <!-- Game grid – only shown when there are words and game not complete -->
+      <div
+        v-else
+        class="grid grid-cols-4 gap-2 md:gap-3 mb-3 w-full max-w-4xl mx-auto"
+      >
+        <!-- Found categories -->
+        <CategoryBlock
+          v-for="(cat, idx) in gameStore.foundCategories"
+          :key="'found-' + idx"
+          :name="cat.name"
+          :words="cat.words"
+          :color="gameStore.getCategoryColor(idx)"
+          class="col-span-4"
+        />
+        <!-- Word cards -->
+        <WordCard
+          v-for="(word, idx) in gameStore.words"
+          :key="'word-' + idx"
+          :word="word"
+          :selected="gameStore.selectedWords.includes(word)"
+          :scramble-animation="gameStore.scrambleAnimation"
+          @click="gameStore.toggleWord(word)"
+        />
+      </div>
 
       <!-- Mistakes display -->
-      <div class="flex w-full justify-center mb-3 sticky bottom-0 left-0 right-0 py-2 z-10">
+      <div
+        class="flex w-full justify-center mb-3 sticky bottom-0 left-0 right-0 py-2 z-10"
+      >
         <div class="flex items-center gap-2 text-sm flex-wrap justify-center">
           Осталось ошибок:
-          <span v-for="n in 4" :key="n" class="text-2xl text-gray-400 transition-opacity" :class="{ 'opacity-30': (5 - n) <= gameStore.mistakes }">●</span>
+          <span
+            v-for="n in 4"
+            :key="n"
+            class="text-2xl text-gray-400 transition-opacity"
+            :class="{ 'opacity-30': 5 - n <= gameStore.mistakes }"
+            >●</span
+          >
         </div>
       </div>
 
       <!-- Controls -->
       <GameControls
-        :can-submit="gameStore.selectedWords.length === 4 && !gameStore.gameOver"
+        :can-submit="
+          gameStore.selectedWords.length === 4 && !gameStore.gameOver
+        "
         :game-over="gameStore.gameOver"
         :show-share-button="false"
         @deselect-all="gameStore.deselectAll"
@@ -123,245 +146,271 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
-import { useGameStore } from '../stores/gameStore'
-import GameHeader from '../components/GameHeader.vue'
-import WordCard from '../components/WordCard.vue'
-import CategoryBlock from '../components/CategoryBlock.vue'
-import GameControls from '../components/GameControls.vue'
-import NotificationPopup from '../components/NotificationPopup.vue'
-import GameOverModal from '../components/GameOverModal.vue'
-import BackgroundOrnaments from '../components/BackgroundOrnaments.vue'
-import AboutSection from '../components/AboutSection.vue'
-import InstructionsSection from '../components/InstructionsSection.vue'
-import FooterSection from '../components/FooterSection.vue'
-import LeaderboardModal from '../components/LeaderboardModal.vue'
+import { ref, onMounted, watch, computed } from "vue";
+import { useGameStore } from "../stores/gameStore";
+import GameHeader from "../components/GameHeader.vue";
+import WordCard from "../components/WordCard.vue";
+import CategoryBlock from "../components/CategoryBlock.vue";
+import GameControls from "../components/GameControls.vue";
+import NotificationPopup from "../components/NotificationPopup.vue";
+import GameOverModal from "../components/GameOverModal.vue";
+import BackgroundOrnaments from "../components/BackgroundOrnaments.vue";
+import AboutSection from "../components/AboutSection.vue";
+import InstructionsSection from "../components/InstructionsSection.vue";
+import FooterSection from "../components/FooterSection.vue";
+import LeaderboardModal from "../components/LeaderboardModal.vue";
 
-const gameStore = useGameStore()
-const showShareNotification = ref(false)
-const shareNotificationText = ref('')
-const showGameOverModal = ref(true)
-const showLeaderboard = ref(false)
-const autoOpenedLeaderboardForThisGame = ref(false)
-const gameFinishedAt = ref<Date | null>(null)
-const gameDate = computed(() => gameStore.gameDisplay?.split(' ')[0] || new Date().toISOString().split('T')[0])
+const gameStore = useGameStore();
+const showShareNotification = ref(false);
+const shareNotificationText = ref("");
+const showGameOverModal = ref(true);
+const showLeaderboard = ref(false);
+const autoOpenedLeaderboardForThisGame = ref(false);
+const gameFinishedAt = ref<Date | null>(null);
+const gameDate = computed(
+  () =>
+    gameStore.gameDisplay?.split(" ")[0] ||
+    new Date().toISOString().split("T")[0],
+);
 
 const currentDurationSeconds = computed(() => {
-  if (!gameStore.attemptHistory?.length) return 0
-  const startedAt = new Date(gameStore.attemptHistory[0].timestamp).getTime()
-  const endedAt = (gameFinishedAt.value ?? new Date()).getTime()
-  return Math.max(0, Math.floor((endedAt - startedAt) / 1000))
-})
+  if (!gameStore.attemptHistory?.length) return 0;
+  const startedAt = new Date(gameStore.attemptHistory[0].timestamp).getTime();
+  const endedAt = (gameFinishedAt.value ?? new Date()).getTime();
+  return Math.max(0, Math.floor((endedAt - startedAt) / 1000));
+});
 
 const currentPoints = computed(() => {
-  if (gameStore.foundCategories.length < 4) return null
-  const penaltyFromMistakes = gameStore.mistakes * 250
-  const penaltyFromTime = Math.floor(currentDurationSeconds.value / 6)
-  return Math.max(0, 5000 - penaltyFromMistakes - penaltyFromTime)
-})
+  if (gameStore.foundCategories.length < 4) return null;
+  const penaltyFromMistakes = gameStore.mistakes * 250;
+  const penaltyFromTime = Math.floor(currentDurationSeconds.value / 6);
+  return Math.max(0, 5000 - penaltyFromMistakes - penaltyFromTime);
+});
 
 const projectedRank = computed(() => {
-  if (currentPoints.value === null) return null
-  const betterScoresCount = gameStore.leaderboardEntries.filter(entry => (entry.points ?? 0) > currentPoints.value!).length
-  return betterScoresCount + 1
-})
+  if (currentPoints.value === null) return null;
+  const betterScoresCount = gameStore.leaderboardEntries.filter(
+    (entry) => (entry.points ?? 0) > currentPoints.value!,
+  ).length;
+  return betterScoresCount + 1;
+});
 
 const sharePoints = computed(() => {
-  if (gameStore.userLeaderboardEntry?.points !== undefined && gameStore.userLeaderboardEntry?.points !== null) {
-    return gameStore.userLeaderboardEntry.points
+  if (
+    gameStore.userLeaderboardEntry?.points !== undefined &&
+    gameStore.userLeaderboardEntry?.points !== null
+  ) {
+    return gameStore.userLeaderboardEntry.points;
   }
-  return currentPoints.value
-})
+  return currentPoints.value;
+});
 
 const shareRank = computed(() => {
-  if (gameStore.userLeaderboardEntry?.nickname && gameStore.leaderboardEntries.length > 0) {
+  if (
+    gameStore.userLeaderboardEntry?.nickname &&
+    gameStore.leaderboardEntries.length > 0
+  ) {
     const index = gameStore.leaderboardEntries.findIndex(
-      entry =>
+      (entry) =>
         entry.nickname === gameStore.userLeaderboardEntry.nickname &&
-        (entry.points ?? null) === (gameStore.userLeaderboardEntry.points ?? null)
-    )
-    if (index !== -1) return index + 1
+        (entry.points ?? null) ===
+          (gameStore.userLeaderboardEntry.points ?? null),
+    );
+    if (index !== -1) return index + 1;
   }
-  return projectedRank.value
-})
+  return projectedRank.value;
+});
 
 const openLeaderboard = async () => {
-  console.log('🏆 Opening leaderboard')
-  showLeaderboard.value = true
-  await gameStore.fetchLeaderboard()
-}
+  console.log("🏆 Opening leaderboard");
+  showLeaderboard.value = true;
+  await gameStore.fetchLeaderboard();
+};
 const closeLeaderboard = () => {
-  console.log('🏆 Closing leaderboard')
-  showLeaderboard.value = false
-  if (gameStore.gameOver && gameStore.foundCategories.length === 4 && !showGameOverModal.value) {
-    showGameOverModal.value = true
+  console.log("🏆 Closing leaderboard");
+  showLeaderboard.value = false;
+  if (
+    gameStore.gameOver &&
+    gameStore.foundCategories.length === 4 &&
+    !showGameOverModal.value
+  ) {
+    showGameOverModal.value = true;
   }
-}
+};
 const handleLeaderboardSubmitted = async () => {
-  await gameStore.refreshLeaderboard()
-  showLeaderboard.value = false
+  await gameStore.refreshLeaderboard();
+  showLeaderboard.value = false;
   if (gameStore.gameOver) {
-    showGameOverModal.value = true
+    showGameOverModal.value = true;
   }
-}
+};
 
 const goToWinShareModal = () => {
-  showLeaderboard.value = false
+  showLeaderboard.value = false;
   if (gameStore.gameOver) {
-    showGameOverModal.value = true
+    showGameOverModal.value = true;
   }
-}
+};
 // Share logic (same as original)
 const generateShareText = (): string => {
-  const today = new Date().toISOString().split('T')[0]
-  const foundCount = gameStore.foundCategories.length
+  const today = new Date().toISOString().split("T")[0];
+  const foundCount = gameStore.foundCategories.length;
 
   const colorEmojiMap = {
-    yellow: '🟨',
-    green: '🟩',
-    blue: '🟦',
-    purple: '🟪'
-  }
+    yellow: "🟨",
+    green: "🟩",
+    blue: "🟦",
+    purple: "🟪",
+  };
 
-  let text = `🎮 ТылМус - Результаты игры\n\n`
+  let text = `ТылМус - Результаты игры\n\n`;
 
   if (gameStore.attemptHistory && gameStore.attemptHistory.length > 0) {
-    text += `📊 История попыток:\n\n`
+    text += `История попыток:\n\n`;
 
-    gameStore.attemptHistory.forEach(attempt => {
-      if (attempt.type === 'success') {
-        const color = attempt.colors[0] || 'yellow'
-        const emoji = colorEmojiMap[color as keyof typeof colorEmojiMap] || '🟨'
-        text += `${emoji}${emoji}${emoji}${emoji}\n`
-      } else if (attempt.type === 'mistake') {
-        const fourColors = getFourColors(attempt)
-        fourColors.forEach(color => {
-          text += colorEmojiMap[color as keyof typeof colorEmojiMap] || '⬜'
-        })
-        text += '\n'
+    gameStore.attemptHistory.forEach((attempt) => {
+      if (attempt.type === "success") {
+        const color = attempt.colors[0] || "yellow";
+        const emoji =
+          colorEmojiMap[color as keyof typeof colorEmojiMap] || "🟨";
+        text += `${emoji}${emoji}${emoji}${emoji}\n`;
+      } else if (attempt.type === "mistake") {
+        const fourColors = getFourColors(attempt);
+        fourColors.forEach((color) => {
+          text += colorEmojiMap[color as keyof typeof colorEmojiMap] || "⬜";
+        });
+        text += "\n";
       }
-    })
+    });
 
     if (foundCount === 4) {
       const shownColors = gameStore.attemptHistory
-        .filter(a => a.type === 'success')
-        .map(a => a.colors[0])
-      const allColors = ['yellow', 'green', 'blue', 'purple']
-      allColors.forEach(color => {
+        .filter((a) => a.type === "success")
+        .map((a) => a.colors[0]);
+      const allColors = ["yellow", "green", "blue", "purple"];
+      allColors.forEach((color) => {
         if (!shownColors.includes(color)) {
-          const emoji = colorEmojiMap[color as keyof typeof colorEmojiMap]
-          text += `${emoji}${emoji}${emoji}${emoji}\n`
+          const emoji = colorEmojiMap[color as keyof typeof colorEmojiMap];
+          text += `${emoji}${emoji}${emoji}${emoji}\n`;
         }
-      })
+      });
     }
 
-    text += `\n`
+    text += `\n`;
   }
 
   if (foundCount === 4) {
-    text += `🏆 ПОБЕДА!\n`
+    text += `ПОБЕДА!\n`;
   } else {
-    text += `📊 РЕЗУЛЬТАТ:\n`
+    text += `РЕЗУЛЬТАТ:\n`;
   }
 
-  text += `✅ Найдено категорий: ${foundCount}/4\n`
-  text += `❌ Ошибок: ${gameStore.mistakes}\n`
+  text += `Найдено категорий: ${foundCount}/4\n`;
   if (sharePoints.value !== null && sharePoints.value !== undefined) {
-    text += `⭐ Очки: ${sharePoints.value}\n`
+    text += `Очки: ${sharePoints.value}\n`;
   }
   if (shareRank.value !== null && shareRank.value !== undefined) {
-    text += `🏅 Место в лидерборде: #${shareRank.value}\n`
+    text += `Место в лидерборде: #${shareRank.value}\n`;
   }
-  text += `📅 Дата: ${today}\n\n`
+  text += `Дата: ${today}\n\n`;
 
   if (foundCount < 4) {
-    const remaining = 4 - foundCount
-    text += `⚠️ Осталось найти: ${remaining} категори${remaining === 1 ? 'я' : 'и'}\n\n`
+    const remaining = 4 - foundCount;
+    text += `Осталось найти: ${remaining} категори${remaining === 1 ? "я" : "и"}\n\n`;
   }
 
-  text += `🔗 Играйте в ТылМус: tylmus.ru\n`
-  text += `#ТылМус #СвязатьСлова`
+  text += `Играйте в ТылМус: tylmus.ru\n`;
+  text += `#ТылМус`;
 
-  return text
-}
+  return text;
+};
 
 const getFourColors = (attempt: any): string[] => {
-  const colors = attempt.colors || []
-  if (colors.length === 4) return colors
-  if (attempt.type === 'success' && colors.length > 0) {
-    return Array(4).fill(colors[0])
+  const colors = attempt.colors || [];
+  if (colors.length === 4) return colors;
+  if (attempt.type === "success" && colors.length > 0) {
+    return Array(4).fill(colors[0]);
   }
-  const result = [...colors]
-  while (result.length < 4) result.push('gray')
-  return result
-}
+  const result = [...colors];
+  while (result.length < 4) result.push("gray");
+  return result;
+};
 
 const shareResults = async () => {
   try {
-    const shareText = generateShareText()
+    const shareText = generateShareText();
 
     if (navigator.share) {
       await navigator.share({
-        title: 'ТылМус - Мои результаты',
+        title: "ТылМус - Мои результаты",
         text: shareText,
-        url: window.location.origin
-      })
+        url: window.location.origin,
+      });
     } else {
-      await navigator.clipboard.writeText(shareText)
-      showShareNotification.value = true
-      shareNotificationText.value = 'Результат скопирован в буфер обмена!'
+      await navigator.clipboard.writeText(shareText);
+      showShareNotification.value = true;
+      shareNotificationText.value = "Результат скопирован в буфер обмена!";
       setTimeout(() => {
-        showShareNotification.value = false
-      }, 3000)
+        showShareNotification.value = false;
+      }, 3000);
     }
   } catch (error) {
-    console.error('❌ Ошибка при шаринге:', error)
+    console.error("❌ Ошибка при шаринге:", error);
     // Fallback copy
     try {
-      const textArea = document.createElement('textarea')
-      textArea.value = generateShareText()
-      document.body.appendChild(textArea)
-      textArea.select()
-      document.execCommand('copy')
-      document.body.removeChild(textArea)
+      const textArea = document.createElement("textarea");
+      textArea.value = generateShareText();
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
 
-      showShareNotification.value = true
-      shareNotificationText.value = 'Результат скопирован в буфер обмена!'
+      showShareNotification.value = true;
+      shareNotificationText.value = "Результат скопирован в буфер обмена!";
       setTimeout(() => {
-        showShareNotification.value = false
-      }, 3000)
+        showShareNotification.value = false;
+      }, 3000);
     } catch (fallbackError) {
-      console.error('❌ Fallback copy failed:', fallbackError)
-      alert('Не удалось скопировать результат. Пожалуйста, скопируйте вручную.')
+      console.error("❌ Fallback copy failed:", fallbackError);
+      alert(
+        "Не удалось скопировать результат. Пожалуйста, скопируйте вручную.",
+      );
     }
   }
-}
+};
 
 const handleGameExpired = () => {
-  console.log('Game expired, reloading...')
-  autoOpenedLeaderboardForThisGame.value = false
-  gameFinishedAt.value = null
-  gameStore.initializeGame()
-}
+  console.log("Game expired, reloading...");
+  autoOpenedLeaderboardForThisGame.value = false;
+  gameFinishedAt.value = null;
+  gameStore.initializeGame();
+};
 
-watch(() => gameStore.gameOver, (newVal) => {
-  if (!newVal) return
-  gameFinishedAt.value = new Date()
+watch(
+  () => gameStore.gameOver,
+  (newVal) => {
+    if (!newVal) return;
+    gameFinishedAt.value = new Date();
 
-  const wonGame = gameStore.foundCategories.length === 4
-  if (wonGame && !autoOpenedLeaderboardForThisGame.value && !gameStore.userLeaderboardEntry) {
-    autoOpenedLeaderboardForThisGame.value = true
-    showGameOverModal.value = false
-    openLeaderboard()
-    return
-  }
+    const wonGame = gameStore.foundCategories.length === 4;
+    if (
+      wonGame &&
+      !autoOpenedLeaderboardForThisGame.value &&
+      !gameStore.userLeaderboardEntry
+    ) {
+      autoOpenedLeaderboardForThisGame.value = true;
+      showGameOverModal.value = false;
+      openLeaderboard();
+      return;
+    }
 
-  showGameOverModal.value = true
-})
+    showGameOverModal.value = true;
+  },
+);
 
 onMounted(() => {
-  autoOpenedLeaderboardForThisGame.value = false
-  gameFinishedAt.value = null
-  gameStore.initializeGame()
-})
+  autoOpenedLeaderboardForThisGame.value = false;
+  gameFinishedAt.value = null;
+  gameStore.initializeGame();
+});
 </script>
