@@ -27,11 +27,11 @@ defineEmits<{ (e: 'click', word: string): void }>()
 
 const textSizeClass = computed(() => {
   const length = props.word.length
-  if (length <= 4) return 'text-base sm:text-lg'
-  if (length <= 6) return 'text-sm sm:text-base'
-  if (length <= 8) return 'text-sm sm:text-base'
-  if (length <= 10) return 'text-xs sm:text-sm'
-  return 'text-[0.7rem] sm:text-xs'
+  if (length <= 4) return 'text-sm sm:text-base'
+  if (length <= 6) return 'text-xs sm:text-sm'
+  if (length <= 8) return 'text-xs sm:text-sm'
+  if (length <= 10) return 'text-[0.72rem] sm:text-[0.82rem]'
+  return 'text-[0.65rem] sm:text-[0.72rem]'
 })
 </script>
 
