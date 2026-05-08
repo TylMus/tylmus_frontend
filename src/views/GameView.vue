@@ -287,7 +287,7 @@ const generateShareText = (): string => {
     sharePoints.value !== null &&
     sharePoints.value !== undefined
   ) {
-    text += `${sharePoints.value} очков (меньше лучше)\n`;
+    text += `${sharePoints.value} очков \n`;
   }
 
   text += `${today}\n\n`;
