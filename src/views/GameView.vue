@@ -159,7 +159,6 @@ import AboutSection from "../components/AboutSection.vue";
 import InstructionsSection from "../components/InstructionsSection.vue";
 import FooterSection from "../components/FooterSection.vue";
 import LeaderboardModal from "../components/LeaderboardModal.vue";
-import { toDisplayLeaderboardPoints } from "../utils/leaderboardScore";
 
 const gameStore = useGameStore();
 const showShareNotification = ref(false);
@@ -183,17 +182,16 @@ const currentDurationSeconds = computed(() => {
 
 const currentPoints = computed(() => {
   if (gameStore.foundCategories.length < 4) return null;
-  const penaltyFromMistakes = gameStore.mistakes * 250;
-  const penaltyFromTime = Math.floor(currentDurationSeconds.value / 6);
-  return Math.max(0, 5000 - penaltyFromMistakes - penaltyFromTime);
+  const multiplier = gameStore.mistakes + 1;
+  return Math.max(0, currentDurationSeconds.value * multiplier);
 });
 
 const projectedRank = computed(() => {
   if (currentPoints.value === null) return null;
-  const betterScoresCount = gameStore.leaderboardEntries.filter(
-    (entry) => (entry.points ?? 0) > currentPoints.value!,
+  const betterOrEqualScoresCount = gameStore.leaderboardEntries.filter(
+    (entry) => (entry.points ?? 0) <= currentPoints.value!,
   ).length;
-  return betterScoresCount + 1;
+  return betterOrEqualScoresCount + 1;
 });
 
 const sharePoints = computed(() => {
@@ -204,13 +202,6 @@ const sharePoints = computed(() => {
     return gameStore.userLeaderboardEntry.points;
   }
   return currentPoints.value;
-});
-
-/** Points as 0–100 for sharing */
-const shareDisplayPoints = computed(() => {
-  const raw = sharePoints.value;
-  if (raw === null || raw === undefined) return null;
-  return toDisplayLeaderboardPoints(raw);
 });
 
 const openLeaderboard = async () => {
@@ -292,10 +283,10 @@ const generateShareText = (): string => {
   }
 
   if (
-    shareDisplayPoints.value !== null &&
-    shareDisplayPoints.value !== undefined
+    sharePoints.value !== null &&
+    sharePoints.value !== undefined
   ) {
-    text += `${shareDisplayPoints.value} из 100\n`;
+    text += `${sharePoints.value} очков (меньше лучше)\n`;
   }
 
   text += `${today}\n\n`;

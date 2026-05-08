@@ -8,7 +8,7 @@ The leaderboard adds competitive tracking to Tylmus: players who complete the da
 
 - After a player wins the game (finds all 4 categories), the leaderboard modal offers an input field for a nickname.
 - Upon submission, the backend validates the nickname (length 2–12 chars, no profanity), checks that the player has not already submitted for the day, and records the entry in the SQLite database.
-- The leaderboard modal displays all entries for the current day, sorted by highest points first, then by submission time (earlier is better). The player's own entry is highlighted.
+- The leaderboard modal displays all entries for the current day, sorted by lowest points first, then by submission time (earlier is better). The player's own entry is highlighted.
 - If the player has already submitted, the input form is hidden and their entry is shown in the list.
 
 ---
@@ -53,14 +53,14 @@ Unique constraint on `(game_date, user_hash)` ensures one entry per player per d
 
 #### Points System
 
-Leaderboard score formula:
+Backend stores a raw integer `points` computed at submit time:
 
-`points = max(0, 5000 - (mistakes * 250) - floor(duration_seconds / 6))`
+`points = max(0, duration_seconds * (mistakes + 1))`
 
-- Each mistake costs **250 points**
-- Time costs roughly **10 points per minute** (`duration_seconds / 6`)
-- Higher points rank higher
-- Tie-breaker: earlier `submitted_at` ranks higher
+- **Time:** each elapsed second from game start (same clock the backend uses on submit) counts as **1 point** before the multiplier.
+- **Mistake multiplier:** **0 mistakes → ×1**, **1 mistake → ×2**, **2 mistakes → ×3**, and so on (`mistakes + 1`).
+- Lower raw `points` rank higher (faster completion and fewer mistakes).
+- Tie-breaker: earlier `submitted_at` ranks higher.
 
 ---
 
@@ -87,7 +87,7 @@ New actions:
     - Input field (2–12 chars).
     - Submit button – sends `POST /api/leaderboard/submit?nickname=...`.
     - Error display.
-- Leaderboard list: shows rank, nickname, points (and mistakes as secondary info). Highlights the current user's row.
+- Leaderboard list: shows rank, nickname, raw **points** (lower is better), with mistakes as secondary info. Highlights the current user's row.
   - Footer note if user already submitted.
 - Responsive design: input and button stack vertically on mobile, use smaller text.
 
@@ -100,7 +100,8 @@ New actions:
 - Imports `LeaderboardModal` and manages its visibility with `showLeaderboard` ref.
 - Defines `openLeaderboard()` that sets `showLeaderboard = true` and calls `gameStore.fetchLeaderboard()`.
 - Computed `gameDate` (extracted from `gameStore.gameDisplay` or current date).
-- Passes `gameComplete` (`gameStore.foundCategories.length === 4`), `userLeaderboardEntry`, and `leaderboardEntries` to the modal.
+- Computed `currentPoints` matches the backend: elapsed seconds × `(mistakes + 1)` after a win (used for projected rank vs other entries’ raw scores; lower is better).
+- Passes `gameComplete`, `userLeaderboardEntry`, `leaderboardEntries`, `currentPoints`, and `projectedRank` to the modal.
 - Handles `@submitted` by calling `gameStore.refreshLeaderboard()`.
 
 ---
