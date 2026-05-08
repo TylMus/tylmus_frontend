@@ -32,6 +32,11 @@ export const useGameStore = defineStore('game', () => {
   const dailyInfo = ref<DailyInfo | null>(null)
   const wordColors = ref<Record<string, string>>({})
 
+  /** Server-side play timer start (first word tapped that day); matches leaderboard cookie */
+  const playStartedAt = ref<string | null>(null)
+  /** In-flight `startPlaySession` request so submit can await it before `check_selection` */
+  const playSessionPromise = ref<Promise<void> | null>(null)
+
   // Leaderboard state
   const leaderboardEntries = ref<any[]>([])
   const userLeaderboardEntry = ref<any | null>(null)
@@ -166,6 +171,7 @@ export const useGameStore = defineStore('game', () => {
       }
       
       const response = await gameApi.getGame()
+      playStartedAt.value = response.started_at ?? null
       gameDate.value = response.game_date
       if (response.word_colors) {
         wordColors.value = response.word_colors
@@ -201,6 +207,7 @@ export const useGameStore = defineStore('game', () => {
       gameOver.value = false
       wordColors.value = {}
       attemptHistory.value = []
+      playStartedAt.value = null
     } finally {
       loading.value = false
     }
@@ -213,6 +220,27 @@ export const useGameStore = defineStore('game', () => {
     isNetworkErrorMessage.value = false
   }
 
+  const ensurePlaySessionStarted = () => {
+    if (gameOver.value || playStartedAt.value || playSessionPromise.value) return
+    playSessionPromise.value = gameApi
+      .startPlaySession()
+      .then((r) => {
+        playStartedAt.value = r.started_at
+      })
+      .catch((err) => {
+        console.error('Failed to start play session:', err)
+      })
+      .finally(() => {
+        playSessionPromise.value = null
+      })
+  }
+
+  const awaitPlaySessionForSubmit = async () => {
+    if (playStartedAt.value) return
+    ensurePlaySessionStarted()
+    if (playSessionPromise.value) await playSessionPromise.value
+  }
+
   const toggleWord = (word: string) => {
     if (gameOver.value) return
     const index = selectedWords.value.indexOf(word)
@@ -220,6 +248,7 @@ export const useGameStore = defineStore('game', () => {
       selectedWords.value.splice(index, 1)
     } else if (selectedWords.value.length < 4) {
       selectedWords.value.push(word)
+      ensurePlaySessionStarted()
     }
     console.log('🔘 Selected words:', selectedWords.value)
   }
@@ -327,6 +356,7 @@ export const useGameStore = defineStore('game', () => {
     console.log('📤 Submitting guess:', selectedWords.value)
     loading.value = true
     try {
+      await awaitPlaySessionForSubmit()
       const result = await gameApi.checkSelection(selectedWords.value)
       if (result.valid) {
         handleSuccess(result)
@@ -386,6 +416,7 @@ export const useGameStore = defineStore('game', () => {
     dailyInfo,
     attemptHistory,
     wordColors,
+    playStartedAt,
     gameStatus,
     gameDisplay,
     leaderboardEntries,

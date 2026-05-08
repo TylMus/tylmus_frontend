@@ -174,8 +174,9 @@ const gameDate = computed(
 );
 
 const currentDurationSeconds = computed(() => {
-  if (!gameStore.attemptHistory?.length) return 0;
-  const startedAt = new Date(gameStore.attemptHistory[0].timestamp).getTime();
+  const startISO = gameStore.playStartedAt;
+  if (!startISO) return 0;
+  const startedAt = new Date(startISO).getTime();
   const endedAt = (gameFinishedAt.value ?? new Date()).getTime();
   return Math.max(0, Math.floor((endedAt - startedAt) / 1000));
 });

@@ -22,6 +22,8 @@ export interface GameResponse {
   mistakes?: number
   game_complete?: boolean // ADDED
   word_colors?: Record<string, string> // ADDED: word to color mapping
+  /** ISO timestamp when play timer started (first word selection that day); omitted if no session yet */
+  started_at?: string | null
 }
 
 export interface ApiResponse<T> {
@@ -38,6 +40,10 @@ export interface CheckSelectionResponse {
   mistakes?: number
   category_color?: string // ADDED: color of found category
   selected_colors?: string[] // ADDED: colors of selected words for mistakes
+}
+
+export interface StartPlaySessionResponse {
+  started_at: string
 }
 
 export interface DailyInfo {

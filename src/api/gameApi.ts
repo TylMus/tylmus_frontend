@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { CheckSelectionResponse, DailyInfo, GameResponse } from '../types/game'
+import type { CheckSelectionResponse, DailyInfo, GameResponse, StartPlaySessionResponse } from '../types/game'
 
 const API_BASE_URL = 'https://tylmus-tylmus-backend-a4a1.twc1.net'
 
@@ -44,6 +44,11 @@ export const gameApi = {
       console.error('❌ Failed to fetch game:', error)
       throw error
     }
+  },
+
+  async startPlaySession(): Promise<StartPlaySessionResponse> {
+    const response = await api.post<StartPlaySessionResponse>('/api/start_play_session')
+    return response.data
   },
 
   async checkSelection(selectedWords: string[]): Promise<CheckSelectionResponse> {
