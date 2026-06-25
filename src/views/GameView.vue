@@ -1,5 +1,13 @@
 <template>
   <div class="relative min-h-screen overflow-x-hidden">
+    <!-- Предупреждение о закрытии сайта -->
+    <NotificationPopup
+      v-if="showShutdownNotice"
+      type="error"
+      :text="shutdownNoticeText"
+      @close="closeShutdownNotice"
+    />
+
     <!-- Notifications -->
     <NotificationPopup
       v-if="gameStore.showMessage && !gameStore.gameOver"
@@ -167,6 +175,13 @@ const showGameOverModal = ref(true);
 const showLeaderboard = ref(false);
 const autoOpenedLeaderboardForThisGame = ref(false);
 const gameFinishedAt = ref<Date | null>(null);
+
+// Уведомление о прекращении работы сайта
+const showShutdownNotice = ref(true);
+const shutdownNoticeTimer = ref<ReturnType<typeof setTimeout> | null>(null);
+const shutdownNoticeText =
+  "Сайт прекратит работу в следующем месяце (ориентировочно в начале). Спасибо, что играли!";
+
 const gameDate = computed(
   () =>
     gameStore.gameDisplay?.split(" ")[0] ||
@@ -210,6 +225,7 @@ const openLeaderboard = async () => {
   showLeaderboard.value = true;
   await gameStore.fetchLeaderboard();
 };
+
 const closeLeaderboard = () => {
   console.log("🏆 Closing leaderboard");
   showLeaderboard.value = false;
@@ -221,6 +237,7 @@ const closeLeaderboard = () => {
     showGameOverModal.value = true;
   }
 };
+
 const handleLeaderboardSubmitted = async () => {
   await gameStore.refreshLeaderboard();
   showLeaderboard.value = false;
@@ -235,6 +252,7 @@ const goToWinShareModal = () => {
     showGameOverModal.value = true;
   }
 };
+
 const generateShareText = (): string => {
   const today = new Date().toISOString().split("T")[0];
   const foundCount = gameStore.foundCategories.length;
@@ -283,10 +301,7 @@ const generateShareText = (): string => {
     text += "\n";
   }
 
-  if (
-    sharePoints.value !== null &&
-    sharePoints.value !== undefined
-  ) {
+  if (sharePoints.value !== null && sharePoints.value !== undefined) {
     text += `${sharePoints.value} очков \n`;
   }
 
@@ -358,6 +373,15 @@ const handleGameExpired = () => {
   gameStore.initializeGame();
 };
 
+// Закрыть предупреждение о закрытии сайта
+const closeShutdownNotice = () => {
+  showShutdownNotice.value = false;
+  if (shutdownNoticeTimer.value) {
+    clearTimeout(shutdownNoticeTimer.value);
+    shutdownNoticeTimer.value = null;
+  }
+};
+
 watch(
   () => gameStore.gameOver,
   (newVal) => {
@@ -384,5 +408,11 @@ onMounted(() => {
   autoOpenedLeaderboardForThisGame.value = false;
   gameFinishedAt.value = null;
   gameStore.initializeGame();
+
+  // Показать предупреждение на 10 секунд
+  showShutdownNotice.value = true;
+  shutdownNoticeTimer.value = setTimeout(() => {
+    showShutdownNotice.value = false;
+  }, 10000);
 });
 </script>

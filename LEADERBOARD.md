@@ -1,122 +1,92 @@
-## Leaderboard Feature — Project Instructions
+## Leaderboard — project instructions
 
-The leaderboard adds competitive tracking to Tylmus: players who complete the daily game can submit a nickname and see how they rank against others who played the same day. Submissions are one per player per day, and nicknames are filtered for profanity (English, Russian, Yakut). The leaderboard is accessible via a trophy icon in the header.
+**ТылМус (Tylmus)** is a daily word-grouping puzzle (four categories, sixteen words). The **leaderboard** lets players who finished today’s puzzle submit a **nickname** and compare **score** (fewer points is better) with others for the same **calendar day in Yakutsk time (UTC+9)**—aligned with the backend’s `timezone_yakt` and the store’s `getYakutskDateString()` for local history.
 
----
-
-### How It Works
-
-- After a player wins the game (finds all 4 categories), the leaderboard modal offers an input field for a nickname.
-- Upon submission, the backend validates the nickname (length 2–12 chars, no profanity), checks that the player has not already submitted for the day, and records the entry in the SQLite database.
-- The leaderboard modal displays all entries for the current day, sorted by lowest points first, then by submission time (earlier is better). The player's own entry is highlighted.
-- If the player has already submitted, the input form is hidden and their entry is shown in the list.
+The leaderboard opens from the **trophy** control in `GameHeader.vue` (tooltip: «Таблица лидеров»). On a **win**, if the user has **not** yet submitted today, `GameView.vue` can **auto-open** the leaderboard once (`autoOpenedLeaderboardForThisGame`) before the usual game-over share flow.
 
 ---
 
-### Backend Components
+### User flow
 
-#### Database Table (`leaderboard`)
-
-Created automatically on startup by `leaderboard.init_leaderboard_table()`.
-
-| Column       | Type      | Description                                      |
-|--------------|-----------|--------------------------------------------------|
-| id           | INTEGER   | Primary key, auto‑increment                      |
-| game_date    | TEXT      | Date of the game (ISO format, e.g. `2026-03-06`)|
-| user_hash    | TEXT      | Unique identifier from cookie                    |
-| nickname     | TEXT      | User‑chosen nickname (2–12 chars, filtered)      |
-| mistakes     | INTEGER   | Number of mistakes the player had in the game    |
-| duration_seconds | INTEGER | Seconds from game start to leaderboard submit   |
-| points       | INTEGER   | Final score used for ranking                      |
-| submitted_at | TIMESTAMP | Defaults to current timestamp                    |
-
-Unique constraint on `(game_date, user_hash)` ensures one entry per player per day.
-
-#### Profanity Filter (`profanity.py`)
-
-- Contains sets of banned words in English, Russian, and Yakut.
-- `contains_profanity(nickname: str) -> bool` returns `True` if any banned word appears as a whole word (regex word boundaries) in the nickname (case‑insensitive).
-- Lists are minimal but can be extended as needed.
-
-#### New Endpoints
-
-| Method | Endpoint                       | Description                                                                 |
-|--------|--------------------------------|-----------------------------------------------------------------------------|
-| POST   | `/api/leaderboard/submit`      | Accepts `nickname` query param, validates, and inserts entry. Returns 200 on success, 400 on validation error, 409 if already submitted. |
-| GET    | `/api/leaderboard/today`       | Returns `{ entries: [...], user_entry: {...} }` for the current day.        |
-
-#### Integration with Existing Code
-
-- In `main.py`, the startup event calls `leaderboard.init_leaderboard_table()`.
-- Both endpoints use `user_hash` from the cookie (same as game progress).
-- Mistakes and game start time are taken from the user's progress cookie. The backend computes `duration_seconds` on submission and calculates points before saving. The backend ensures the game is completed before accepting a submission.
-
-#### Points System
-
-Backend stores a raw integer `points` computed at submit time:
-
-`points = max(0, duration_seconds * (mistakes + 1))`
-
-- **Time:** each elapsed second from game start (same clock the backend uses on submit) counts as **1 point** before the multiplier.
-- **Mistake multiplier:** **0 mistakes → ×1**, **1 mistake → ×2**, **2 mistakes → ×3**, and so on (`mistakes + 1`).
-- Lower raw `points` rank higher (faster completion and fewer mistakes).
-- Tie-breaker: earlier `submitted_at` ranks higher.
+- After all **four** categories are found, the modal can show a **nickname** form (if there is no `user_entry` yet).
+- The player may **Отправить** (submit), **Пропустить** (close without submitting), or after already being on the board use **К результату** (`proceed`) to continue to the win / share modal.
+- **GET** loads today’s rows; the current user’s row is highlighted when **`entry.nickname === userEntry.nickname`**.
+- **Ranking:** lower **`points`** wins; ties favor an **earlier submit** (`submitted_at` on the server—see backend ordering).
 
 ---
 
-### Frontend Components
+### Backend (reference for the frontend)
 
-#### Store (`gameStore.ts`)
+#### Table `leaderboard`
 
-New reactive state:
-- `leaderboardEntries: ref<any[]>([])`
-- `userLeaderboardEntry: ref<any | null>(null)`
-- `loadingLeaderboard: ref(false)`
+Created on startup via backend `leaderboard.init_leaderboard_table()` (SQLite `wordsdb.db` in the Python app).
 
-New actions:
-- `async fetchLeaderboard()` – calls `GET /api/leaderboard/today`, populates entries and user_entry, falls back to empty array on error.
-- `async refreshLeaderboard()` – alias for `fetchLeaderboard()` (used after submission).
+| Column | Type | Role |
+|--------|------|------|
+| id | INTEGER | Primary key |
+| game_date | TEXT | Yakutsk calendar date `YYYY-MM-DD` |
+| user_hash | TEXT | Stable id from cookie |
+| nickname | TEXT | 2–12 chars after filters |
+| mistakes | INTEGER | Mistake count at submit |
+| duration_seconds | INTEGER | Server-derived elapsed seconds from `started_at` |
+| points | INTEGER | `max(0, duration_seconds * (mistakes + 1))` |
+| submitted_at | TIMESTAMP | Server time at insert |
 
-#### Modal (`LeaderboardModal.vue`)
+Unique on **`(game_date, user_hash)`** — one submission per player per day.
 
-- Triggered by clicking the 🏆 icon in `GameHeader.vue`.
-- Props: `show`, `gameDate`, `gameComplete`, `userEntry`, `entries`.
-- Emits: `close`, `submitted`.
-- Contains:
-  - Submission form (visible only if `gameComplete && !userEntry`):
-    - Input field (2–12 chars).
-    - Submit button – sends `POST /api/leaderboard/submit?nickname=...`.
-    - Error display.
-- Leaderboard list: shows rank, nickname, raw **points** (lower is better), with mistakes as secondary info. Highlights the current user's row.
-  - Footer note if user already submitted.
-- Responsive design: input and button stack vertically on mobile, use smaller text.
+#### Profanity
 
-#### Header (`GameHeader.vue`)
+`profanity.contains_profanity` (word-boundary, case-insensitive) covers **English, Russian, and Yakut** word lists.
 
-- Added a trophy button that emits `open-leaderboard` to `GameView.vue`.
+#### HTTP API
 
-#### Game View (`GameView.vue`)
-
-- Imports `LeaderboardModal` and manages its visibility with `showLeaderboard` ref.
-- Defines `openLeaderboard()` that sets `showLeaderboard = true` and calls `gameStore.fetchLeaderboard()`.
-- Computed `gameDate` (extracted from `gameStore.gameDisplay` or current date).
-- Computed `currentPoints` matches the backend: elapsed seconds × `(mistakes + 1)` after a win (used for projected rank vs other entries’ raw scores; lower is better).
-- Passes `gameComplete`, `userLeaderboardEntry`, `leaderboardEntries`, `currentPoints`, and `projectedRank` to the modal.
-- Handles `@submitted` by calling `gameStore.refreshLeaderboard()`.
+| Method | Path | Notes |
+|--------|------|--------|
+| POST | `/api/leaderboard/submit` | Query param **`nickname`**. Validates length, profanity, same Yakutsk day, **four** categories found, and not already submitted. Success **200**; validation / duplicate / wrong state **400** with Russian `error` text in JSON. |
+| GET | `/api/leaderboard/today` | JSON **`{ entries, user_entry }`** for Yakutsk “today”. |
 
 ---
 
-### Deployment Notes
+### Frontend implementation
 
-- **Backend**: The SQLite database file (`wordsdb.db`) will have the `leaderboard` table created automatically on first startup. No migration needed.
-- **Frontend**: Ensure the nginx configuration proxies `/api/leaderboard` to the backend (already part of the general `/api/` proxy).
-- **Environment**: No new environment variables required.
+#### API (`src/api/gameApi.ts`)
+
+- **`getTodayLeaderboard()`** → `GET /api/leaderboard/today`.
+- **`submitLeaderboardNickname(nickname)`** → `POST /api/leaderboard/submit` with **`params: { nickname }`**.
+
+#### Store (`src/stores/gameStore.ts`)
+
+- State: **`leaderboardEntries`**, **`userLeaderboardEntry`**, **`loadingLeaderboard`**.
+- **`fetchLeaderboard`**: fills entries and `user_entry`, clears both on failure.
+- **`refreshLeaderboard`**: awaits **`fetchLeaderboard`** again (e.g. after submit).
+
+#### Modal (`src/components/LeaderboardModal.vue`)
+
+- **Props:** `show`, `gameDate`, `gameComplete`, `userEntry`, `entries`, `currentPoints`, `projectedRank`.
+- **Emits:** `close`, `submitted`, **`proceed`** (to game-over / share after already on the board).
+- **Nickname rules (client):** trim length 2–12; regex **`^[А-Яа-яЁё0-9 _.-]+$`** (Cyrillic-first; digits and a few punctuation chars allowed). Server still enforces length + profanity; Cyrillic-only is **not** enforced in `routes_leaderboard.py`, so other characters could theoretically be accepted if the UI were bypassed.
+- **Preview score:** copy explains seconds × **`(mistakes + 1)`**; **`projectedRank`** counts existing entries with **`points <= currentPoints`** and adds one (approximate rank if submitting now).
+
+#### Game shell (`src/views/GameView.vue`)
+
+- **`gameDate`**: first **whitespace-separated token** of **`gameStore.gameDisplay`**, else ISO `YYYY-MM-DD`—used as the small date line in the modal header (Russian label prefix, not necessarily a raw ISO date).
+- **`currentPoints` / `currentDurationSeconds`:** use **`playStartedAt`** (server play session) and **`gameFinishedAt`** (set when `gameOver` becomes true) so the preview matches the server timer philosophy.
+- **`openLeaderboard`:** shows modal and **`await gameStore.fetchLeaderboard()`**.
+- **`handleLeaderboardSubmitted`:** **`refreshLeaderboard`**, closes modal, re-opens **`GameOverModal`** when `gameOver` is true.
+- **`goToWinShareModal`:** handles **`@proceed`** from the modal.
 
 ---
 
-### Future Enhancements
+### Deployment
 
-- Add pagination if leaderboard grows large.
-- Allow viewing previous days' leaderboards.
-- Add a "share my rank" button.
-- Implement nickname uniqueness across days (currently per‑day unique only via user_hash).
+- **Backend:** `leaderboard` table is created automatically; no separate migration file required for a fresh DB.
+- **Frontend container:** `nginx.conf` already proxies **`/api/`** (including leaderboard routes) to the backend host configured in that file.
+
+---
+
+### Possible enhancements
+
+- Paginate very large daily boards.
+- Browse previous Yakutsk days in the UI.
+- “Share my rank” deep link.
+- Stricter server-side nickname alphabet to match the modal’s Cyrillic rule.
